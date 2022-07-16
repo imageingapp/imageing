@@ -88,7 +88,6 @@ async function uploadFile(file) {
             }
             images.push({ localUrl: file.uri, url: parsedResponse.data.url, date: Date.now() });
             await AsyncStorage.setItem('images', JSON.stringify(images));
-            console.log(file)
             
             Toast.show({
                 type: 'success',
