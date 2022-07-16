@@ -1,10 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-	Button,
 	Dimensions,
 	FlatList,
 	Image,
-	Modal,
 	StyleSheet,
 	TouchableOpacity,
 	View

@@ -9,7 +9,6 @@ const PanContainer = ({ children, setIsDragging }) => {
 
 	const onRelease = (_, gestureState) => {
 		setIsDragging(false);
-		console.log(_, gestureState, scale, translationXY);
 		if (gestureState.dy > 180 && _initialTouches.length === 1) {
 			return false;
 		}
