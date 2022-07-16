@@ -14,4 +14,4 @@ To get ready to work on the codebase, please do the following:
 3. Install dependencies `npm install`
 4. Make changes to the codebase
 5. Test your changes by starting an expo server `expo start`
-6. [Submit a pull request](https://github.com/ImageingApp/Imageing/compare) (Make sure you follow the [conventional commit format](https://github.com/ImageingApp/Imageing/tree/main/.github/COMMIT_CONVENTION.md))
+6. [Submit a pull request](https://github.com/ImageingApp/Imageing/compare)
