@@ -4,9 +4,9 @@ import { styles } from '../Styles';
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
 import { uploadAsync, FileSystemUploadType } from 'expo-file-system';
 import { setStringAsync } from 'expo-clipboard';
+import { storeImage } from '../utils/storage';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Placeholder from '../assets/placeholder.png';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -18,7 +18,7 @@ export default function HomeScreen() {
 
     return (
         <View style={ styles.fileWrap }>
-            <View style={ styles.previewContainer }>
+            <View style={ styles.container }>
                 <Image style={ styles.preview } source={image}></Image>
             </View>
             <View style={ styles.buttonContainer }>
@@ -78,16 +78,7 @@ async function uploadFile(file) {
         if (response.status === 200) {
             const parsedResponse = JSON.parse(response.body);
             await setStringAsync(parsedResponse.data.url).catch(console.log);
-
-            // Add the url to localstorage with a preview
-            const stored = await AsyncStorage.getItem('images');
-            const images = stored ? JSON.parse(stored) : [];
-            if (images.length > 9) {
-                images.sort((a, b) => a.date - b.date);
-                images.shift();
-            }
-            images.push({ localUrl: file.uri, url: parsedResponse.data.url, date: Date.now() });
-            await AsyncStorage.setItem('images', JSON.stringify(images));
+            await storeImage(file.uri, parsedResponse.data.url);
             
             Toast.show({
                 type: 'success',
