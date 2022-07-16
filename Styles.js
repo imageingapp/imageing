@@ -1,7 +1,7 @@
 import { Dimensions, StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-    previewContainer: {
+    container: {
         flex: 15,
         alignItems: 'center',
         justifyContent: 'center',
