@@ -24,7 +24,8 @@
 				"foregroundImage": "./assets/adaptive-icon.png",
 				"backgroundColor": "#FFFFFF"
 			},
-			"package": "org.imageing.app"
+			"package": "org.imageing.app",
+			"versionCode": 2
 		},
 		"web": {
 			"favicon": "./assets/favicon.png"
