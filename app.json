@@ -26,9 +26,6 @@
 			},
 			"package": "org.imageing.app",
 			"versionCode": 2
-		},
-		"web": {
-			"favicon": "./assets/favicon.png"
 		}
 	}
 }
