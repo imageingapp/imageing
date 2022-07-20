@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View } from 'react-native';
-import ImageGallery from '../components/Image Gallery/ImageGallery.js';
-import { getImages } from '../utils/storage.js';
+import ImageGallery from '../components/Image Gallery/ImageGallery';
+import { getImages } from '../src/AsyncStorage';
 import { styles } from '../Styles.js';
 
 export default function GalleryScreen() {
