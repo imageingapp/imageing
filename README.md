@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://imageing.org/shared/6cJAyfV.png" height="250" width="250" >
+  <img src="https://imageing.org/assets/Mark.png" height="250" width="250" >
 </p>
 
 ## 🚀 About
