@@ -66,8 +66,8 @@ async function pickFile() {
 		quality: 1,
 		allowsMultipleSelection: false
 	}).catch(console.log);
-	if (!picked.cancelled) {
-		result = { uri: picked.uri };
+	if (!picked.canceled) {
+		result = { uri: picked.assets[0].uri };
 	}
 	return result;
 }
@@ -75,10 +75,9 @@ async function pickFile() {
 async function uploadFile(file) {
 	const url = 'https://api.imgbb.com/1/upload';
 	const method = 'POST';
-	const token = '246bade4022a21d2b30d2033be9625c8';
+	const token = '65d293ca51875365250f259903bdb07b';
 	const fileFormName = 'image';
 
-	console.log(url, file, method, fileFormName, token)
 	let response;
 	try {
 		response = await uploadAsync(url, file.uri, {
@@ -101,8 +100,7 @@ async function uploadFile(file) {
 		if (response.status === 200) {
 			const parsedResponse = JSON.parse(response.body);
 			await setStringAsync(parsedResponse.data.url).catch(console.log);
-			await storeImage(file.uri, parsedResponse.data.url);
-
+			await storeImage(file.uri, parsedResponse.data);
 			Toast.show({
 				type: 'success',
 				text1: 'Upload completed',
