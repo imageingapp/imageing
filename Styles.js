@@ -147,6 +147,19 @@ export const styles = StyleSheet.create({
 		justifyContent: 'center',
 		flexDirection: 'column',
 		alignItems: 'center',
-		justifyContent: 'center'
-	}
+	},
+	modal: {
+		flex: 1,
+		alignItems: 'center',
+		padding: 100,
+	},
+	text: {
+		color: '#3f2949',
+		marginTop: 10,
+	},
+	buttonContainerGallery: {
+		flex: 2,
+		flexDirection: 'row',
+		padding: 50
+	},
 });

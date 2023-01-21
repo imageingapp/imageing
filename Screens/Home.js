@@ -78,6 +78,7 @@ async function uploadFile(file) {
 	const token = '246bade4022a21d2b30d2033be9625c8';
 	const fileFormName = 'image';
 
+	console.log(url, file, method, fileFormName, token)
 	let response;
 	try {
 		response = await uploadAsync(url, file.uri, {
@@ -88,6 +89,7 @@ async function uploadFile(file) {
 			parameters: { key: token }
 		});
 	} catch (error) {
+		console.log(error)
 		Toast.show({
 			type: 'error',
 			text1: 'An error occured!',
