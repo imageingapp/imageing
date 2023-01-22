@@ -1,41 +1,91 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { uploadAsync, FileSystemUploadType } from 'expo-file-system';
+import { setStringAsync } from "expo-clipboard";
 
-export async function uploadImage(file, Toast) {
+export async function uploadImage(file, Toast, setNoPick, setProgress, next, resolve) {
 	// Get Host to check what settings should be used
 	const host = await getHost();
 	// Get Settings from host
 	const settings = await getHostOptions(host);
 	// Configure upload data
 	let url = '';
-	const uploadData = {
-		httpMethod: 'POST',
-		headers: { 'Content-Type': 'multipart/form-data' },
-		uploadType: FileSystemUploadType.MULTIPART,
-		fieldName: '',
-		parameters: {}
-	};
+	const formData = new FormData();
 	switch (host) {
 		case 'ImgBB': {
 			url = 'https://api.imgbb.com/1/upload';
-			uploadData.fieldName = 'image';
-			uploadData.parameters = { key: settings.apiKey };
+			formData.append('image', {
+				uri: file.uri,
+				type: 'image/jpeg',
+				name: 'upload.jpeg'
+			})
 			break;
 		}
 		case 'SXCU': {
-			// Only multipart/form-data support yet
 			url = settings.apiUrl;
-			uploadData.fieldName = settings.apiFieldname;
-			uploadData.parameters = {
-				endpoint: settings.apiEndpoint,
-				token: settings.apiToken
-			};
+			formData.append(settings.apiFieldname, {
+				uri: file.uri,
+				type: 'image/jpeg',
+				name: 'upload.jpeg'
+			})
+			formData.append('endpoint', settings.apiEndpoint)
+			formData.append('token', settings.apiToken)
 		}
 	}
 
-	let response;
 	try {
-		response = await uploadAsync(url, file.uri, uploadData);
+		const uploadTask = new XMLHttpRequest();
+		uploadTask.open('POST', url);
+		uploadTask.onload = async () => {
+			setNoPick(false);
+			console.log(uploadTask.response)
+			let response;
+			try {
+				response = JSON.parse(uploadTask.response);
+			} catch (err) {
+				response = null;
+			}
+
+			if (response) {
+				if (uploadTask.status === 200) {
+					await setStringAsync(response.data?.url ?? response.url).catch(console.log);
+					await storeImage(file.uri, response);
+					Toast.show({
+						type: 'success',
+						text1: 'Upload completed',
+						text2: `Image URL copied to the clipboard`
+					});
+				} else {
+					Toast.show({
+						type: 'error',
+						text1: `Error ${
+							response.status_code ?? response.http_code
+						}`,
+						text2: `${
+							response.error.message ?? response.error_msg
+						}`
+					});
+				}
+			} else {
+				Toast.show({
+					type: 'error',
+					text1: 'Error',
+					text2: 'An unknown error occured, is the URL correct?'
+				});
+			}
+			setProgress(0);
+			resolve();
+			next();
+		}
+		uploadTask.onerror = (e) => console.log(e);
+		uploadTask.ontimeout = (e) => console.log(e);
+
+		uploadTask.send(formData);
+
+		if (uploadTask.upload) {
+			uploadTask.upload.onprogress = ({ total, loaded }) => {
+				const uploadProgress = loaded / total;
+				setProgress(uploadProgress);
+			}
+		}
 	} catch (error) {
 		console.log(error);
 		Toast.show({
@@ -44,7 +94,6 @@ export async function uploadImage(file, Toast) {
 			text2: `${error}`
 		});
 	}
-	return response;
 }
 
 export async function storeImage(localUrl, uploadData) {
