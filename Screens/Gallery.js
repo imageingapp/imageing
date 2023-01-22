@@ -50,6 +50,7 @@ export default function GalleryScreen() {
 				transparent={false}
 				visible={showModal}
 				onRequestClose={() => {
+					console.log(fullImage);
 					setFullImage({});
 					setShowModal(false);
 					console.log('Modal has been closed.');

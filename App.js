@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar';
 import HomeScreen from './Screens/Home';
 import GalleryScreen from './Screens/Gallery';
 import SettingScreen from './Screens/Settings';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createBottomTabNavigator();
 
