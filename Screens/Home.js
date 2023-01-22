@@ -79,11 +79,10 @@ async function pickFile() {
 
 async function uploadFile(file) {
 	const response = await uploadImage(file, Toast);
-	console.log(response);
 
 	if (response) {
+		const parsedResponse = JSON.parse(response.body);
 		if (response.status === 200) {
-			const parsedResponse = JSON.parse(response.body);
 			console.log(parsedResponse);
 			await setStringAsync(
 				(await getHost()) === 'ImgBB'
@@ -99,8 +98,8 @@ async function uploadFile(file) {
 		} else {
 			Toast.show({
 				type: 'error',
-				text1: 'An error occured!',
-				text2: `Error ${responseJSON.http_code}: ${responseJSON.error}`
+				text1: `Error ${parsedResponse.status_code ?? parsedResponse.http_code}`,
+				text2: `${parsedResponse.error.message ?? parsedResponse.error_msg}`
 			});
 		}
 	}
