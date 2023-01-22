@@ -1,15 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setStringAsync } from "expo-clipboard";
+import {aHosts} from "./hosts";
 
 export async function uploadImage(file, Toast, setNoPick, setProgress, next, resolve) {
 	// Get Host to check what settings should be used
 	const host = await getHost();
 	// Get Settings from host
-	const settings = await getHostOptions(host);
+	const settings = await getSettings();
 	// Configure upload data
 	let url = '';
 	const formData = new FormData();
-	switch (host) {
+	switch (host.name) {
 		case 'ImgBB': {
 			url = 'https://api.imgbb.com/1/upload';
 			formData.append('image', {
@@ -17,6 +18,7 @@ export async function uploadImage(file, Toast, setNoPick, setProgress, next, res
 				type: 'image/jpeg',
 				name: 'upload.jpeg'
 			})
+			formData.append('key', settings.apiKey)
 			break;
 		}
 		case 'SXCU': {
@@ -36,7 +38,6 @@ export async function uploadImage(file, Toast, setNoPick, setProgress, next, res
 		uploadTask.open('POST', url);
 		uploadTask.onload = async () => {
 			setNoPick(false);
-			console.log(uploadTask.response)
 			let response;
 			try {
 				response = JSON.parse(uploadTask.response);
@@ -46,8 +47,8 @@ export async function uploadImage(file, Toast, setNoPick, setProgress, next, res
 
 			if (response) {
 				if (uploadTask.status === 200) {
-					await setStringAsync(response.data?.url ?? response.url).catch(console.log);
-					await storeImage(file.uri, response);
+					await setStringAsync(host.getUrl(response)).catch(console.log);
+					await storeImage(file.uri, response, host);
 					Toast.show({
 						type: 'success',
 						text1: 'Upload completed',
@@ -96,7 +97,7 @@ export async function uploadImage(file, Toast, setNoPick, setProgress, next, res
 	}
 }
 
-export async function storeImage(localUrl, uploadData) {
+export async function storeImage(localUrl, uploadData, host) {
 	const stored = await AsyncStorage.getItem('images');
 	const images = stored ? JSON.parse(stored) : [];
 	if (images.length > 9) {
@@ -105,8 +106,8 @@ export async function storeImage(localUrl, uploadData) {
 	}
 	images.push({
 		localUrl,
-		url: uploadData.data?.url ?? uploadData.url,
-		deleteUrl: uploadData.data?.delete_url ?? uploadData.deletion_url,
+		url: host.getUrl(uploadData),
+		deleteUrl: host.getDeleteUrl(uploadData),
 		date: Date.now()
 	});
 	await AsyncStorage.setItem('images', JSON.stringify(images));
@@ -134,33 +135,24 @@ export async function getImages() {
 
 export async function getHost() {
 	const stored = await AsyncStorage.getItem('host');
-	return stored ?? 'ImgBB';
+	return aHosts.find(host => host.name === stored) ?? aHosts[0];
 }
 
 export async function setHost(host) {
-	await AsyncStorage.setItem('host', host);
+	await AsyncStorage.setItem('host', host.name);
 }
 
-/**
- *	ImgBB:
- * 	{ apiKey: '' }
- *
- *	SXCU:
- *	{ apiUrl: '', apiToken: '', apiEndpoint: '', apiFieldname: '' }
- */
-export async function getHostOptions(host) {
-	const stored = await AsyncStorage.getItem(host);
+export async function getSettings() {
+	const stored = await AsyncStorage.getItem('settings');
 	const parsed = stored
 		? JSON.parse(stored)
-		: host === 'ImgBB'
-		? { apiKey: '' }
-		: { apiUrl: '', apiEndpoint: '', apiToken: '', apiFieldname: '' };
+		: { apiKey: '', apiUrl: '', apiToken: '', apiEndpoint: '', apiFieldname: '' };
 	if (!stored) {
-		await setHostOptions(host, parsed);
+		await setSettings(parsed);
 	}
 	return parsed;
 }
 
-export async function setHostOptions(host, options) {
-	await AsyncStorage.setItem(host, JSON.stringify(options));
+export async function setSettings(options) {
+	await AsyncStorage.setItem('settings', JSON.stringify(options));
 }

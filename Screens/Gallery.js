@@ -10,7 +10,7 @@ import {
 	Text,
 	Linking
 } from 'react-native';
-import { getImages, removeImage } from '../utils/storage.js';
+import { getImages, removeImage } from '../utils/storage';
 import { AnimatedImages } from '../components/AnimatedImages/AnimatedImages';
 import { styles } from '../Styles';
 import { setStringAsync } from 'expo-clipboard';

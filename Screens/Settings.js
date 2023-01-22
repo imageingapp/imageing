@@ -5,19 +5,17 @@ import { TextInput } from 'react-native-paper';
 import {
 	getHost,
 	setHost,
-	getHostOptions,
-	setHostOptions
+	getSettings,
+	setSettings
 } from '../utils/storage';
+import { aHosts } from "../utils/hosts";
 import { styles } from '../Styles';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SelectDropdown from 'react-native-select-dropdown';
 
-const hosts = [
-	{ text: 'ImgBB', image: require('../assets/ImgBB.png') },
-	{ text: 'SXCU', add: '(Selfhost)', image: require('../assets/SXCU.png') }
-];
+const hosts = aHosts;
 
 export default function SettingScreen() {
 	const [selHost, setSelHost] = useState({});
@@ -30,15 +28,15 @@ export default function SettingScreen() {
 	useEffect(() => {
 		let isMounted = true;
 		getHost().then((host) => {
-			if (isMounted) setSelHost(hosts.find((h) => h.text === host));
-			getHostOptions(host)
-				.then((options) => {
+			if (isMounted) setSelHost(host);
+			getSettings()
+				.then((settings) => {
 					if (isMounted) {
-						setInputApiKey(options.apiKey);
-						setInputApiUrl(options.apiUrl);
-						setInputApiToken(options.apiToken);
-						setInputApiEndpoint(options.apiEndpoint);
-						setInputApiFieldname(options.apiFieldname);
+						setInputApiKey(settings.apiKey);
+						setInputApiUrl(settings.apiUrl);
+						setInputApiToken(settings.apiToken);
+						setInputApiEndpoint(settings.apiEndpoint);
+						setInputApiFieldname(settings.apiFieldname);
 					}
 				})
 				.catch((err) => console.log(err));
@@ -61,14 +59,14 @@ export default function SettingScreen() {
 				<SelectDropdown
 					data={hosts}
 					onSelect={async (sel, index) => {
-						await setHost(sel.text);
+						await setHost(sel);
 						setSelHost(sel);
-						const hostOptions = await getHostOptions(sel.text);
-						setInputApiKey(hostOptions.apiKey);
-						setInputApiUrl(hostOptions.apiUrl);
-						setInputApiToken(hostOptions.apiToken);
-						setInputApiEndpoint(hostOptions.apiEndpoint);
-						setInputApiFieldname(hostOptions.apiFieldname);
+						const settings = await getSettings();
+						setInputApiKey(settings.apiKey);
+						setInputApiUrl(settings.apiUrl);
+						setInputApiToken(settings.apiToken);
+						setInputApiEndpoint(settings.apiEndpoint);
+						setInputApiFieldname(settings.apiFieldname);
 					}}
 					defaultValue={selHost}
 					buttonStyle={styles.dropdownButton}
@@ -93,7 +91,7 @@ export default function SettingScreen() {
 									/>
 								)}
 								<Text style={styles.dropdownButtonText}>
-									{sel?.text}
+									{sel?.name}
 									{sel?.add ? ' ' + sel?.add : ''}
 								</Text>
 								<Ionicons
@@ -112,14 +110,14 @@ export default function SettingScreen() {
 									style={styles.dropdownRowImage}
 								/>
 								<Text style={styles.dropdownRowText}>
-									{sel.text}
+									{sel.name}
 									{sel.add ? ' ' + sel.add : ''}
 								</Text>
 							</View>
 						);
 					}}
 				/>
-				{selHost.text === 'ImgBB' ? (
+				{selHost?.name === 'ImgBB' ? (
 					<View>
 						<TextInput
 							contentStyle={styles.textInput}
@@ -167,22 +165,20 @@ export default function SettingScreen() {
 					style={{ ...styles.button, marginBottom: 20 }}
 					size='medium'
 					onPress={async () => {
-						const hostOptions =
-							selHost.text === 'ImgBB'
-								? { apiKey: inputApiKey }
-								: {
-										apiUrl: inputApiUrl,
-										apiToken: inputApiToken,
-										apiEndpoint: inputApiEndpoint,
-										apiFieldname: inputApiFieldname
-								  };
-						await setHostOptions(selHost.text, hostOptions);
+						const settings = {
+							apiKey: inputApiKey,
+							apiUrl: inputApiUrl,
+							apiToken: inputApiToken,
+							apiEndpoint: inputApiEndpoint,
+							apiFieldname: inputApiFieldname
+						};
+						await setSettings(settings);
 					}}>
 					<Text style={{ fontSize: 20, color: 'white' }}>
 						Save Settings
 					</Text>
 				</AwesomeButton>
-				{selHost.text === 'SXCU' ? (
+				{selHost?.name === 'SXCU' ? (
 					<AwesomeButton
 						style={{ ...styles.button, marginBottom: 20 }}
 						onPress={async () => {}}>
