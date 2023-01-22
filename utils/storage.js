@@ -57,7 +57,7 @@ export async function storeImage(localUrl, uploadData) {
 	images.push({
 		localUrl,
 		url: uploadData.data?.url ?? uploadData.url,
-		deleteUrl: uploadData.delete_url ?? uploadData.deletion_url,
+		deleteUrl: uploadData.data?.delete_url ?? uploadData.deletion_url,
 		date: Date.now()
 	});
 	await AsyncStorage.setItem('images', JSON.stringify(images));
