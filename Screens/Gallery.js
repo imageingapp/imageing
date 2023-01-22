@@ -145,20 +145,28 @@ export default function GalleryScreen() {
 	};
 
 	return (
-		<SafeAreaView style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-			{
-				images.length > 0
-				?	<FlatList
-						data={images}
-						renderItem={renderImages}
-						keyExtractor={(item, index) => index.toString()}
-						horizontal={false}
-						numColumns={3}
-					/>
-				: 	<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-						<Text style={{ alignSelf: 'center' }}>Oh no, the gallery is empty!</Text>
-					</View>
-			}
+		<SafeAreaView
+			style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+			{images.length > 0 ? (
+				<FlatList
+					data={images}
+					renderItem={renderImages}
+					keyExtractor={(item, index) => index.toString()}
+					horizontal={false}
+					numColumns={3}
+				/>
+			) : (
+				<View
+					style={{
+						flex: 1,
+						alignItems: 'center',
+						justifyContent: 'center'
+					}}>
+					<Text style={{ alignSelf: 'center' }}>
+						Oh no, the gallery is empty!
+					</Text>
+				</View>
+			)}
 		</SafeAreaView>
 	);
 }
