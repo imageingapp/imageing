@@ -17,6 +17,9 @@ export const styles = StyleSheet.create({
 		flex: 2,
 		flexDirection: 'row'
 	},
+	buttonContainer2: {
+		flexDirection: 'row'
+	},
 	button: {
 		marginHorizontal: 5
 	},

@@ -2,14 +2,8 @@ import { useState } from 'react';
 import { Text, View, Image } from 'react-native';
 import { styles } from '../Styles';
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
-import { uploadAsync, FileSystemUploadType } from 'expo-file-system';
-import { setStringAsync } from 'expo-clipboard';
-import {
-	getHost,
-	getHostOptions,
-	storeImage,
-	uploadImage
-} from '../utils/storage';
+import { uploadImage } from '../utils/storage';
+import { Bar } from 'react-native-progress';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 
@@ -18,8 +12,10 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
 
 export default function HomeScreen() {
+	const [progress, setProgress] = useState(0);
 	const [image, setImage] = useState(Placeholder);
 	const [uploading, setUploading] = useState(true);
+	const [noPick, setNoPick] = useState(false);
 
 	return (
 		<View style={styles.fileWrap}>
@@ -28,9 +24,13 @@ export default function HomeScreen() {
 					style={styles.preview}
 					source={image}></Image>
 			</View>
+			<View style={{ paddingVertical: 10 }}>
+				<Bar progress={progress} width={260} color={'#1775C8'} borderColor={'#f2f2f2'} />
+			</View>
 			<View style={styles.buttonContainer}>
 				<AwesomeButton
 					style={styles.button}
+					disabled={noPick}
 					onPress={async () => {
 						const image = await pickFile();
 						if (image) {
@@ -41,19 +41,21 @@ export default function HomeScreen() {
 						}
 					}}>
 					<Ionicons
-						style={{ margin: 10 }}
+						style={{ margin: 10, color: 'white' }}
 						name='add-circle'
 						size={30}
 					/>
 				</AwesomeButton>
 				<AwesomeButton
 					style={styles.button}
+					progress
 					size='medium'
 					disabled={uploading}
-					onPress={async () => {
+					onPress={async (next) => {
 						setUploading(true);
-						await uploadFile(image);
-						setImage(Placeholder);
+						setNoPick(true);
+						const resolve = () => setImage(Placeholder);
+						await uploadImage(image, Toast, setNoPick, setProgress, next, resolve);
 					}}>
 					<Text style={{ fontSize: 20, color: 'white' }}>Upload</Text>
 				</AwesomeButton>
@@ -75,36 +77,4 @@ async function pickFile() {
 		result = { uri: picked.assets[0].uri };
 	}
 	return result;
-}
-
-async function uploadFile(file) {
-	const response = await uploadImage(file, Toast);
-
-	if (response) {
-		const parsedResponse = JSON.parse(response.body);
-		if (response.status === 200) {
-			console.log(parsedResponse);
-			await setStringAsync(
-				(await getHost()) === 'ImgBB'
-					? parsedResponse.data.url
-					: parsedResponse.url
-			).catch(console.log);
-			await storeImage(file.uri, parsedResponse);
-			Toast.show({
-				type: 'success',
-				text1: 'Upload completed',
-				text2: `Image URL copied to the clipboard`
-			});
-		} else {
-			Toast.show({
-				type: 'error',
-				text1: `Error ${
-					parsedResponse.status_code ?? parsedResponse.http_code
-				}`,
-				text2: `${
-					parsedResponse.error.message ?? parsedResponse.error_msg
-				}`
-			});
-		}
-	}
 }
