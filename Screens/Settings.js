@@ -2,6 +2,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, Image } from 'react-native';
 import { useEffect, useState } from 'react';
 import { TextInput } from 'react-native-paper';
+import { getDocumentAsync } from 'expo-document-picker';
+import { readAsStringAsync } from 'expo-file-system';
 import {
 	getHost,
 	setHost,
@@ -14,6 +16,7 @@ import { styles } from '../Styles';
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SelectDropdown from 'react-native-select-dropdown';
+import Toast from 'react-native-toast-message';
 
 const hosts = aHosts;
 
@@ -23,7 +26,7 @@ export default function SettingScreen() {
 	const [inputApiUrl, setInputApiUrl] = useState('');
 	const [inputApiToken, setInputApiToken] = useState('');
 	const [inputApiEndpoint, setInputApiEndpoint] = useState('');
-	const [inputApiFieldname, setInputApiFieldname] = useState('');
+	const [inputApiFormName, setInputApiFormName] = useState('');
 
 	useEffect(() => {
 		let isMounted = true;
@@ -36,7 +39,7 @@ export default function SettingScreen() {
 						setInputApiUrl(settings.apiUrl);
 						setInputApiToken(settings.apiToken);
 						setInputApiEndpoint(settings.apiEndpoint);
-						setInputApiFieldname(settings.apiFieldname);
+						setInputApiFormName(settings.apiFormName);
 					}
 				})
 				.catch((err) => console.log(err));
@@ -66,7 +69,7 @@ export default function SettingScreen() {
 						setInputApiUrl(settings.apiUrl);
 						setInputApiToken(settings.apiToken);
 						setInputApiEndpoint(settings.apiEndpoint);
-						setInputApiFieldname(settings.apiFieldname);
+						setInputApiFormName(settings.apiFormName);
 					}}
 					defaultValue={selHost}
 					buttonStyle={styles.dropdownButton}
@@ -153,9 +156,9 @@ export default function SettingScreen() {
 						<TextInput
 							contentStyle={styles.textInput}
 							mode='outlined'
-							label='API Fieldname'
-							value={inputApiFieldname}
-							onChangeText={(text) => setInputApiFieldname(text)}
+							label='API Formname'
+							value={inputApiFormName}
+							onChangeText={(text) => setInputApiFormName(text)}
 						/>
 					</View>
 				)}
@@ -170,7 +173,7 @@ export default function SettingScreen() {
 							apiUrl: inputApiUrl,
 							apiToken: inputApiToken,
 							apiEndpoint: inputApiEndpoint,
-							apiFieldname: inputApiFieldname
+							apiFormName: inputApiFormName
 						};
 						await setSettings(settings);
 					}}>
@@ -179,9 +182,47 @@ export default function SettingScreen() {
 					</Text>
 				</AwesomeButton>
 				{selHost?.name === 'SXCU' ? (
-					<AwesomeButton
-						style={{ ...styles.button, marginBottom: 20 }}
-						onPress={async () => {}}>
+						<AwesomeButton
+							style={{ ...styles.button, marginBottom: 20 }}
+							onPress={async () => {
+							const file = await getDocumentAsync();
+							if (file.type !== 'cancel') {
+								let fileData;
+								try {
+									fileData = JSON.parse((await readAsStringAsync(file.uri)).trim());
+								} catch(err) {
+								}
+								if (!fileData || !fileData.RequestURL || !fileData.Arguments?.token || !fileData.Arguments?.endpoint || !fileData.FileFormName) {
+									Toast.show({
+										type: 'error',
+										text1: 'File import failed',
+										text2: 'The file contains invalid data.'
+									});
+									return;
+								}
+								const url = fileData.RequestURL;
+								const apiToken = fileData.Arguments.token;
+								const apiEndpoint = fileData.Arguments.endpoint;
+								const apiFormName = fileData.FileFormName;
+								const settings = {
+									apiKey: inputApiKey,
+									apiUrl: url,
+									apiToken: apiToken,
+									apiEndpoint: apiEndpoint,
+									apiFormName: apiFormName
+								};
+								setInputApiUrl(url);
+								setInputApiToken(apiToken);
+								setInputApiEndpoint(apiEndpoint)
+								setInputApiFormName(apiFormName);
+								await setSettings(settings);
+								Toast.show({
+									type: 'success',
+									text1: 'File imported',
+									text2: 'The data was saved.'
+								});
+							}
+						}}>
 						<Ionicons
 							style={{ margin: 8, color: 'white' }}
 							name='download-outline'
@@ -190,6 +231,7 @@ export default function SettingScreen() {
 					</AwesomeButton>
 				) : null}
 			</View>
+			<Toast />
 		</SafeAreaView>
 	);
 }

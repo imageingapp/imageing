@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setStringAsync } from "expo-clipboard";
-import {aHosts} from "./hosts";
+import { aHosts } from "./hosts";
 
 export async function uploadImage(file, Toast, setNoPick, setProgress, next, resolve) {
 	// Get Host to check what settings should be used
@@ -23,7 +23,7 @@ export async function uploadImage(file, Toast, setNoPick, setProgress, next, res
 		}
 		case 'SXCU': {
 			url = settings.apiUrl;
-			formData.append(settings.apiFieldname, {
+			formData.append(settings.apiFormName, {
 				uri: file.uri,
 				type: 'image/jpeg',
 				name: 'upload.jpeg'
@@ -146,7 +146,7 @@ export async function getSettings() {
 	const stored = await AsyncStorage.getItem('settings');
 	const parsed = stored
 		? JSON.parse(stored)
-		: { apiKey: '', apiUrl: '', apiToken: '', apiEndpoint: '', apiFieldname: '' };
+		: { apiKey: '', apiUrl: '', apiToken: '', apiEndpoint: '', apiFormName: '' };
 	if (!stored) {
 		await setSettings(parsed);
 	}
