@@ -98,8 +98,12 @@ async function uploadFile(file) {
 		} else {
 			Toast.show({
 				type: 'error',
-				text1: `Error ${parsedResponse.status_code ?? parsedResponse.http_code}`,
-				text2: `${parsedResponse.error.message ?? parsedResponse.error_msg}`
+				text1: `Error ${
+					parsedResponse.status_code ?? parsedResponse.http_code
+				}`,
+				text2: `${
+					parsedResponse.error.message ?? parsedResponse.error_msg
+				}`
 			});
 		}
 	}
