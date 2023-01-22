@@ -4,7 +4,12 @@ import { styles } from '../Styles';
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
 import { uploadAsync, FileSystemUploadType } from 'expo-file-system';
 import { setStringAsync } from 'expo-clipboard';
-import { getHost, getHostOptions, storeImage, uploadImage } from '../utils/storage';
+import {
+	getHost,
+	getHostOptions,
+	storeImage,
+	uploadImage
+} from '../utils/storage';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 
@@ -73,14 +78,18 @@ async function pickFile() {
 }
 
 async function uploadFile(file) {
-	const response = await uploadImage(file, Toast)
+	const response = await uploadImage(file, Toast);
 	console.log(response);
 
 	if (response) {
 		if (response.status === 200) {
 			const parsedResponse = JSON.parse(response.body);
-			console.log(parsedResponse)
-			await setStringAsync((await getHost()) === 'ImgBB' ? parsedResponse.data.url : parsedResponse.url).catch(console.log);
+			console.log(parsedResponse);
+			await setStringAsync(
+				(await getHost()) === 'ImgBB'
+					? parsedResponse.data.url
+					: parsedResponse.url
+			).catch(console.log);
 			await storeImage(file.uri, parsedResponse);
 			Toast.show({
 				type: 'success',

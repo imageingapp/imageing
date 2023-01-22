@@ -14,20 +14,22 @@ export async function uploadImage(file, Toast) {
 		uploadType: FileSystemUploadType.MULTIPART,
 		fieldName: '',
 		parameters: {}
-	}
+	};
 	switch (host) {
 		case 'ImgBB': {
 			url = 'https://api.imgbb.com/1/upload';
 			uploadData.fieldName = 'image';
-			uploadData.parameters = { key: settings.apiKey }
+			uploadData.parameters = { key: settings.apiKey };
 			break;
 		}
 		case 'SXCU': {
 			// Only multipart/form-data support yet
 			url = settings.apiUrl;
 			uploadData.fieldName = settings.apiFieldname;
-			uploadData.parameters = { endpoint: settings.apiEndpoint, token: settings.apiToken }
-
+			uploadData.parameters = {
+				endpoint: settings.apiEndpoint,
+				token: settings.apiToken
+			};
 		}
 	}
 
@@ -35,7 +37,7 @@ export async function uploadImage(file, Toast) {
 	try {
 		response = await uploadAsync(url, file.uri, uploadData);
 	} catch (error) {
-		console.log(error)
+		console.log(error);
 		Toast.show({
 			type: 'error',
 			text1: 'An error occured!',
@@ -52,13 +54,20 @@ export async function storeImage(localUrl, uploadData) {
 		images.sort((a, b) => a.date - b.date);
 		images.shift();
 	}
-	images.push({ localUrl, url: uploadData.data?.url ?? uploadData.url, deleteUrl: uploadData.delete_url ?? uploadData.deletion_url, date: Date.now() });
+	images.push({
+		localUrl,
+		url: uploadData.data?.url ?? uploadData.url,
+		deleteUrl: uploadData.delete_url ?? uploadData.deletion_url,
+		date: Date.now()
+	});
 	await AsyncStorage.setItem('images', JSON.stringify(images));
 }
 
 export async function removeImage(deleteUrl) {
 	const stored = await AsyncStorage.getItem('images');
-	const images = stored ? JSON.parse(stored).filter(i => i.deleteUrl !== deleteUrl) : [];
+	const images = stored
+		? JSON.parse(stored).filter((i) => i.deleteUrl !== deleteUrl)
+		: [];
 	if (images.length > 9) {
 		images.sort((a, b) => a.date - b.date);
 		images.shift();
@@ -84,15 +93,17 @@ export async function setHost(host) {
 }
 
 /**
-*	ImgBB:
-* 	{ apiKey: '' }
-*
-*	SXCU:
-*	{ apiUrl: '', apiToken: '', apiEndpoint: '', apiFieldname: '' }
-*/
+ *	ImgBB:
+ * 	{ apiKey: '' }
+ *
+ *	SXCU:
+ *	{ apiUrl: '', apiToken: '', apiEndpoint: '', apiFieldname: '' }
+ */
 export async function getHostOptions(host) {
 	const stored = await AsyncStorage.getItem(host);
-	const parsed = stored ? JSON.parse(stored) : host === 'ImgBB'
+	const parsed = stored
+		? JSON.parse(stored)
+		: host === 'ImgBB'
 		? { apiKey: '' }
 		: { apiUrl: '', apiEndpoint: '', apiToken: '', apiFieldname: '' };
 	if (!stored) {
