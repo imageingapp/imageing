@@ -8,8 +8,6 @@ import {
 	TouchableHighlight,
 	Modal,
 	Text,
-	Button,
-	StyleSheet,
 	Linking
 } from 'react-native';
 import { getImages, removeImage } from '../utils/storage.js';
@@ -147,14 +145,28 @@ export default function GalleryScreen() {
 	};
 
 	return (
-		<SafeAreaView>
-			<FlatList
-				data={images}
-				renderItem={renderImages}
-				keyExtractor={(item, index) => index.toString()}
-				horizontal={false}
-				numColumns={3}
-			/>
+		<SafeAreaView
+			style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+			{images.length > 0 ? (
+				<FlatList
+					data={images}
+					renderItem={renderImages}
+					keyExtractor={(item, index) => index.toString()}
+					horizontal={false}
+					numColumns={3}
+				/>
+			) : (
+				<View
+					style={{
+						flex: 1,
+						alignItems: 'center',
+						justifyContent: 'center'
+					}}>
+					<Text style={{ alignSelf: 'center' }}>
+						Oh no, the gallery is empty!
+					</Text>
+				</View>
+			)}
 		</SafeAreaView>
 	);
 }
