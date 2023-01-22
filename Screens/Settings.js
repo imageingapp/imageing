@@ -82,7 +82,7 @@ export default function SettingScreen() {
 							<View style={styles.dropdownChild}>
 								{sel ? (
 									<Image
-										source={sel.image}
+										source={sel?.image}
 										style={styles.dropdownImage}
 									/>
 								) : (
@@ -93,8 +93,8 @@ export default function SettingScreen() {
 									/>
 								)}
 								<Text style={styles.dropdownButtonText}>
-									{sel.text}
-									{sel.add ? ' ' + sel.add : ''}
+									{sel?.text}
+									{sel?.add ? ' ' + sel?.add : ''}
 								</Text>
 								<Ionicons
 									name='chevron-down-outline'
