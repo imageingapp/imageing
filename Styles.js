@@ -146,20 +146,83 @@ export const styles = StyleSheet.create({
 		resizeMode: 'contain',
 		justifyContent: 'center',
 		flexDirection: 'column',
-		alignItems: 'center',
+		alignItems: 'center'
 	},
 	modal: {
 		flex: 1,
 		alignItems: 'center',
-		padding: 100,
+		padding: 100
 	},
 	text: {
 		color: '#3f2949',
-		marginTop: 10,
+		marginTop: 10
 	},
 	buttonContainerGallery: {
 		flex: 2,
 		flexDirection: 'row',
 		padding: 50
 	},
+	dropdownButton: {
+		width: '80%',
+		height: 50,
+		backgroundColor: '#FFF',
+		paddingHorizontal: 0,
+		borderWidth: 1,
+		borderRadius: 8,
+		borderColor: '#444'
+	},
+	dropdownButtonText: {
+		color: '#444',
+		textAlign: 'center',
+		fontWeight: 'bold',
+		fontSize: 24,
+		marginHorizontal: 12
+	},
+	dropdown: {
+		backgroundColor: 'slategray'
+	},
+	dropdownRow: {
+		backgroundColor: 'slategray',
+		borderBottomColor: '#444',
+		height: 50
+	},
+	dropdownRowText: {
+		color: '#F1F1F1',
+		textAlign: 'center',
+		fontWeight: 'bold',
+		fontSize: 24,
+		marginHorizontal: 12
+	},
+	textInput: {
+		width: '80%',
+		maxWidth: '80%',
+		height: 50
+	},
+	buttonContainerSettings: {
+		flexDirection: 'row'
+	},
+	dropdownChild: {
+		flex: 1,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingHorizontal: 18
+	},
+	dropdownImage: {
+		width: 45,
+		height: 45,
+		resizeMode: 'cover'
+	},
+	dropdownRowChild: {
+		flex: 1,
+		flexDirection: 'row',
+		justifyContent: 'flex-start',
+		alignItems: 'center',
+		paddingHorizontal: 18
+	},
+	dropdownRowImage: {
+		width: 45,
+		height: 45,
+		resizeMode: 'cover'
+	}
 });

@@ -12,7 +12,7 @@ import {
     StyleSheet,
     Linking
 } from 'react-native';
-import { getImages } from '../utils/storage.js';
+import { getImages, removeImage } from '../utils/storage.js';
 import { AnimatedImages } from "../components/AnimatedImages/AnimatedImages";
 import { styles } from '../Styles';
 import { setStringAsync } from 'expo-clipboard';
@@ -98,6 +98,22 @@ export default function GalleryScreen() {
 								size={30}
 							/>
 						</AwesomeButton>
+						{ fullImage.deleteUrl ?
+							<AwesomeButton
+								style={styles.button}
+								onPress={async () => {
+									await Linking.openURL(fullImage.deleteUrl);
+									setImages(await removeImage(fullImage.deleteUrl));
+									setShowModal(false);
+								}}
+							>
+								<Ionicons
+									style={{ margin: 8, color: 'red' }}
+									name='trash-outline'
+									size={30}
+								/>
+							</AwesomeButton> : null
+						}
 					</View>
 					<Toast />
 				</View>
