@@ -162,4 +162,67 @@ export const styles = StyleSheet.create({
 		flexDirection: 'row',
 		padding: 50
 	},
+	dropdownButton: {
+		width: '80%',
+		height: 50,
+		backgroundColor: '#FFF',
+		paddingHorizontal: 0,
+		borderWidth: 1,
+		borderRadius: 8,
+		borderColor: '#444',
+	},
+	dropdownButtonText: {
+		color: '#444',
+		textAlign: 'center',
+		fontWeight: 'bold',
+		fontSize: 24,
+		marginHorizontal: 12,
+	},
+	dropdown: {
+		backgroundColor: 'slategray'
+	},
+	dropdownRow: {
+		backgroundColor: 'slategray',
+		borderBottomColor: '#444',
+		height: 50,
+	},
+	dropdownRowText: {
+		color: '#F1F1F1',
+		textAlign: 'center',
+		fontWeight: 'bold',
+		fontSize: 24,
+		marginHorizontal: 12,
+	},
+	textInput: {
+		width: '80%',
+		maxWidth: '80%',
+		height: 50
+	},
+	buttonContainerSettings: {
+		flexDirection: 'row'
+	},
+	dropdownChild: {
+		flex: 1,
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		paddingHorizontal: 18,
+	},
+	dropdownImage: {
+		width: 45,
+		height: 45,
+		resizeMode: 'cover'
+	},
+	dropdownRowChild: {
+		flex: 1,
+		flexDirection: 'row',
+		justifyContent: 'flex-start',
+		alignItems: 'center',
+		paddingHorizontal: 18,
+	},
+	dropdownRowImage: {
+		width: 45,
+		height: 45,
+		resizeMode: 'cover'
+	}
 });

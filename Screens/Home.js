@@ -4,7 +4,7 @@ import { styles } from '../Styles';
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
 import { uploadAsync, FileSystemUploadType } from 'expo-file-system';
 import { setStringAsync } from 'expo-clipboard';
-import { storeImage } from '../utils/storage';
+import { getHost, getHostOptions, storeImage, uploadImage } from '../utils/storage';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 
@@ -73,34 +73,15 @@ async function pickFile() {
 }
 
 async function uploadFile(file) {
-	const url = 'https://api.imgbb.com/1/upload';
-	const method = 'POST';
-	const token = '65d293ca51875365250f259903bdb07b';
-	const fileFormName = 'image';
-
-	let response;
-	try {
-		response = await uploadAsync(url, file.uri, {
-			httpMethod: method,
-			headers: { 'Content-Type': 'multipart/form-data' },
-			uploadType: FileSystemUploadType.MULTIPART,
-			fieldName: fileFormName,
-			parameters: { key: token }
-		});
-	} catch (error) {
-		console.log(error)
-		Toast.show({
-			type: 'error',
-			text1: 'An error occured!',
-			text2: `${error}`
-		});
-	}
+	const response = await uploadImage(file, Toast)
+	console.log(response);
 
 	if (response) {
 		if (response.status === 200) {
 			const parsedResponse = JSON.parse(response.body);
-			await setStringAsync(parsedResponse.data.url).catch(console.log);
-			await storeImage(file.uri, parsedResponse.data);
+			console.log(parsedResponse)
+			await setStringAsync((await getHost()) === 'ImgBB' ? parsedResponse.data.url : parsedResponse.url).catch(console.log);
+			await storeImage(file.uri, parsedResponse);
 			Toast.show({
 				type: 'success',
 				text1: 'Upload completed',
