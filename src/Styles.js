@@ -229,4 +229,3 @@ export const styles = StyleSheet.create({
 		resizeMode: 'cover'
 	}
 });
- 
