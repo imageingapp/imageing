@@ -3,8 +3,8 @@ import { setStringAsync } from 'expo-clipboard';
 import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { aHosts } from "./hosts";
-import { doRequest } from "./request";
+import { aHosts } from './hosts';
+import { doRequest } from './request';
 
 export async function pickFile() {
 	let result = false;
@@ -36,7 +36,8 @@ export async function uploadImage(
 	let url = '';
 	const formData = new FormData();
 	switch (host) {
-		case aHosts[0]: { // ImgBB
+		case aHosts[0]: {
+			// ImgBB
 			url = 'https://api.imgbb.com/1/upload';
 			formData.append('image', {
 				uri: file.uri,
@@ -46,7 +47,8 @@ export async function uploadImage(
 			formData.append('key', settings.apiKey);
 			break;
 		}
-		case aHosts[1]: { // SXCU
+		case aHosts[1]: {
+			// SXCU
 			url = settings.apiUrl;
 			formData.append(settings.apiFormName, {
 				uri: file.uri,
@@ -57,7 +59,8 @@ export async function uploadImage(
 			formData.append('token', settings.apiToken);
 			break;
 		}
-		case aHosts[2]: { // Imgur
+		case aHosts[2]: {
+			// Imgur
 			url = 'https://api.imgur.com/3/image';
 			formData.append('image', {
 				uri: file.uri,
@@ -85,8 +88,8 @@ export async function uploadImage(
 			if (response) {
 				if (uploadTask.status === 200) {
 					await setStringAsync(host.getUrl(response)).catch(
-							console.log
-							);
+						console.log
+					);
 					await storeImage(file.uri, response, host);
 					Toast.show({
 						type: 'success',
@@ -112,9 +115,21 @@ export async function uploadImage(
 			setProgress(0);
 			resolve();
 			next();
-		}
+		};
 
-		await doRequest(url, 'POST', formData, { text: 'Authorization', value: `Client-ID ${host === aHosts[2] ? settings.apiClientId : ''}` }, onload, onprogress);
+		await doRequest(
+			url,
+			'POST',
+			formData,
+			{
+				text: 'Authorization',
+				value: `Client-ID ${
+					host === aHosts[2] ? settings.apiClientId : ''
+				}`
+			},
+			onload,
+			onprogress
+		);
 	} catch (error) {
 		console.log(error);
 		Toast.show({
@@ -156,7 +171,14 @@ export async function removeImage(deleteUrl) {
 
 export async function deleteImage(hash) {
 	const settings = await getSettings();
-	await doRequest(`https://api.imgur.com/3/image/${hash}`, 'DELETE', null, { text: 'Authorization', value: `Client-ID ${settings.apiClientId}` }, () => {}, () => {})
+	await doRequest(
+		`https://api.imgur.com/3/image/${hash}`,
+		'DELETE',
+		null,
+		{ text: 'Authorization', value: `Client-ID ${settings.apiClientId}` },
+		() => {},
+		() => {}
+	);
 }
 
 export async function getImages() {

@@ -106,12 +106,24 @@ export default function GalleryScreen() {
 								<AwesomeButton
 									style={styles.button}
 									onPress={async () => {
-										if (!fullImage.deleteUrl.startsWith('http')) {
-											await deleteImage(fullImage.deleteUrl);
+										if (
+											!fullImage.deleteUrl.startsWith(
+												'http'
+											)
+										) {
+											await deleteImage(
+												fullImage.deleteUrl
+											);
 										} else {
-											await Linking.openURL(fullImage.deleteUrl);
+											await Linking.openURL(
+												fullImage.deleteUrl
+											);
 										}
-										setImages(await removeImage(fullImage.deleteUrl));
+										setImages(
+											await removeImage(
+												fullImage.deleteUrl
+											)
+										);
 										setShowModal(false);
 									}}>
 									<Ionicons

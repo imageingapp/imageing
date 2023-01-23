@@ -1,6 +1,13 @@
-import {getHost} from "./settings";
+import { getHost } from './settings';
 
-export async function doRequest(url, method, formData, header, onload, onprogress) {
+export async function doRequest(
+	url,
+	method,
+	formData,
+	header,
+	onload,
+	onprogress
+) {
 	const uploadTask = new XMLHttpRequest();
 	// Get Host
 	const host = await getHost();

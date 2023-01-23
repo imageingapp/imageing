@@ -4,14 +4,15 @@ import { useEffect, useState } from 'react';
 import { getDocumentAsync } from 'expo-document-picker';
 import { readAsStringAsync } from 'expo-file-system';
 import {
-    getHost,
-    setHost,
-    getSettings,
-    setSettings, buildSettings
+	getHost,
+	setHost,
+	getSettings,
+	setSettings,
+	buildSettings
 } from '../../utils/settings';
 import { aHosts } from '../../utils/hosts';
 import { styles } from '../../Styles';
-import {useIsFocused} from "@react-navigation/native";
+import { useIsFocused } from '@react-navigation/native';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -43,12 +44,12 @@ export default function SettingScreen() {
 			apiEndpoint: { inputApiEndpoint, setInputApiEndpoint },
 			apiFormName: { inputApiFormName, setInputApiFormName }
 		}
-	}
+	};
 
 	useEffect(() => {
 		let isMounted = true;
 		getHost().then((host) => {
-			if (isMounted){
+			if (isMounted) {
 				setSelHost(host);
 			}
 			getSettings()
@@ -139,7 +140,7 @@ export default function SettingScreen() {
 						);
 					}}
 				/>
-				{  selHost.name ? buildSettings(buildOptions) : null }
+				{selHost.name ? buildSettings(buildOptions) : null}
 			</View>
 			<View style={styles.buttonContainerSettings}>
 				<AwesomeButton

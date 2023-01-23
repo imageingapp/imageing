@@ -1,9 +1,9 @@
 import { aHosts } from './hosts';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { View } from "react-native";
-import { TextInput } from "react-native-paper";
-import { styles } from "../Styles";
+import { View } from 'react-native';
+import { TextInput } from 'react-native-paper';
+import { styles } from '../Styles';
 
 export const empty = {
 	// ImgBB
@@ -15,7 +15,7 @@ export const empty = {
 	apiFormName: '',
 	// Imgur
 	apiClientId: '867afe9433c0a53'
-}
+};
 
 export async function getHost() {
 	const stored = await AsyncStorage.getItem('host');
@@ -28,9 +28,7 @@ export async function setHost(host) {
 
 export async function getSettings() {
 	const stored = await AsyncStorage.getItem('settings');
-	const parsed = stored
-		? JSON.parse(stored)
-		: empty;
+	const parsed = stored ? JSON.parse(stored) : empty;
 	if (!stored) {
 		await setSettings(parsed);
 	}
@@ -43,7 +41,8 @@ export async function setSettings(options) {
 
 export function buildSettings(options) {
 	switch (options.host) {
-		case aHosts[0]: { // ImgBB
+		case aHosts[0]: {
+			// ImgBB
 			return (
 				<View>
 					<TextInput
@@ -51,12 +50,15 @@ export function buildSettings(options) {
 						mode='outlined'
 						label='API Key'
 						value={options.fields.apiKey.inputApiKey}
-						onChangeText={(text) => options.fields.apiKey.setInputApiKey(text)}
+						onChangeText={(text) =>
+							options.fields.apiKey.setInputApiKey(text)
+						}
 					/>
 				</View>
-			)
+			);
 		}
-		case aHosts[1]: { // SXCU
+		case aHosts[1]: {
+			// SXCU
 			return (
 				<View>
 					<TextInput
@@ -64,31 +66,39 @@ export function buildSettings(options) {
 						mode='outlined'
 						label='API Url'
 						value={options.fields.apiUrl.inputApiUrl}
-						onChangeText={(text) => options.fields.apiUrl.setInputApiUrl(text)}
+						onChangeText={(text) =>
+							options.fields.apiUrl.setInputApiUrl(text)
+						}
 					/>
 					<TextInput
 						contentStyle={styles.textInput}
 						mode='outlined'
 						label='API Token'
 						value={options.fields.apiToken.inputApiToken}
-						onChangeText={(text) => options.fields.apiToken.setInputApiToken(text)}
+						onChangeText={(text) =>
+							options.fields.apiToken.setInputApiToken(text)
+						}
 					/>
 					<TextInput
 						contentStyle={styles.textInput}
 						mode='outlined'
 						label='API Endpoint'
 						value={options.fields.apiEndpoint.inputApiEndpoint}
-						onChangeText={(text) => options.fields.apiEndpoint.setInputApiEndpoint(text)}
+						onChangeText={(text) =>
+							options.fields.apiEndpoint.setInputApiEndpoint(text)
+						}
 					/>
 					<TextInput
 						contentStyle={styles.textInput}
 						mode='outlined'
 						label='API Formname'
 						value={options.fields.apiFormName.inputApiFormName}
-						onChangeText={(text) => options.fields.apiFormName.setInputApiFormName(text)}
+						onChangeText={(text) =>
+							options.fields.apiFormName.setInputApiFormName(text)
+						}
 					/>
 				</View>
-			)
+			);
 		}
 		default: {
 			return <View></View>;

@@ -1,13 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { NavigationContainer } from '@react-navigation/native';
-import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { StatusBar } from 'expo-status-bar';
 
 import HomeScreen from './src/screens/home';
 import GalleryScreen from './src/screens/gallery';
 import SettingScreen from './src/screens/settings';
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -22,7 +22,6 @@ export default function App() {
 						headerShown: false,
 						unmountOnBlur: true,
 						lazy: true
-
 					})}>
 					<Tab.Screen
 						name='Home'
