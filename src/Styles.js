@@ -11,7 +11,8 @@ export const styles = StyleSheet.create({
 	preview: {
 		height: '90%',
 		width: '95%',
-		resizeMode: 'center'
+		resizeMode: 'center',
+		borderRadius: 15
 	},
 	buttonContainer: {
 		flex: 2,

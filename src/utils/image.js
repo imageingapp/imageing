@@ -7,17 +7,12 @@ import { aHosts } from './hosts';
 import { doRequest } from './request';
 
 export async function pickFile() {
-	let result = false;
-	const picked = await launchImageLibraryAsync({
+	return await launchImageLibraryAsync({
 		mediaTypes: MediaTypeOptions.Images,
 		allowsEditing: false,
 		quality: 1,
 		allowsMultipleSelection: false
 	}).catch(console.log);
-	if (!picked.canceled) {
-		result = { uri: picked.assets[0].uri };
-	}
-	return result;
 }
 
 export async function uploadImage(

@@ -45,12 +45,10 @@ Gestures					scalable={{ min: 1, max: 10 }}>
 					style={styles.button}
 					disabled={noPick}
 					onPress={async () => {
-						const image = await pickFile();
-						if (image) {
-							setImage(image);
+						const pickedImage = await pickFile();
+						if (!pickedImage.canceled) {
+							setImage({ uri: pickedImage.assets[0].uri });
 							setUploading(false);
-						} else {
-							setUploading(true);
 						}
 					}}>
 					<Ionicons
