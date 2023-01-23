@@ -12,7 +12,6 @@ To get ready to work on the codebase, please do the following:
 1. Fork & clone the repository, and make sure you're on the **main** branch
 2. Install Expo CLI `npm install --global explo-cli`
 3. Install dependencies `npm install`
-4. Apply all patches to node_modules using `patch_package` (You might need to install it first)
 5. Make changes to the codebase
 6. Test your changes by starting an expo server `expo start`
 7. [Submit a pull request](https://github.com/ImageingApp/Imageing/compare)
