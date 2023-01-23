@@ -56,7 +56,7 @@ export default function GalleryScreen({ navigation }) {
 				<View style={{ flex: 1, alignItems: 'flex-start' }}>
 					<TouchableHighlight
 						style={{ borderRadius: 10 }}
-						onPress={() => openImage(image.item)}>
+						TouchableHighlightonPress={() => openImage(image.item)}>
 						<Image
 							source={{ uri: image.item.localUrl }}
 							style={{
