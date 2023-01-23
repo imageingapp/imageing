@@ -1,17 +1,18 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, Image } from 'react-native';
 import { useEffect, useState } from 'react';
-import { TextInput } from 'react-native-paper';
 import { getDocumentAsync } from 'expo-document-picker';
 import { readAsStringAsync } from 'expo-file-system';
 import {
 	getHost,
 	setHost,
 	getSettings,
-	setSettings
+	setSettings,
+	buildSettings
 } from '../../utils/settings';
 import { aHosts } from '../../utils/hosts';
 import { styles } from '../../Styles';
+import { useIsFocused } from '@react-navigation/native';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -22,16 +23,35 @@ const hosts = aHosts;
 
 export default function SettingScreen() {
 	const [selHost, setSelHost] = useState({});
+	// ImgBB
 	const [inputApiKey, setInputApiKey] = useState('');
+	// SXCU
 	const [inputApiUrl, setInputApiUrl] = useState('');
 	const [inputApiToken, setInputApiToken] = useState('');
 	const [inputApiEndpoint, setInputApiEndpoint] = useState('');
 	const [inputApiFormName, setInputApiFormName] = useState('');
 
+	const isFocused = useIsFocused();
+
+	let buildOptions = {
+		host: selHost,
+		fields: {
+			// ImgBB
+			apiKey: { inputApiKey, setInputApiKey },
+			// SXCU
+			apiUrl: { inputApiUrl, setInputApiUrl },
+			apiToken: { inputApiToken, setInputApiToken },
+			apiEndpoint: { inputApiEndpoint, setInputApiEndpoint },
+			apiFormName: { inputApiFormName, setInputApiFormName }
+		}
+	};
+
 	useEffect(() => {
 		let isMounted = true;
 		getHost().then((host) => {
-			if (isMounted) setSelHost(host);
+			if (isMounted) {
+				setSelHost(host);
+			}
 			getSettings()
 				.then((settings) => {
 					if (isMounted) {
@@ -47,7 +67,7 @@ export default function SettingScreen() {
 		return () => {
 			isMounted = false;
 		};
-	}, []);
+	}, [isFocused]);
 
 	return (
 		<SafeAreaView
@@ -120,48 +140,7 @@ export default function SettingScreen() {
 						);
 					}}
 				/>
-				{selHost?.name === 'ImgBB' ? (
-					<View>
-						<TextInput
-							contentStyle={styles.textInput}
-							mode='outlined'
-							label='API Key'
-							value={inputApiKey}
-							onChangeText={(text) => setInputApiKey(text)}
-						/>
-					</View>
-				) : (
-					<View>
-						<TextInput
-							contentStyle={styles.textInput}
-							mode='outlined'
-							label='API Url'
-							value={inputApiUrl}
-							onChangeText={(text) => setInputApiUrl(text)}
-						/>
-						<TextInput
-							contentStyle={styles.textInput}
-							mode='outlined'
-							label='API Token'
-							value={inputApiToken}
-							onChangeText={(text) => setInputApiToken(text)}
-						/>
-						<TextInput
-							contentStyle={styles.textInput}
-							mode='outlined'
-							label='API Endpoint'
-							value={inputApiEndpoint}
-							onChangeText={(text) => setInputApiEndpoint(text)}
-						/>
-						<TextInput
-							contentStyle={styles.textInput}
-							mode='outlined'
-							label='API Formname'
-							value={inputApiFormName}
-							onChangeText={(text) => setInputApiFormName(text)}
-						/>
-					</View>
-				)}
+				{selHost.name ? buildSettings(buildOptions) : null}
 			</View>
 			<View style={styles.buttonContainerSettings}>
 				<AwesomeButton
@@ -169,11 +148,15 @@ export default function SettingScreen() {
 					size='medium'
 					onPress={async () => {
 						const settings = {
+							// ImgBB
 							apiKey: inputApiKey,
+							// SXCU
 							apiUrl: inputApiUrl,
 							apiToken: inputApiToken,
 							apiEndpoint: inputApiEndpoint,
-							apiFormName: inputApiFormName
+							apiFormName: inputApiFormName,
+							// Imgur
+							apiClientId: '867afe9433c0a53'
 						};
 						await setSettings(settings);
 					}}>
@@ -218,7 +201,8 @@ export default function SettingScreen() {
 									apiUrl: url,
 									apiToken: apiToken,
 									apiEndpoint: apiEndpoint,
-									apiFormName: apiFormName
+									apiFormName: apiFormName,
+									apiClientId: '867afe9433c0a53'
 								};
 								setInputApiUrl(url);
 								setInputApiToken(apiToken);

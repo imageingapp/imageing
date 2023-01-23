@@ -9,6 +9,7 @@ import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Placeholder from '../../../assets/placeholder.png';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
+import NetInfo from '@react-native-community/netinfo';
 
 export default function HomeScreen() {
 	const [progress, setProgress] = useState(0);
@@ -58,6 +59,18 @@ export default function HomeScreen() {
 					onPress={async (next) => {
 						setUploading(true);
 						setNoPick(true);
+						const netInfo = await NetInfo.fetch();
+						if (!netInfo.isConnected) {
+							Toast.show({
+								type: 'error',
+								text1: 'No Internet Connection',
+								text2: 'Are you connected to the internet?'
+							});
+							setUploading(false);
+							setNoPick(false);
+							next();
+							return;
+						}
 						const resolve = () => setImage(Placeholder);
 						await uploadImage(
 							image,
