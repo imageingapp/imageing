@@ -25,7 +25,7 @@ export default function HomeScreen() {
 					style={styles.container}
 					rotatable={false}
 					draggable={true}
-					scalable={{ min: 1, max: 10 }}>
+Gestures					scalable={{ min: 1, max: 10 }}>
 					<Image
 						style={styles.preview}
 						source={image}

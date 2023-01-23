@@ -151,7 +151,8 @@ export async function storeImage(localUrl, uploadData, host) {
 		localUrl,
 		url: host.getUrl(uploadData),
 		deleteUrl: host.getDeleteUrl(uploadData),
-		date: Date.now()
+		date: Date.now(),
+		manual: host === aHosts[0]
 	});
 	await AsyncStorage.setItem('images', JSON.stringify(images));
 }

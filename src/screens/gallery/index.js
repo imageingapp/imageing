@@ -27,6 +27,7 @@ export default function GalleryScreen({ navigation }) {
 	const [images, setImages] = useState([]);
 	const [fullImage, setFullImage] = useState({});
 	const [deletePopup, setDeletePopup] = useState(false);
+	const [additionalInfo, setAdditionalInfo] = useState('');
 
 	const isFocused = useIsFocused();
 
@@ -73,13 +74,14 @@ export default function GalleryScreen({ navigation }) {
 	};
 
 	const handleDelete = async () => {
-		if (fullImage.url.startsWith('http') || fullImage.add) {
+		if (!fullImage.manual) {
 			await deleteImage(fullImage.deleteUrl);
 		} else {
 			await Linking.openURL(fullImage.deleteUrl);
 		}
 		setImages(await removeImage(fullImage.deleteUrl));
 		setDeletePopup(false);
+		setAdditionalInfo('');
 		setFullImage({});
 	};
 
@@ -90,6 +92,7 @@ export default function GalleryScreen({ navigation }) {
 				<Dialog.Title>Delete image</Dialog.Title>
 				<Dialog.Description>
 					Are you sure you want to permanently delete this image?
+					{ additionalInfo }
 				</Dialog.Description>
 				<Dialog.Button
 					label='Cancel'
@@ -127,9 +130,7 @@ export default function GalleryScreen({ navigation }) {
 						</AwesomeButton>
 						<AwesomeButton
 							style={styles.button}
-							onPress={async () => {
-								await setStringAsync(fullImage.url);
-							}}>
+							onPress={() => setStringAsync(fullImage.url)}>
 							<Ionicons
 								style={{ margin: 8, color: 'white' }}
 								name='clipboard-outline'
@@ -138,7 +139,12 @@ export default function GalleryScreen({ navigation }) {
 						</AwesomeButton>
 						<AwesomeButton
 							style={styles.button}
-							onPress={() => setDeletePopup(true)}>
+							onPress={() => {
+								if (fullImage.manual) {
+									setAdditionalInfo('\n\nYou will get redirected to the website and you need to press delete manually.')
+								}
+								setDeletePopup(true);
+							}}>
 							<Ionicons
 								style={{ margin: 8, color: 'red' }}
 								name='trash-outline'
