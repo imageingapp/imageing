@@ -1,51 +1,28 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { StatusBar } from 'expo-status-bar';
 
 import HomeScreen from './src/screens/home';
 import GalleryScreen from './src/screens/gallery';
 import SettingScreen from './src/screens/settings';
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const Tab = createBottomTabNavigator();
+const Tab = createMaterialTopTabNavigator();
 
 export default function App() {
 	return (
-		<>
+		<SafeAreaView style={{ flex: 1 }}>
 			<NavigationContainer>
 				<Tab.Navigator
-					screenOptions={({ route }) => ({
-						tabBarIcon: ({ focused, color, size }) => {
-							let iconName;
-
-							if (route.name === 'Home') {
-								iconName = focused
-									? 'camera'
-									: 'camera-outline';
-							} else if (route.name === 'Gallery') {
-								iconName = focused
-									? 'albums'
-									: 'albums-outline';
-							} else if (route.name === 'Settings') {
-								iconName = focused
-									? 'settings'
-									: 'settings-outline';
-							}
-
-							// You can return any component that you like here!
-							return (
-								<Ionicons
-									name={iconName}
-									size={size}
-									color={color}
-								/>
-							);
-						},
+					screenOptions={() => ({
 						tabBarActiveTintColor: 'turquoise',
 						tabBarInactiveTintColor: 'gray',
 						headerShown: false,
-						unmountOnBlur: true
+						unmountOnBlur: true,
+						lazy: true
+
 					})}>
 					<Tab.Screen
 						name='Home'
@@ -62,6 +39,6 @@ export default function App() {
 				</Tab.Navigator>
 			</NavigationContainer>
 			<StatusBar style='dark' />
-		</>
+		</SafeAreaView>
 	);
 }

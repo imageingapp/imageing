@@ -10,10 +10,11 @@ import {
 	Text,
 	Linking
 } from 'react-native';
-import { getImages, removeImage } from '../../utils/image';
+import { getImages, removeImage, deleteImage } from '../../utils/image';
 import { AnimatedImages } from '../../components/AnimatedImages';
 import { styles } from '../../Styles';
 import { setStringAsync } from 'expo-clipboard';
+import { useIsFocused } from '@react-navigation/native';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -26,6 +27,8 @@ export default function GalleryScreen() {
 	const [fullImage, setFullImage] = useState({});
 	const [showModal, setShowModal] = useState(false);
 
+	const isFocused = useIsFocused();
+
 	useEffect(() => {
 		let isMounted = true;
 		getImages().then((images) => {
@@ -34,7 +37,7 @@ export default function GalleryScreen() {
 		return () => {
 			isMounted = false;
 		};
-	}, []);
+	}, [isFocused]);
 
 	const openImage = (image) => {
 		setFullImage(image);
@@ -48,7 +51,6 @@ export default function GalleryScreen() {
 					transparent={false}
 					visible={showModal}
 					onRequestClose={() => {
-						console.log(fullImage);
 						setFullImage({});
 						setShowModal(false);
 						console.log('Modal has been closed.');
@@ -104,14 +106,12 @@ export default function GalleryScreen() {
 								<AwesomeButton
 									style={styles.button}
 									onPress={async () => {
-										await Linking.openURL(
-											fullImage.deleteUrl
-										);
-										setImages(
-											await removeImage(
-												fullImage.deleteUrl
-											)
-										);
+										if (!fullImage.deleteUrl.startsWith('http')) {
+											await deleteImage(fullImage.deleteUrl);
+										} else {
+											await Linking.openURL(fullImage.deleteUrl);
+										}
+										setImages(await removeImage(fullImage.deleteUrl));
 										setShowModal(false);
 									}}>
 									<Ionicons

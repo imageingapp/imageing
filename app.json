@@ -2,7 +2,7 @@
   "expo": {
     "name": "Imageing",
     "slug": "Imageing",
-    "version": "0.2.1",
+    "version": "0.3.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -27,7 +27,7 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "org.imageing.app",
-      "versionCode": 6
+      "versionCode": 9
     },
     "extra": {
       "eas": {

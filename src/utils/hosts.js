@@ -18,5 +18,12 @@ export const aHosts = [
 		},
 		getUrl: (data) => data.url,
 		getDeleteUrl: (data) => data.deletion_url
+	},
+	{
+		name: 'Imgur',
+		image: require('../../assets/ImgBB.png'),
+		settings: { apiClientId: '' },
+		getUrl:  (data) => data.data.link,
+		getDeleteUrl: (data) => data.data.deletehash
 	}
 ];
