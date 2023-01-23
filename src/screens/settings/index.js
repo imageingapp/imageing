@@ -9,9 +9,9 @@ import {
 	setHost,
 	getSettings,
 	setSettings
-} from '../utils/storage';
-import { aHosts } from "../utils/hosts";
-import { styles } from '../Styles';
+} from '../../utils/settings';
+import { aHosts } from "../../utils/hosts";
+import { styles } from '../../Styles';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Ionicons from '@expo/vector-icons/Ionicons';

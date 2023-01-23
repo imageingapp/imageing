@@ -4,9 +4,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 
-import HomeScreen from './Screens/Home';
-import GalleryScreen from './Screens/Gallery';
-import SettingScreen from './Screens/Settings';
+import HomeScreen from './src/screens/home';
+import GalleryScreen from './src/screens/gallery';
+import SettingScreen from './src/screens/settings';
 
 const Tab = createBottomTabNavigator();
 
