@@ -54,7 +54,9 @@ export default function GalleryScreen({ navigation }) {
 		return (
 			<AnimatedImages imageIndex={image.index}>
 				<View style={{ flex: 1, alignItems: 'flex-start' }}>
-					<TouchableHighlight style={{ borderRadius: 10 }} onPress={() => openImage(image.item)}>
+					<TouchableHighlight
+						style={{ borderRadius: 10 }}
+						onPress={() => openImage(image.item)}>
 						<Image
 							source={{ uri: image.item.localUrl }}
 							style={{
@@ -93,7 +95,7 @@ export default function GalleryScreen({ navigation }) {
 				<Dialog.Title>Delete image</Dialog.Title>
 				<Dialog.Description>
 					Are you sure you want to permanently delete this image?
-					{ additionalInfo }
+					{additionalInfo}
 				</Dialog.Description>
 				<Dialog.Button
 					label='Cancel'
@@ -142,7 +144,9 @@ export default function GalleryScreen({ navigation }) {
 							style={styles.button}
 							onPress={() => {
 								if (fullImage.manual) {
-									setAdditionalInfo('\n\nYou will get redirected to the website and you need to press delete manually.')
+									setAdditionalInfo(
+										'\n\nYou will get redirected to the website and you need to press delete manually.'
+									);
 								}
 								setDeletePopup(true);
 							}}>
