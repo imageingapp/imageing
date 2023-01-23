@@ -174,9 +174,26 @@ export async function deleteImage(hash) {
 	const host = await getHost();
 
 	if (host === aHosts[1]) {
-		await doRequest(hash, 'GET', null, null, () => {}, () => {});
+		await doRequest(
+			hash,
+			'GET',
+			null,
+			null,
+			() => {},
+			() => {}
+		);
 	} else {
-		await doRequest(`https://api.imgur.com/3/image/${hash}`, 'DELETE', null, { text: 'Authorization', value: `Client-ID ${settings.apiClientId}` }, () => {}, () => {});
+		await doRequest(
+			`https://api.imgur.com/3/image/${hash}`,
+			'DELETE',
+			null,
+			{
+				text: 'Authorization',
+				value: `Client-ID ${settings.apiClientId}`
+			},
+			() => {},
+			() => {}
+		);
 	}
 }
 

@@ -19,7 +19,7 @@ import Dialog from 'react-native-dialog';
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
-import Gestures from "react-native-easy-gestures";
+import Gestures from 'react-native-easy-gestures';
 
 let { width: screenWidth } = Dimensions.get('window');
 
@@ -32,13 +32,13 @@ export default function GalleryScreen({ navigation }) {
 
 	useEffect(() => {
 		let isMounted = true;
-		setFullImage({})
+		setFullImage({});
 		getImages().then((images) => {
 			if (isMounted) setImages(images);
 		});
 		const unsubscribe = navigation.addListener('tabPress', () => {
 			setFullImage({});
-		})
+		});
 		return () => {
 			isMounted = false;
 			unsubscribe();
@@ -57,10 +57,10 @@ export default function GalleryScreen({ navigation }) {
 						<Image
 							source={{ uri: image.item.localUrl }}
 							style={{
-							margin: 2,
+								margin: 2,
 								height: screenWidth / 3.1,
 								width: screenWidth / 3.1
-						}}
+							}}
 						/>
 					</TouchableHighlight>
 				</View>
@@ -70,7 +70,7 @@ export default function GalleryScreen({ navigation }) {
 
 	const handleCancel = () => {
 		setDeletePopup(false);
-	}
+	};
 
 	const handleDelete = async () => {
 		if (fullImage.url.startsWith('http') || fullImage.add) {
@@ -81,74 +81,93 @@ export default function GalleryScreen({ navigation }) {
 		setImages(await removeImage(fullImage.deleteUrl));
 		setDeletePopup(false);
 		setFullImage({});
-	}
+	};
 
 	return (
 		<SafeAreaView
 			style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
 			<Dialog.Container visible={deletePopup}>
 				<Dialog.Title>Delete image</Dialog.Title>
-				<Dialog.Description>Are you sure you want to permanently delete this image?</Dialog.Description>
-				<Dialog.Button label="Cancel" onPress={handleCancel} />
-				<Dialog.Button label="Delete" onPress={handleDelete} />
+				<Dialog.Description>
+					Are you sure you want to permanently delete this image?
+				</Dialog.Description>
+				<Dialog.Button
+					label='Cancel'
+					onPress={handleCancel}
+				/>
+				<Dialog.Button
+					label='Delete'
+					onPress={handleDelete}
+				/>
 			</Dialog.Container>
-			{ 	fullImage.localUrl
-				?
-					<View style={styles.fileWrap}>
-						<View style={styles.container}>
-							<Gestures style={styles.container} rotatable={false} draggable={true} scalable={{ min: 1, max: 10 }}>
-								<Image style={styles.preview} source={{ uri: fullImage.localUrl }} />
-							</Gestures>
-						</View>
-						<View style={styles.buttonContainer}>
-							<AwesomeButton
-								style={styles.button}
-								size='medium'
-								onPress={async () => {
-									await Linking.openURL(fullImage.url);
-								}}>
-								<Text style={{ fontSize: 20, color: 'white' }}>Open</Text>
-							</AwesomeButton>
-							<AwesomeButton
-								style={styles.button}
-								onPress={async () => {
-									await setStringAsync(fullImage.url);
-								}}>
-								<Ionicons
-									style={{ margin: 8, color: 'white' }}
-									name='clipboard-outline'
-									size={30}
-								/>
-							</AwesomeButton>
-							<AwesomeButton
-								style={styles.button}
-								onPress={() => setDeletePopup(true)}>
-								<Ionicons
-									style={{ margin: 8, color: 'red' }}
-									name='trash-outline'
-									size={30}
-								/>
-							</AwesomeButton>
-						</View>
-						<Toast />
+			{fullImage.localUrl ? (
+				<View style={styles.fileWrap}>
+					<View style={styles.container}>
+						<Gestures
+							style={styles.container}
+							rotatable={false}
+							draggable={true}
+							scalable={{ min: 1, max: 10 }}>
+							<Image
+								style={styles.preview}
+								source={{ uri: fullImage.localUrl }}
+							/>
+						</Gestures>
 					</View>
-				: 	images.length > 0 ?
-						<FlatList
-							data={images}
-							renderItem={renderImages}
-							keyExtractor={(item, index) => index.toString()}
-							horizontal={false}
-							numColumns={3}
-						/>
-					: 	(
-							<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-								<Text style={{ alignSelf: 'center' }}>
-									Oh no, the gallery is empty!
-								</Text>
-							</View>
-						)
-
-			}
+					<View style={styles.buttonContainer}>
+						<AwesomeButton
+							style={styles.button}
+							size='medium'
+							onPress={async () => {
+								await Linking.openURL(fullImage.url);
+							}}>
+							<Text style={{ fontSize: 20, color: 'white' }}>
+								Open
+							</Text>
+						</AwesomeButton>
+						<AwesomeButton
+							style={styles.button}
+							onPress={async () => {
+								await setStringAsync(fullImage.url);
+							}}>
+							<Ionicons
+								style={{ margin: 8, color: 'white' }}
+								name='clipboard-outline'
+								size={30}
+							/>
+						</AwesomeButton>
+						<AwesomeButton
+							style={styles.button}
+							onPress={() => setDeletePopup(true)}>
+							<Ionicons
+								style={{ margin: 8, color: 'red' }}
+								name='trash-outline'
+								size={30}
+							/>
+						</AwesomeButton>
+					</View>
+					<Toast />
+				</View>
+			) : images.length > 0 ? (
+				<FlatList
+					data={images}
+					renderItem={renderImages}
+					keyExtractor={(item, index) => index.toString()}
+					horizontal={false}
+					numColumns={3}
+				/>
+			) : (
+				<View
+					style={{
+						flex: 1,
+						alignItems: 'center',
+						justifyContent: 'center'
+					}}>
+					<Text style={{ alignSelf: 'center' }}>
+						Oh no, the gallery is empty!
+					</Text>
+				</View>
+			)}
 		</SafeAreaView>
 	);
 }
