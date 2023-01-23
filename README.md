@@ -4,21 +4,19 @@
 
 ## 🚀 About
 
-Imageing is a modern image sharing app for Android and iOS.
+Imageing is a modern image sharing app for Android.
 Like ShareX, it allows you to edit, upload and share images or screenshots to a host of your choice.
 
 ## Features
 
 -   Design of your choice
 -   Huge variety of hosts
--   Screenshot intercept
 -   Image editing prior to uploading
 -   Upload History
 
 ## 🔗 Links
 
--   Google Play Store
--   Apple Store
+-   [Google Play Store](https://play.google.com/store/apps/details?id=org.imageing.app)
 -   [Discord](https://discord.gg/9UK5ZcY6By)
 
 ## Contributing
