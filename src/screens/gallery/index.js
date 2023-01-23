@@ -10,16 +10,16 @@ import {
 	Text,
 	Linking
 } from 'react-native';
-import { getImages, removeImage } from '../utils/storage.js';
-import { AnimatedImages } from '../components/AnimatedImages/AnimatedImages';
-import { styles } from '../Styles';
+import { getImages, removeImage } from '../../utils/image';
+import { AnimatedImages } from '../../components/AnimatedImages';
+import { styles } from '../../Styles';
 import { setStringAsync } from 'expo-clipboard';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
 
-let { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+let { width: screenWidth } = Dimensions.get('window');
 
 export default function GalleryScreen() {
 	const [images, setImages] = useState([]);

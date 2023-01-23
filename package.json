@@ -1,6 +1,6 @@
 {
   "name": "newimageing",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
@@ -33,7 +33,8 @@
     "react-native-screens": "~3.18.0",
     "react-native-select-dropdown": "^3.2.1",
     "react-native-toast-message": "^2.1.5",
-    "react-native-web": "~0.18.9"
+    "react-native-web": "~0.18.9",
+    "expo-document-picker": "~11.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
