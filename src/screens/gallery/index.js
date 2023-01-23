@@ -6,7 +6,6 @@ import {
 	Image,
 	Dimensions,
 	TouchableHighlight,
-	Modal,
 	Text,
 	Linking
 } from 'react-native';
@@ -15,151 +14,141 @@ import { AnimatedImages } from '../../components/AnimatedImages';
 import { styles } from '../../Styles';
 import { setStringAsync } from 'expo-clipboard';
 import { useIsFocused } from '@react-navigation/native';
+import Dialog from 'react-native-dialog';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
+import Gestures from 'react-native-easy-gestures';
 
 let { width: screenWidth } = Dimensions.get('window');
 
-export default function GalleryScreen() {
+export default function GalleryScreen({ navigation }) {
 	const [images, setImages] = useState([]);
 	const [fullImage, setFullImage] = useState({});
-	const [showModal, setShowModal] = useState(false);
+	const [deletePopup, setDeletePopup] = useState(false);
 
 	const isFocused = useIsFocused();
 
 	useEffect(() => {
 		let isMounted = true;
+		setFullImage({});
 		getImages().then((images) => {
 			if (isMounted) setImages(images);
 		});
+		const unsubscribe = navigation.addListener('tabPress', () => {
+			setFullImage({});
+		});
 		return () => {
 			isMounted = false;
+			unsubscribe();
 		};
 	}, [isFocused]);
 
 	const openImage = (image) => {
 		setFullImage(image);
-		setShowModal(true);
 	};
 
 	const renderImages = (image) => {
 		return (
-			<>
-				<Modal
-					transparent={false}
-					visible={showModal}
-					onRequestClose={() => {
-						setFullImage({});
-						setShowModal(false);
-						console.log('Modal has been closed.');
-					}}>
-					{/*All views of Modal*/}
-					{/*Animation can be slide, slide, none*/}
-					<View style={styles.modal}>
+			<AnimatedImages imageIndex={image.index}>
+				<View style={{ flex: 1, alignItems: 'flex-start' }}>
+					<TouchableHighlight onPress={() => openImage(image.item)}>
 						<Image
-							source={{ uri: fullImage.localUrl }}
+							source={{ uri: image.item.localUrl }}
 							style={{
-								height: screenWidth,
-								width: screenWidth
+								margin: 2,
+								height: screenWidth / 3.1,
+								width: screenWidth / 3.1
 							}}
 						/>
-
-						<View style={styles.buttonContainerGallery}>
-							<AwesomeButton
-								style={styles.button}
-								size='medium'
-								onPress={() => Linking.openURL(fullImage.url)}>
-								<Text style={{ fontSize: 20, color: 'white' }}>
-									Open in Browser
-								</Text>
-							</AwesomeButton>
-							<AwesomeButton
-								style={styles.button}
-								onPress={async () => {
-									await setStringAsync(fullImage.url)
-										.then(() => {
-											Toast.show({
-												type: 'success',
-												text1: 'URL retrieved',
-												text2: `Image URL copied to the clipboard`,
-												position: 'bottom'
-											});
-										})
-										.catch((err) => {
-											console.log(err);
-											Toast.show({
-												type: 'error',
-												text1: 'An error occured!',
-												text2: `${err}`
-											});
-										});
-								}}>
-								<Ionicons
-									style={{ margin: 8, color: 'white' }}
-									name='clipboard-outline'
-									size={30}
-								/>
-							</AwesomeButton>
-							{fullImage.deleteUrl ? (
-								<AwesomeButton
-									style={styles.button}
-									onPress={async () => {
-										if (
-											!fullImage.deleteUrl.startsWith(
-												'http'
-											)
-										) {
-											await deleteImage(
-												fullImage.deleteUrl
-											);
-										} else {
-											await Linking.openURL(
-												fullImage.deleteUrl
-											);
-										}
-										setImages(
-											await removeImage(
-												fullImage.deleteUrl
-											)
-										);
-										setShowModal(false);
-									}}>
-									<Ionicons
-										style={{ margin: 8, color: 'red' }}
-										name='trash-outline'
-										size={30}
-									/>
-								</AwesomeButton>
-							) : null}
-						</View>
-						<Toast />
-					</View>
-				</Modal>
-				<AnimatedImages imageIndex={image.index}>
-					<View style={{ flex: 1, alignItems: 'flex-start' }}>
-						<TouchableHighlight
-							onPress={() => openImage(image.item)}>
-							<Image
-								source={{ uri: image.item.localUrl }}
-								style={{
-									margin: 2,
-									height: screenWidth / 3.1,
-									width: screenWidth / 3.1
-								}}
-							/>
-						</TouchableHighlight>
-					</View>
-				</AnimatedImages>
-			</>
+					</TouchableHighlight>
+				</View>
+			</AnimatedImages>
 		);
+	};
+
+	const handleCancel = () => {
+		setDeletePopup(false);
+	};
+
+	const handleDelete = async () => {
+		if (fullImage.url.startsWith('http') || fullImage.add) {
+			await deleteImage(fullImage.deleteUrl);
+		} else {
+			await Linking.openURL(fullImage.deleteUrl);
+		}
+		setImages(await removeImage(fullImage.deleteUrl));
+		setDeletePopup(false);
+		setFullImage({});
 	};
 
 	return (
 		<SafeAreaView
 			style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-			{images.length > 0 ? (
+			<Dialog.Container visible={deletePopup}>
+				<Dialog.Title>Delete image</Dialog.Title>
+				<Dialog.Description>
+					Are you sure you want to permanently delete this image?
+				</Dialog.Description>
+				<Dialog.Button
+					label='Cancel'
+					onPress={handleCancel}
+				/>
+				<Dialog.Button
+					label='Delete'
+					onPress={handleDelete}
+				/>
+			</Dialog.Container>
+			{fullImage.localUrl ? (
+				<View style={styles.fileWrap}>
+					<View style={styles.container}>
+						<Gestures
+							style={styles.container}
+							rotatable={false}
+							draggable={true}
+							scalable={{ min: 1, max: 10 }}>
+							<Image
+								style={styles.preview}
+								source={{ uri: fullImage.localUrl }}
+							/>
+						</Gestures>
+					</View>
+					<View style={styles.buttonContainer}>
+						<AwesomeButton
+							style={styles.button}
+							size='medium'
+							onPress={async () => {
+								await Linking.openURL(fullImage.url);
+							}}>
+							<Text style={{ fontSize: 20, color: 'white' }}>
+								Open
+							</Text>
+						</AwesomeButton>
+						<AwesomeButton
+							style={styles.button}
+							onPress={async () => {
+								await setStringAsync(fullImage.url);
+							}}>
+							<Ionicons
+								style={{ margin: 8, color: 'white' }}
+								name='clipboard-outline'
+								size={30}
+							/>
+						</AwesomeButton>
+						<AwesomeButton
+							style={styles.button}
+							onPress={() => setDeletePopup(true)}>
+							<Ionicons
+								style={{ margin: 8, color: 'red' }}
+								name='trash-outline'
+								size={30}
+							/>
+						</AwesomeButton>
+					</View>
+					<Toast />
+				</View>
+			) : images.length > 0 ? (
 				<FlatList
 					data={images}
 					renderItem={renderImages}

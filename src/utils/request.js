@@ -14,7 +14,9 @@ export async function doRequest(
 
 	// Perform request
 	uploadTask.open(method, url);
-	uploadTask.setRequestHeader(header.text, header.value);
+	if (header) {
+		uploadTask.setRequestHeader(header.text, header.value);
+	}
 
 	const onloadoverride = () => onload(uploadTask);
 	const onprogressoverride = (o) => onprogress(o, uploadTask);
