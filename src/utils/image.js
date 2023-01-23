@@ -171,14 +171,13 @@ export async function removeImage(deleteUrl) {
 
 export async function deleteImage(hash) {
 	const settings = await getSettings();
-	await doRequest(
-		`https://api.imgur.com/3/image/${hash}`,
-		'DELETE',
-		null,
-		{ text: 'Authorization', value: `Client-ID ${settings.apiClientId}` },
-		() => {},
-		() => {}
-	);
+	const host = await getHost();
+
+	if (host === aHosts[1]) {
+		await doRequest(hash, 'GET', null, null, () => {}, () => {});
+	} else {
+		await doRequest(`https://api.imgur.com/3/image/${hash}`, 'DELETE', null, { text: 'Authorization', value: `Client-ID ${settings.apiClientId}` }, () => {}, () => {});
+	}
 }
 
 export async function getImages() {

@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-easy-gestures/lib/index.js b/node_modules/react-native-easy-gestures/lib/index.js
+index a0aae1f..b339ab0 100644
+--- a/node_modules/react-native-easy-gestures/lib/index.js
++++ b/node_modules/react-native-easy-gestures/lib/index.js
+@@ -105,7 +105,7 @@ export default class Gestures extends Component {
+     };
+   }
+ 
+-  componentWillMount() {
++  UNSAFE_componentWillMount() {
+     this.pan = PanResponder.create({
+       onPanResponderGrant: this.onMoveStart,
+       onPanResponderMove: this.onMove,

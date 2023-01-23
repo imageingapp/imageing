@@ -10,6 +10,7 @@ import Placeholder from '../../../assets/placeholder.png';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
 import NetInfo from '@react-native-community/netinfo';
+import Gestures from "react-native-easy-gestures";
 
 export default function HomeScreen() {
 	const [progress, setProgress] = useState(0);
@@ -20,9 +21,9 @@ export default function HomeScreen() {
 	return (
 		<View style={styles.fileWrap}>
 			<View style={styles.container}>
-				<Image
-					style={styles.preview}
-					source={image}></Image>
+				<Gestures style={styles.container} rotatable={false} draggable={true} scalable={{ min: 1, max: 10 }}>
+					<Image style={styles.preview} source={image} />
+				</Gestures>
 			</View>
 			<View style={{ paddingVertical: 10 }}>
 				<Bar
