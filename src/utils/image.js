@@ -1,8 +1,8 @@
-import { getHost, getSettings } from "./settings";
-import { setStringAsync } from "expo-clipboard";
-import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
+import { getHost, getSettings } from './settings';
+import { setStringAsync } from 'expo-clipboard';
+import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export async function pickFile() {
 	let result = false;
@@ -18,7 +18,14 @@ export async function pickFile() {
 	return result;
 }
 
-export async function uploadImage(file, Toast, setNoPick, setProgress, next, resolve) {
+export async function uploadImage(
+	file,
+	Toast,
+	setNoPick,
+	setProgress,
+	next,
+	resolve
+) {
 	// Get Host to check what settings should be used
 	const host = await getHost();
 	// Get Settings from host
@@ -33,8 +40,8 @@ export async function uploadImage(file, Toast, setNoPick, setProgress, next, res
 				uri: file.uri,
 				type: 'image/jpeg',
 				name: 'upload.jpeg'
-			})
-			formData.append('key', settings.apiKey)
+			});
+			formData.append('key', settings.apiKey);
 			break;
 		}
 		case 'SXCU': {
@@ -43,9 +50,9 @@ export async function uploadImage(file, Toast, setNoPick, setProgress, next, res
 				uri: file.uri,
 				type: 'image/jpeg',
 				name: 'upload.jpeg'
-			})
-			formData.append('endpoint', settings.apiEndpoint)
-			formData.append('token', settings.apiToken)
+			});
+			formData.append('endpoint', settings.apiEndpoint);
+			formData.append('token', settings.apiToken);
 		}
 	}
 
@@ -63,7 +70,9 @@ export async function uploadImage(file, Toast, setNoPick, setProgress, next, res
 
 			if (response) {
 				if (uploadTask.status === 200) {
-					await setStringAsync(host.getUrl(response)).catch(console.log);
+					await setStringAsync(host.getUrl(response)).catch(
+						console.log
+					);
 					await storeImage(file.uri, response, host);
 					Toast.show({
 						type: 'success',
@@ -76,9 +85,7 @@ export async function uploadImage(file, Toast, setNoPick, setProgress, next, res
 						text1: `Error ${
 							response.status_code ?? response.http_code
 						}`,
-						text2: `${
-							response.error.message ?? response.error_msg
-						}`
+						text2: `${response.error.message ?? response.error_msg}`
 					});
 				}
 			} else {
@@ -91,7 +98,7 @@ export async function uploadImage(file, Toast, setNoPick, setProgress, next, res
 			setProgress(0);
 			resolve();
 			next();
-		}
+		};
 		uploadTask.onerror = (e) => console.log(e);
 		uploadTask.ontimeout = (e) => console.log(e);
 
@@ -101,7 +108,7 @@ export async function uploadImage(file, Toast, setNoPick, setProgress, next, res
 			uploadTask.upload.onprogress = ({ total, loaded }) => {
 				const uploadProgress = loaded / total;
 				setProgress(uploadProgress);
-			}
+			};
 		}
 	} catch (error) {
 		console.log(error);

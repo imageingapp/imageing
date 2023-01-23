@@ -10,7 +10,7 @@ import {
 	getSettings,
 	setSettings
 } from '../../utils/settings';
-import { aHosts } from "../../utils/hosts";
+import { aHosts } from '../../utils/hosts';
 import { styles } from '../../Styles';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
@@ -182,17 +182,26 @@ export default function SettingScreen() {
 					</Text>
 				</AwesomeButton>
 				{selHost?.name === 'SXCU' ? (
-						<AwesomeButton
-							style={{ ...styles.button, marginBottom: 20 }}
-							onPress={async () => {
+					<AwesomeButton
+						style={{ ...styles.button, marginBottom: 20 }}
+						onPress={async () => {
 							const file = await getDocumentAsync();
 							if (file.type !== 'cancel') {
 								let fileData;
 								try {
-									fileData = JSON.parse((await readAsStringAsync(file.uri)).trim());
-								} catch(err) {
-								}
-								if (!fileData || !fileData.RequestURL || !fileData.Arguments?.token || !fileData.Arguments?.endpoint || !fileData.FileFormName) {
+									fileData = JSON.parse(
+										(
+											await readAsStringAsync(file.uri)
+										).trim()
+									);
+								} catch (err) {}
+								if (
+									!fileData ||
+									!fileData.RequestURL ||
+									!fileData.Arguments?.token ||
+									!fileData.Arguments?.endpoint ||
+									!fileData.FileFormName
+								) {
 									Toast.show({
 										type: 'error',
 										text1: 'File import failed',
@@ -213,7 +222,7 @@ export default function SettingScreen() {
 								};
 								setInputApiUrl(url);
 								setInputApiToken(apiToken);
-								setInputApiEndpoint(apiEndpoint)
+								setInputApiEndpoint(apiEndpoint);
 								setInputApiFormName(apiFormName);
 								await setSettings(settings);
 								Toast.show({
