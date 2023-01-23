@@ -14,4 +14,4 @@ export const aHosts = [
 		getUrl: (data) => data.url,
 		getDeleteUrl: (data) => data.deletion_url
 	}
-]
+] 

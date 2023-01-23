@@ -6,4 +6,4 @@ export const AnimatedImages = (props) => {
 			{ props.children }
 		</View>
     )
-}
+} 

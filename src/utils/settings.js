@@ -25,3 +25,4 @@ export async function getSettings() {
 export async function setSettings(options) {
 	await AsyncStorage.setItem('settings', JSON.stringify(options));
 }
+ 
