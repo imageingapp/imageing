@@ -114,8 +114,13 @@ export default function GalleryScreen({ navigation }) {
 						<Gestures
 							style={styles.container}
 							ref={(c) => setGestures(c)}
-							onScaleStart={() => { setDraggable(true) }}
-							onScaleEnd={() => { gestures.reset(() => {}); setDraggable(false) }}
+							onScaleStart={() => {
+								setDraggable(true);
+							}}
+							onScaleEnd={() => {
+								gestures.reset(() => {});
+								setDraggable(false);
+							}}
 							rotatable={false}
 							draggable={draggable}
 							scalable={{ min: 1, max: 10 }}>

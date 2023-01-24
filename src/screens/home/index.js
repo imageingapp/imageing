@@ -26,8 +26,13 @@ export default function HomeScreen() {
 				<Gestures
 					style={styles.container}
 					ref={(c) => setGestures(c)}
-					onScaleStart={() => { setDraggable(true) }}
-					onScaleEnd={() => { gestures.reset(() => {}); setDraggable(false) }}
+					onScaleStart={() => {
+						setDraggable(true);
+					}}
+					onScaleEnd={() => {
+						gestures.reset(() => {});
+						setDraggable(false);
+					}}
 					rotatable={false}
 					draggable={draggable}
 					scalable={{ min: 1, max: 10 }}>
@@ -82,7 +87,9 @@ export default function HomeScreen() {
 							next();
 							return;
 						}
-						const resolve = (finished) => { if (finished) setImage(Placeholder) };
+						const resolve = (finished) => {
+							if (finished) setImage(Placeholder);
+						};
 						await uploadImage(
 							image,
 							Toast,
