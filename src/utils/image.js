@@ -1,6 +1,10 @@
 import { getHost, getSettings } from './settings';
 import { setStringAsync } from 'expo-clipboard';
-import { launchCameraAsync, launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
+import {
+	launchCameraAsync,
+	launchImageLibraryAsync,
+	MediaTypeOptions
+} from 'expo-image-picker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { aHosts } from './hosts';
