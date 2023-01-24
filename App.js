@@ -6,7 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 
 import HomeScreen from './src/screens/home';
 import GalleryScreen from './src/screens/gallery';
-import SettingScreen from './src/screens/settings';
+import SettingScreen from './src/screens/settings/newSettings';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Tab = createMaterialTopTabNavigator();

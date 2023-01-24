@@ -40,27 +40,24 @@ export async function setSettings(options) {
 }
 
 export function buildSettings(options) {
+	let component;
 	switch (options.host) {
 		case aHosts[0]: {
 			// ImgBB
-			return (
-				<View>
-					<TextInput
-						contentStyle={styles.textInput}
-						mode='outlined'
-						label='API Key'
-						value={options.fields.apiKey.inputApiKey}
-						onChangeText={(text) =>
-							options.fields.apiKey.setInputApiKey(text)
-						}
-					/>
-				</View>
-			);
+			component = <TextInput
+							contentStyle={styles.textInput}
+							mode='outlined'
+							label='API Key'
+							value={options.fields.apiKey.inputApiKey}
+							onChangeText={(text) =>
+								options.fields.apiKey.setInputApiKey(text)
+							}
+						/>
+			break;
 		}
 		case aHosts[1]: {
 			// SXCU
-			return (
-				<View>
+			component = <>
 					<TextInput
 						contentStyle={styles.textInput}
 						mode='outlined'
@@ -97,11 +94,12 @@ export function buildSettings(options) {
 							options.fields.apiFormName.setInputApiFormName(text)
 						}
 					/>
-				</View>
-			);
+			</>
+			break;
 		}
 		default: {
 			return <View></View>;
 		}
 	}
+	return <View style={{ marginTop: 20, flex: 1, width: '80%' }}>{component}</View>
 }

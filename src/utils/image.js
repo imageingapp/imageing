@@ -11,20 +11,22 @@ import { aHosts } from './hosts';
 import { doRequest } from './request';
 
 export async function pickImage() {
+	const settings = await getSettings();
 	return await launchImageLibraryAsync({
 		mediaTypes: MediaTypeOptions.Images,
-		allowsEditing: true,
+		allowsEditing: !settings.multiUpload,
 		quality: 1,
-		allowsMultipleSelection: false
+		allowsMultipleSelection: settings.multiUpload
 	}).catch(console.log);
 }
 
 export async function takeImage() {
+	const settings = await getSettings();
 	return await launchCameraAsync({
 		mediaTypes: MediaTypeOptions.Images,
-		allowsEditing: true,
+		allowsEditing: !settings.multiUpload,
 		quality: 1,
-		allowsMultipleSelection: false
+		allowsMultipleSelection: settings.multiUpload
 	}).catch(console.log);
 }
 

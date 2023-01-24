@@ -18,6 +18,7 @@ import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SelectDropdown from 'react-native-select-dropdown';
 import Toast from 'react-native-toast-message';
+import {Checkbox} from "react-native-paper";
 
 const hosts = aHosts;
 
@@ -30,6 +31,8 @@ export default function SettingScreen() {
 	const [inputApiToken, setInputApiToken] = useState('');
 	const [inputApiEndpoint, setInputApiEndpoint] = useState('');
 	const [inputApiFormName, setInputApiFormName] = useState('');
+	// Other Settings
+	const [checkMultiUpload, setCheckMultiUpload] = useState(false);
 
 	const isFocused = useIsFocused();
 
@@ -60,6 +63,7 @@ export default function SettingScreen() {
 						setInputApiToken(settings.apiToken);
 						setInputApiEndpoint(settings.apiEndpoint);
 						setInputApiFormName(settings.apiFormName);
+						setCheckMultiUpload(settings.multiUpload);
 					}
 				})
 				.catch((err) => console.log(err));
@@ -71,14 +75,8 @@ export default function SettingScreen() {
 
 	return (
 		<SafeAreaView
-			style={{
-				flex: 1,
-				flexDirection: 'column',
-				justifyContent: 'space-between',
-				alignItems: 'center',
-				paddingTop: 20
-			}}>
-			<View>
+			style={styles.fileWrap}>
+			<View style={{ ...styles.container, marginTop: 25 }}>
 				<SelectDropdown
 					data={hosts}
 					onSelect={async (sel, index) => {
@@ -90,6 +88,7 @@ export default function SettingScreen() {
 						setInputApiToken(settings.apiToken);
 						setInputApiEndpoint(settings.apiEndpoint);
 						setInputApiFormName(settings.apiFormName);
+						setCheckMultiUpload(settings.multiUpload);
 					}}
 					defaultValue={selHost}
 					buttonStyle={styles.dropdownButton}
@@ -108,8 +107,7 @@ export default function SettingScreen() {
 									/>
 								) : (
 									<Ionicons
-										name='md-earth-sharp'
-										color={'#444'}
+										name='server-outline'
 										size={32}
 									/>
 								)}
@@ -119,7 +117,6 @@ export default function SettingScreen() {
 								</Text>
 								<Ionicons
 									name='chevron-down-outline'
-									color={'#FFF'}
 									size={18}
 								/>
 							</View>
@@ -142,6 +139,10 @@ export default function SettingScreen() {
 				/>
 				{selHost.name ? buildSettings(buildOptions) : null}
 			</View>
+			<View style={{ ...styles.container, flex: 3, flexDirection: "row" }}>
+				<Checkbox status={checkMultiUpload ? 'checked' : 'unchecked'} onPress={() => setCheckMultiUpload(!checkMultiUpload)} />
+				<Text>Enable upload of multiple images</Text>
+			</View>
 			<View style={styles.buttonContainerSettings}>
 				<AwesomeButton
 					style={{ ...styles.button, marginBottom: 20 }}
@@ -156,7 +157,9 @@ export default function SettingScreen() {
 							apiEndpoint: inputApiEndpoint,
 							apiFormName: inputApiFormName,
 							// Imgur
-							apiClientId: '867afe9433c0a53'
+							apiClientId: '867afe9433c0a53',
+							// Other Settings
+							multiUpload: checkMultiUpload
 						};
 						await setSettings(settings);
 					}}>
@@ -164,65 +167,69 @@ export default function SettingScreen() {
 						Save Settings
 					</Text>
 				</AwesomeButton>
-				{selHost?.name === 'SXCU' ? (
-					<AwesomeButton
-						style={{ ...styles.button, marginBottom: 20 }}
-						onPress={async () => {
-							const file = await getDocumentAsync();
-							if (file.type !== 'cancel') {
-								let fileData;
-								try {
-									fileData = JSON.parse(
-										(
-											await readAsStringAsync(file.uri)
-										).trim()
-									);
-								} catch (err) {}
-								if (
-									!fileData ||
-									!fileData.RequestURL ||
-									!fileData.Arguments?.token ||
-									!fileData.Arguments?.endpoint ||
-									!fileData.FileFormName
-								) {
-									Toast.show({
-										type: 'error',
-										text1: 'File import failed',
-										text2: 'The file contains invalid data.'
-									});
-									return;
-								}
-								const url = fileData.RequestURL;
-								const apiToken = fileData.Arguments.token;
-								const apiEndpoint = fileData.Arguments.endpoint;
-								const apiFormName = fileData.FileFormName;
-								const settings = {
-									apiKey: inputApiKey,
-									apiUrl: url,
-									apiToken: apiToken,
-									apiEndpoint: apiEndpoint,
-									apiFormName: apiFormName,
-									apiClientId: '867afe9433c0a53'
-								};
-								setInputApiUrl(url);
-								setInputApiToken(apiToken);
-								setInputApiEndpoint(apiEndpoint);
-								setInputApiFormName(apiFormName);
-								await setSettings(settings);
+				<AwesomeButton
+					style={{ ...styles.button, marginBottom: 20 }}
+					disabled={selHost?.name !== 'SXCU'}
+					onPress={async () => {
+						const file = await getDocumentAsync();
+						if (file.type !== 'cancel') {
+							let fileData;
+							try {
+								fileData = JSON.parse(
+									(
+										await readAsStringAsync(file.uri)
+									).trim()
+								);
+							} catch (err) {}
+							if (
+								!fileData ||
+								!fileData.RequestURL ||
+								!fileData.Arguments?.token ||
+								!fileData.Arguments?.endpoint ||
+								!fileData.FileFormName
+							) {
 								Toast.show({
-									type: 'success',
-									text1: 'File imported',
-									text2: 'The data was saved.'
+									type: 'error',
+									text1: 'File import failed',
+									text2: 'The file contains invalid data.'
 								});
+								return;
 							}
-						}}>
-						<Ionicons
-							style={{ margin: 8, color: 'white' }}
-							name='download-outline'
-							size={30}
-						/>
-					</AwesomeButton>
-				) : null}
+							const url = fileData.RequestURL;
+							const apiToken = fileData.Arguments.token;
+							const apiEndpoint = fileData.Arguments.endpoint;
+							const apiFormName = fileData.FileFormName;
+							const settings = {
+								// ImgBB
+								apiKey: inputApiKey,
+								// SXCU
+								apiUrl: url,
+								apiToken: apiToken,
+								apiEndpoint: apiEndpoint,
+								apiFormName: apiFormName,
+								// Imgur
+								apiClientId: '867afe9433c0a53',
+								// Other Settings
+								multiUpload: checkMultiUpload
+							};
+							setInputApiUrl(url);
+							setInputApiToken(apiToken);
+							setInputApiEndpoint(apiEndpoint);
+							setInputApiFormName(apiFormName);
+							await setSettings(settings);
+							Toast.show({
+								type: 'success',
+								text1: 'File imported',
+								text2: 'The data was saved.'
+							});
+						}
+					}}>
+					<Ionicons
+						style={{ margin: 8, color: 'white' }}
+						name='download-outline'
+						size={30}
+					/>
+				</AwesomeButton>
 			</View>
 			<Toast />
 		</SafeAreaView>
