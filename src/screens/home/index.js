@@ -17,15 +17,19 @@ export default function HomeScreen() {
 	const [image, setImage] = useState(Placeholder);
 	const [uploading, setUploading] = useState(true);
 	const [noPick, setNoPick] = useState(false);
+	const [draggable, setDraggable] = useState(false);
+	const [gestures, setGestures] = useState({});
 
 	return (
 		<View style={styles.fileWrap}>
 			<View style={styles.container}>
 				<Gestures
 					style={styles.container}
+					ref={(c) => setGestures(c)}
+					onScaleStart={() => { setDraggable(true) }}
+					onScaleEnd={() => { gestures.reset(() => {}); setDraggable(false) }}
 					rotatable={false}
-					draggable={true}
-					Gestures
+					draggable={draggable}
 					scalable={{ min: 1, max: 10 }}>
 					<Image
 						style={styles.preview}
@@ -78,12 +82,13 @@ export default function HomeScreen() {
 							next();
 							return;
 						}
-						const resolve = () => setImage(Placeholder);
+						const resolve = (finished) => { if (finished) setImage(Placeholder) };
 						await uploadImage(
 							image,
 							Toast,
 							setNoPick,
 							setProgress,
+							setUploading,
 							next,
 							resolve
 						);
