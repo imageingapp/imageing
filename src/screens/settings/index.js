@@ -18,7 +18,7 @@ import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SelectDropdown from 'react-native-select-dropdown';
 import Toast from 'react-native-toast-message';
-import {Checkbox} from "react-native-paper";
+import { Checkbox } from 'react-native-paper';
 
 const hosts = aHosts;
 
@@ -74,8 +74,7 @@ export default function SettingScreen() {
 	}, [isFocused]);
 
 	return (
-		<SafeAreaView
-			style={styles.fileWrap}>
+		<SafeAreaView style={styles.fileWrap}>
 			<View style={{ ...styles.container, marginTop: 25 }}>
 				<SelectDropdown
 					data={hosts}
@@ -139,8 +138,12 @@ export default function SettingScreen() {
 				/>
 				{selHost.name ? buildSettings(buildOptions) : null}
 			</View>
-			<View style={{ ...styles.container, flex: 3, flexDirection: "row" }}>
-				<Checkbox status={checkMultiUpload ? 'checked' : 'unchecked'} onPress={() => setCheckMultiUpload(!checkMultiUpload)} />
+			<View
+				style={{ ...styles.container, flex: 3, flexDirection: 'row' }}>
+				<Checkbox
+					status={checkMultiUpload ? 'checked' : 'unchecked'}
+					onPress={() => setCheckMultiUpload(!checkMultiUpload)}
+				/>
 				<Text>Enable upload of multiple images</Text>
 			</View>
 			<View style={styles.buttonContainerSettings}>
@@ -176,9 +179,7 @@ export default function SettingScreen() {
 							let fileData;
 							try {
 								fileData = JSON.parse(
-									(
-										await readAsStringAsync(file.uri)
-									).trim()
+									(await readAsStringAsync(file.uri)).trim()
 								);
 							} catch (err) {}
 							if (

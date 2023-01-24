@@ -44,20 +44,23 @@ export function buildSettings(options) {
 	switch (options.host) {
 		case aHosts[0]: {
 			// ImgBB
-			component = <TextInput
-							contentStyle={styles.textInput}
-							mode='outlined'
-							label='API Key'
-							value={options.fields.apiKey.inputApiKey}
-							onChangeText={(text) =>
-								options.fields.apiKey.setInputApiKey(text)
-							}
-						/>
+			component = (
+				<TextInput
+					contentStyle={styles.textInput}
+					mode='outlined'
+					label='API Key'
+					value={options.fields.apiKey.inputApiKey}
+					onChangeText={(text) =>
+						options.fields.apiKey.setInputApiKey(text)
+					}
+				/>
+			);
 			break;
 		}
 		case aHosts[1]: {
 			// SXCU
-			component = <>
+			component = (
+				<>
 					<TextInput
 						contentStyle={styles.textInput}
 						mode='outlined'
@@ -94,12 +97,17 @@ export function buildSettings(options) {
 							options.fields.apiFormName.setInputApiFormName(text)
 						}
 					/>
-			</>
+				</>
+			);
 			break;
 		}
 		default: {
 			return <View></View>;
 		}
 	}
-	return <View style={{ marginTop: 20, flex: 1, width: '80%' }}>{component}</View>
+	return (
+		<View style={{ marginTop: 20, flex: 1, width: '80%' }}>
+			{component}
+		</View>
+	);
 }

@@ -5,5 +5,5 @@ export default {
 	danger: '#f72585',
 	success: '#4cc9f0',
 	grey: '#adb5bd',
-	white: '#ffffff',
+	white: '#ffffff'
 };

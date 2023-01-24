@@ -203,7 +203,7 @@ export const styles = StyleSheet.create({
 		height: 50
 	},
 	buttonContainerSettings: {
-		flexDirection: 'row',
+		flexDirection: 'row'
 	},
 	dropdownChild: {
 		flex: 1,
