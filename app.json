@@ -22,6 +22,7 @@
       "bundleIdentifier": "org.imageing.app"
     },
     "android": {
+	  "permissions": ["com.google.android.gms.permission.AD_ID"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

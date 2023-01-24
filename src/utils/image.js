@@ -20,6 +20,7 @@ export async function uploadImage(
 	Toast,
 	setNoPick,
 	setProgress,
+	setUploading,
 	next,
 	resolve
 ) {
@@ -108,7 +109,7 @@ export async function uploadImage(
 				});
 			}
 			setProgress(0);
-			resolve();
+			resolve(true);
 			next();
 		};
 
@@ -132,6 +133,11 @@ export async function uploadImage(
 			text1: 'An error occured!',
 			text2: `${error}`
 		});
+		setNoPick(false);
+		setUploading(false);
+		setProgress(0);
+		resolve(false);
+		next();
 	}
 }
 

@@ -11,7 +11,7 @@ export const styles = StyleSheet.create({
 	preview: {
 		height: '90%',
 		width: '95%',
-		resizeMode: 'center',
+		resizeMode: 'cover',
 		borderRadius: 15
 	},
 	buttonContainer: {

@@ -28,6 +28,8 @@ export default function GalleryScreen({ navigation }) {
 	const [fullImage, setFullImage] = useState({});
 	const [deletePopup, setDeletePopup] = useState(false);
 	const [additionalInfo, setAdditionalInfo] = useState('');
+	const [draggable, setDraggable] = useState(false);
+	const [gestures, setGestures] = useState({});
 
 	const isFocused = useIsFocused();
 
@@ -56,7 +58,7 @@ export default function GalleryScreen({ navigation }) {
 				<View style={{ flex: 1, alignItems: 'flex-start' }}>
 					<TouchableHighlight
 						style={{ borderRadius: 10 }}
-						TouchableHighlightonPress={() => openImage(image.item)}>
+						onPress={() => openImage(image.item)}>
 						<Image
 							source={{ uri: image.item.localUrl }}
 							style={{
@@ -111,8 +113,16 @@ export default function GalleryScreen({ navigation }) {
 					<View style={styles.container}>
 						<Gestures
 							style={styles.container}
+							ref={(c) => setGestures(c)}
+							onScaleStart={() => {
+								setDraggable(true);
+							}}
+							onScaleEnd={() => {
+								gestures.reset(() => {});
+								setDraggable(false);
+							}}
 							rotatable={false}
-							draggable={true}
+							draggable={draggable}
 							scalable={{ min: 1, max: 10 }}>
 							<Image
 								style={styles.preview}
