@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Text, View, Image } from 'react-native';
 import { styles } from '../../Styles';
-import { pickFile, uploadImage } from '../../utils/image';
+import { pickImage, takeImage, uploadImage } from '../../utils/image';
 import { Bar } from 'react-native-progress';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
@@ -55,7 +55,23 @@ export default function HomeScreen() {
 					style={styles.button}
 					disabled={noPick}
 					onPress={async () => {
-						const pickedImage = await pickFile();
+						const capturedImage = await takeImage();
+						if (!capturedImage.canceled) {
+							setImage({ uri: capturedImage.assets[0].uri });
+							setUploading(false);
+						}
+					}}>
+					<Ionicons
+						style={{ margin: 10, color: 'white' }}
+						name='camera-outline'
+						size={30}
+					/>
+				</AwesomeButton>
+				<AwesomeButton
+					style={styles.button}
+					disabled={noPick}
+					onPress={async () => {
+						const pickedImage = await pickImage();
 						if (!pickedImage.canceled) {
 							setImage({ uri: pickedImage.assets[0].uri });
 							setUploading(false);
@@ -63,7 +79,7 @@ export default function HomeScreen() {
 					}}>
 					<Ionicons
 						style={{ margin: 10, color: 'white' }}
-						name='add-circle'
+						name='add-circle-outline'
 						size={30}
 					/>
 				</AwesomeButton>

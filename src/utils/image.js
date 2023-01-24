@@ -1,15 +1,28 @@
 import { getHost, getSettings } from './settings';
 import { setStringAsync } from 'expo-clipboard';
-import { launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker';
+import {
+	launchCameraAsync,
+	launchImageLibraryAsync,
+	MediaTypeOptions
+} from 'expo-image-picker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { aHosts } from './hosts';
 import { doRequest } from './request';
 
-export async function pickFile() {
+export async function pickImage() {
 	return await launchImageLibraryAsync({
 		mediaTypes: MediaTypeOptions.Images,
-		allowsEditing: false,
+		allowsEditing: true,
+		quality: 1,
+		allowsMultipleSelection: false
+	}).catch(console.log);
+}
+
+export async function takeImage() {
+	return await launchCameraAsync({
+		mediaTypes: MediaTypeOptions.Images,
+		allowsEditing: true,
 		quality: 1,
 		allowsMultipleSelection: false
 	}).catch(console.log);
