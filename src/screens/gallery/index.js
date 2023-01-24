@@ -7,7 +7,8 @@ import {
 	Dimensions,
 	TouchableHighlight,
 	Text,
-	Linking
+	Linking,
+	TouchableOpacity
 } from 'react-native';
 import { getImages, removeImage, deleteImage } from '../../utils/image';
 import { AnimatedImages } from '../../components/AnimatedImages';
@@ -124,10 +125,42 @@ export default function GalleryScreen({ navigation }) {
 							rotatable={false}
 							draggable={draggable}
 							scalable={{ min: 1, max: 10 }}>
-							<Image
-								style={styles.preview}
-								source={{ uri: fullImage.localUrl }}
-							/>
+							<View style={styles.container}>
+								{!draggable ? (
+									<TouchableOpacity
+										style={{
+											position: 'absolute',
+											top: '7%',
+											right: '5%',
+											zIndex: 1,
+											alignItems: 'center',
+											justifyContent: 'center'
+										}}
+										onPress={() => {
+											setFullImage({});
+										}}>
+										<View
+											style={{
+												backgroundColor: 'white',
+												borderRadius: 10
+											}}>
+											<Ionicons
+												style={{
+													margin: 0,
+													color: '#ff0000'
+												}}
+												name='close-outline'
+												size={40}
+											/>
+										</View>
+									</TouchableOpacity>
+								) : null}
+
+								<Image
+									style={styles.preview}
+									source={{ uri: fullImage.localUrl }}
+								/>
+							</View>
 						</Gestures>
 					</View>
 					<View style={styles.buttonContainer}>
