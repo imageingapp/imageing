@@ -1,0 +1,22 @@
+diff --git a/node_modules/react-native-dialog/lib/Switch.js b/node_modules/react-native-dialog/lib/Switch.js
+index 69f4e93..311e609 100644
+--- a/node_modules/react-native-dialog/lib/Switch.js
++++ b/node_modules/react-native-dialog/lib/Switch.js
+@@ -27,7 +27,7 @@ const buildStyles = (isDark) => StyleSheet.create({
+             justifyContent: "space-between",
+             alignItems: "center",
+             marginHorizontal: 20,
+-            marginBottom: 14,
++            marginBottom: 0,
+             paddingHorizontal: 8,
+         },
+         android: {
+@@ -35,7 +35,7 @@ const buildStyles = (isDark) => StyleSheet.create({
+             justifyContent: "space-between",
+             alignItems: "center",
+             marginHorizontal: 10,
+-            marginBottom: 20,
++            marginBottom: 0,
+         },
+         default: {},
+     }),

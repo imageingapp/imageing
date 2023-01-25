@@ -227,6 +227,6 @@ export const styles = StyleSheet.create({
 	dropdownRowImage: {
 		width: 45,
 		height: 45,
-		resizeMode: 'cover'
+		resizeMode: 'cover',
 	}
 });

@@ -1,16 +1,13 @@
-import { getHost } from './settings';
-
 export async function doRequest(
 	url,
 	method,
 	formData,
 	header,
 	onload,
-	onprogress
+	onprogress,
+	onerror
 ) {
 	const uploadTask = new XMLHttpRequest();
-	// Get Host
-	const host = await getHost();
 
 	// Perform request
 	uploadTask.open(method, url);
@@ -20,10 +17,11 @@ export async function doRequest(
 
 	const onloadoverride = () => onload(uploadTask);
 	const onprogressoverride = (o) => onprogress(o, uploadTask);
+	const onerroroverride = (e) => onerror(e, uploadTask);
 
 	uploadTask.onload = onloadoverride;
-	uploadTask.onerror = (e) => console.log('error', e);
-	uploadTask.ontimeout = (e) => console.log('timeout', e);
+	uploadTask.onerror = onerroroverride;
+	uploadTask.ontimeout = onerroroverride;
 
 	uploadTask.send(formData ?? undefined);
 
