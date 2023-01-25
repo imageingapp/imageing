@@ -1,5 +1,8 @@
-name: build
-on: [push, pull_request]
+name: Android Release
+on:
+  workflow_dispatch: # To trigger manual build
+  release:
+    types: [published] # only run the workflow when a new release has been published
 
 jobs:
   build:
