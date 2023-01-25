@@ -9,8 +9,7 @@
 	},
 	"extends": [
 		"plugin:react/recommended",
-		"eslint:recommended",
-		"plugin:jest/recommended"
+		"eslint:recommended"
 	],
 
 	"parserOptions": {
