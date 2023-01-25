@@ -9,7 +9,6 @@
 	},
 	"extends": [
 		"plugin:react/recommended",
-		"prettier",
 		"eslint:recommended",
 		"plugin:jest/recommended"
 	],
