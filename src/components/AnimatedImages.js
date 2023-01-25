@@ -1,6 +1,9 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
 import { View } from 'react-native-animatable';
+import React from 'react';
 
-export const AnimatedImages = (props) => {
+export default function AnimatedImages(props) {
 	return (
 		<View
 			animation='zoomIn'
@@ -8,4 +11,4 @@ export const AnimatedImages = (props) => {
 			{props.children}
 		</View>
 	);
-};
+}

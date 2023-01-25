@@ -1,16 +1,17 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Text, View, Image } from 'react-native';
-import { styles } from '../../Styles';
-import { pickImage, takeImage, uploadImage } from '../../utils/image';
 import { Bar } from 'react-native-progress';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 
-import Placeholder from '../../../assets/placeholder.png';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
 import NetInfo from '@react-native-community/netinfo';
 import Gestures from 'react-native-easy-gestures';
+import Placeholder from '../../../assets/placeholder.png';
+import { pickImage, takeImage, uploadImage } from '../../utils/image';
+import styles from '../../Styles';
 
 export default function HomeScreen() {
 	const [progress, setProgress] = useState(0);
@@ -46,8 +47,8 @@ export default function HomeScreen() {
 				<Bar
 					progress={progress}
 					width={260}
-					color={'#1775C8'}
-					borderColor={'#f2f2f2'}
+					color='#1775C8'
+					borderColor='#f2f2f2'
 				/>
 			</View>
 			<View style={styles.buttonContainer}>

@@ -1,8 +1,17 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, Image } from 'react-native';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getDocumentAsync } from 'expo-document-picker';
 import { readAsStringAsync } from 'expo-file-system';
+import { useIsFocused } from '@react-navigation/native';
+
+import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import Ionicons from '@expo/vector-icons/Ionicons';
+import SelectDropdown from 'react-native-select-dropdown';
+import Toast from 'react-native-toast-message';
+import styles from '../../Styles';
+import aHosts from '../../utils/hosts';
 import {
 	getHost,
 	setHost,
@@ -10,14 +19,6 @@ import {
 	setSettings,
 	buildSettings
 } from '../../utils/settings';
-import { aHosts } from '../../utils/hosts';
-import { styles } from '../../Styles';
-import { useIsFocused } from '@react-navigation/native';
-
-import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import SelectDropdown from 'react-native-select-dropdown';
-import Toast from 'react-native-toast-message';
 
 const hosts = aHosts;
 
@@ -33,7 +34,7 @@ export default function SettingScreen() {
 
 	const isFocused = useIsFocused();
 
-	let buildOptions = {
+	const buildOptions = {
 		host: selHost,
 		fields: {
 			// ImgBB
@@ -62,6 +63,7 @@ export default function SettingScreen() {
 						setInputApiFormName(settings.apiFormName);
 					}
 				})
+				// eslint-disable-next-line no-console
 				.catch((err) => console.log(err));
 		});
 		return () => {
@@ -81,7 +83,7 @@ export default function SettingScreen() {
 			<View>
 				<SelectDropdown
 					data={hosts}
-					onSelect={async (sel, index) => {
+					onSelect={async (sel) => {
 						await setHost(sel);
 						setSelHost(sel);
 						const settings = await getSettings();
@@ -94,51 +96,47 @@ export default function SettingScreen() {
 					defaultValue={selHost}
 					buttonStyle={styles.dropdownButton}
 					buttonTextStyle={styles.dropdownButtonText}
-					dropdownIconPosition={'right'}
+					dropdownIconPosition='right'
 					dropdownStyle={styles.dropdown}
 					rowStyle={styles.dropdownRow}
 					rowTextStyle={styles.dropdownRowText}
-					renderCustomizedButtonChild={(sel, index) => {
-						return (
-							<View style={styles.dropdownChild}>
-								{sel ? (
-									<Image
-										source={sel?.image}
-										style={styles.dropdownImage}
-									/>
-								) : (
-									<Ionicons
-										name='md-earth-sharp'
-										color={'#444'}
-										size={32}
-									/>
-								)}
-								<Text style={styles.dropdownButtonText}>
-									{sel?.name}
-									{sel?.add ? ' ' + sel?.add : ''}
-								</Text>
-								<Ionicons
-									name='chevron-down-outline'
-									color={'#FFF'}
-									size={18}
-								/>
-							</View>
-						);
-					}}
-					renderCustomizedRowChild={(sel, index) => {
-						return (
-							<View style={styles.dropdownRowChild}>
+					renderCustomizedButtonChild={(sel) => (
+						<View style={styles.dropdownChild}>
+							{sel ? (
 								<Image
-									source={sel.image}
-									style={styles.dropdownRowImage}
+									source={sel?.image}
+									style={styles.dropdownImage}
 								/>
-								<Text style={styles.dropdownRowText}>
-									{sel.name}
-									{sel.add ? ' ' + sel.add : ''}
-								</Text>
-							</View>
-						);
-					}}
+							) : (
+								<Ionicons
+									name='md-earth-sharp'
+									color='#444'
+									size={32}
+								/>
+							)}
+							<Text style={styles.dropdownButtonText}>
+								{sel?.name}
+								{sel?.add ? ` ${sel?.add}` : ''}
+							</Text>
+							<Ionicons
+								name='chevron-down-outline'
+								color='#FFF'
+								size={18}
+							/>
+						</View>
+					)}
+					renderCustomizedRowChild={(sel) => (
+						<View style={styles.dropdownRowChild}>
+							<Image
+								source={sel.image}
+								style={styles.dropdownRowImage}
+							/>
+							<Text style={styles.dropdownRowText}>
+								{sel.name}
+								{sel.add ? ` ${sel.add}` : ''}
+							</Text>
+						</View>
+					)}
 				/>
 				{selHost.name ? buildSettings(buildOptions) : null}
 			</View>
@@ -177,7 +175,9 @@ export default function SettingScreen() {
 											await readAsStringAsync(file.uri)
 										).trim()
 									);
-								} catch (err) {}
+								} catch (err) {
+									/* empty */
+								}
 								if (
 									!fileData ||
 									!fileData.RequestURL ||
@@ -199,9 +199,9 @@ export default function SettingScreen() {
 								const settings = {
 									apiKey: inputApiKey,
 									apiUrl: url,
-									apiToken: apiToken,
-									apiEndpoint: apiEndpoint,
-									apiFormName: apiFormName,
+									apiToken,
+									apiEndpoint,
+									apiFormName,
 									apiClientId: '867afe9433c0a53'
 								};
 								setInputApiUrl(url);

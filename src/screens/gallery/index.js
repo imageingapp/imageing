@@ -1,5 +1,6 @@
+/* eslint-disable no-nested-ternary */
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
 	View,
 	FlatList,
@@ -10,19 +11,20 @@ import {
 	Linking,
 	TouchableOpacity
 } from 'react-native';
-import { getImages, removeImage, deleteImage } from '../../utils/image';
-import { AnimatedImages } from '../../components/AnimatedImages';
-import { styles } from '../../Styles';
 import { setStringAsync } from 'expo-clipboard';
 import { useIsFocused } from '@react-navigation/native';
 import Dialog from 'react-native-dialog';
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
 import Gestures from 'react-native-easy-gestures';
+import styles from '../../Styles';
+import AnimatedImages from '../../components/AnimatedImages';
+import { getImages, removeImage, deleteImage } from '../../utils/image';
 
-let { width: screenWidth } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 export default function GalleryScreen({ navigation }) {
 	const [images, setImages] = useState([]);
@@ -37,8 +39,8 @@ export default function GalleryScreen({ navigation }) {
 	useEffect(() => {
 		let isMounted = true;
 		setFullImage({});
-		getImages().then((images) => {
-			if (isMounted) setImages(images);
+		getImages().then((imgs) => {
+			if (isMounted) setImages(imgs);
 		});
 		const unsubscribe = navigation.addListener('tabPress', () => {
 			setFullImage({});
@@ -47,33 +49,31 @@ export default function GalleryScreen({ navigation }) {
 			isMounted = false;
 			unsubscribe();
 		};
-	}, [isFocused]);
+	}, [isFocused, navigation]);
 
 	const openImage = (image) => {
 		setFullImage(image);
 	};
 
-	const renderImages = (image) => {
-		return (
-			<AnimatedImages imageIndex={image.index}>
-				<View style={{ flex: 1, alignItems: 'flex-start' }}>
-					<TouchableHighlight
-						style={{ borderRadius: 10 }}
-						onPress={() => openImage(image.item)}>
-						<Image
-							source={{ uri: image.item.localUrl }}
-							style={{
-								margin: 2,
-								height: screenWidth / 3.1,
-								width: screenWidth / 3.1,
-								borderRadius: 10
-							}}
-						/>
-					</TouchableHighlight>
-				</View>
-			</AnimatedImages>
-		);
-	};
+	const renderImages = (image) => (
+		<AnimatedImages imageIndex={image.index}>
+			<View style={{ flex: 1, alignItems: 'flex-start' }}>
+				<TouchableHighlight
+					style={{ borderRadius: 10 }}
+					onPress={() => openImage(image.item)}>
+					<Image
+						source={{ uri: image.item.localUrl }}
+						style={{
+							margin: 2,
+							height: screenWidth / 3.1,
+							width: screenWidth / 3.1,
+							borderRadius: 10
+						}}
+					/>
+				</TouchableHighlight>
+			</View>
+		</AnimatedImages>
+	);
 
 	const handleCancel = () => {
 		setDeletePopup(false);

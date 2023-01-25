@@ -1,9 +1,9 @@
-import { aHosts } from './hosts';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { View } from 'react-native';
 import { TextInput } from 'react-native-paper';
-import { styles } from '../Styles';
+import React from 'react';
+import aHosts from './hosts';
+import styles from '../Styles';
 
 export const empty = {
 	// ImgBB
@@ -30,6 +30,7 @@ export async function getSettings() {
 	const stored = await AsyncStorage.getItem('settings');
 	const parsed = stored ? JSON.parse(stored) : empty;
 	if (!stored) {
+		// eslint-disable-next-line no-use-before-define
 		await setSettings(parsed);
 	}
 	return parsed;
@@ -101,7 +102,7 @@ export function buildSettings(options) {
 			);
 		}
 		default: {
-			return <View></View>;
+			return <View />;
 		}
 	}
 }

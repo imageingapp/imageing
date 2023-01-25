@@ -1,4 +1,5 @@
-export const aHosts = [
+/* eslint-disable global-require */
+export default [
 	{
 		name: 'ImgBB',
 		image: require('../../assets/ImgBB.png'),

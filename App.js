@@ -1,13 +1,15 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
+/* eslint-disable react/style-prop-object */
+// eslint-disable-next-line import/no-extraneous-dependencies
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { StatusBar } from 'expo-status-bar';
 
+import { SafeAreaView } from 'react-native-safe-area-context';
+import React from 'react';
 import HomeScreen from './src/screens/home';
 import GalleryScreen from './src/screens/gallery';
 import SettingScreen from './src/screens/settings';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Tab = createMaterialTopTabNavigator();
 
