@@ -50,3 +50,9 @@ jobs:
       - name: Generate App APK
         run: |
           cd android && ./gradlew assembleDebug --profile
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: app-debug.apk
+          path: android/app/build/outputs/apk/
