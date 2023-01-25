@@ -9,7 +9,10 @@
     "web": "expo start --web",
     "eject": "expo eject",
     "postinstall": "patch-package",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+	"lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+	"precommit": "lint-staged",
+	"prepare": "husky install"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
