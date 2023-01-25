@@ -10,6 +10,12 @@
     "eject": "expo eject",
     "postinstall": "patch-package"
   },
+  "lint-staged": {
+	"*.{js,jsx,ts,tsx}": [
+		"prettier --write",
+		"eslint --fix"
+	]
+},
   "dependencies": {
     "@react-native-async-storage/async-storage": "~1.17.3",
     "@react-native-community/netinfo": "9.3.5",
@@ -45,8 +51,11 @@
     "@babel/core": "^7.12.9",
     "@commitlint/cli": "^17.4.2",
     "@commitlint/config-conventional": "^17.4.2",
+    "eslint": "^8.32.0",
+    "eslint-config-airbnb": "^19.0.4",
     "husky": "^8.0.3",
-    "prettier": "2.7.1"
+    "lint-staged": "^13.1.0",
+    "prettier": "^2.8.3"
   },
   "private": true
 }
