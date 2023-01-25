@@ -13,6 +13,45 @@ import { getHostSettings, getSettings } from './settings';
 import aHosts from './hosts';
 import doRequest from './request';
 
+function getFormData(file, settings, host) {
+	const formData = new FormData();
+	switch (host) {
+		case aHosts[0]: {
+			// ImgBB
+			formData.append('image', {
+				uri: file.uri,
+				type: 'image/jpeg',
+				name: 'upload.jpeg'
+			});
+			formData.append('key', settings.apiKey);
+			break;
+		}
+		case aHosts[1]: {
+			// SXCU
+			formData.append(settings.apiFormName, {
+				uri: file.uri,
+				type: 'image/jpeg',
+				name: 'upload.jpeg'
+			});
+			formData.append('endpoint', settings.apiEndpoint);
+			formData.append('token', settings.apiToken);
+			break;
+		}
+		case aHosts[2]: {
+			// Imgur
+			formData.append('image', {
+				uri: file.uri,
+				type: 'image/jpeg',
+				name: 'upload.jpeg'
+			});
+			break;
+		}
+		default:
+			break;
+	}
+	return formData;
+}
+
 export async function pickImage() {
 	const response = await requestMediaLibraryPermissionsAsync();
 	if (response.granted) {
@@ -41,157 +80,9 @@ export async function takeImage() {
 	return { canceled: true };
 }
 
-export async function uploadImage(
-	file,
-	Toast,
-	setNoPick,
-	setProgress,
-	setUploading,
-	next,
-	resolve
-) {
-	// Get Host to check what settings should be used
-	const host = await getHostSettings();
-	// Get Settings from host
-	const settings = await getSettings();
-	// Configure upload data
-	let url = '';
-	const formData = new FormData();
-	switch (host) {
-		case aHosts[0]: {
-			// ImgBB
-			url = 'https://api.imgbb.com/1/upload';
-			formData.append('image', {
-				uri: file.uri,
-				type: 'image/jpeg',
-				name: 'upload.jpeg'
-			});
-			formData.append('key', settings.apiKey);
-			break;
-		}
-		case aHosts[1]: {
-			// SXCU
-			url = settings.apiUrl;
-			formData.append(settings.apiFormName, {
-				uri: file.uri,
-				type: 'image/jpeg',
-				name: 'upload.jpeg'
-			});
-			formData.append('endpoint', settings.apiEndpoint);
-			formData.append('token', settings.apiToken);
-			break;
-		}
-		case aHosts[2]: {
-			// Imgur
-			url = 'https://api.imgur.com/3/image';
-			formData.append('image', {
-				uri: file.uri,
-				type: 'image/jpeg',
-				name: 'upload.jpeg'
-			});
-			break;
-		}
-		default:
-			break;
-	}
-
-	try {
-		const onerror = (error, task) => {
-			console.log(error, task);
-			setNoPick(false);
-			setUploading(false);
-			setProgress(0);
-			resolve(false);
-			next();
-			/* eslint-disable no-underscore-dangle */
-			Toast.show({
-				type: 'error',
-				text1: 'Error',
-				text2: task._response
-			});
-		};
-		const onprogress = ({ total, loaded }) => {
-			const uploadProgress = loaded / total;
-			setProgress(uploadProgress);
-		};
-		const onload = async (uploadTask) => {
-			setNoPick(false);
-			let response;
-			try {
-				response = JSON.parse(uploadTask.response);
-			} catch (err) {
-				response = null;
-			}
-
-			if (response) {
-				if (uploadTask.status === 200) {
-					await setStringAsync(host.getUrl(response)).catch(
-						console.log
-					);
-					// eslint-disable-next-line no-use-before-define
-					await storeImage(file.uri, response, host);
-					Toast.show({
-						type: 'success',
-						text1: 'Upload completed',
-						text2: `Image URL copied to the clipboard`
-					});
-				} else {
-					Toast.show({
-						type: 'error',
-						text1: `Error ${
-							response.status_code ?? response.http_code
-						}`,
-						text2: `${response.error.message ?? response.error_msg}`
-					});
-				}
-			} else {
-				Toast.show({
-					type: 'error',
-					text1: 'Error',
-					text2: 'An unknown error occured, is the URL correct?'
-				});
-			}
-			setProgress(0);
-			resolve(true);
-			next();
-		};
-
-		await doRequest(
-			url,
-			'POST',
-			formData,
-			{
-				text: 'Authorization',
-				value: `Client-ID ${
-					host === aHosts[2] ? settings.apiClientId : ''
-				}`
-			},
-			onload,
-			onprogress,
-			onerror
-		);
-	} catch (error) {
-		console.log(error);
-		Toast.show({
-			type: 'error',
-			text1: 'An error occured!',
-			text2: `${error}`
-		});
-		setNoPick(false);
-		setUploading(false);
-		setProgress(0);
-		resolve(false);
-		next();
-	}
-}
-
 export async function storeImage(localUrl, uploadData, host) {
 	const stored = await AsyncStorage.getItem('images');
 	const images = stored ? JSON.parse(stored) : [];
-	if (images.length > 9) {
-		images.sort((a, b) => a.date - b.date);
-		images.shift();
-	}
 	images.push({
 		localUrl,
 		url: host.getUrl(uploadData),
@@ -207,10 +98,6 @@ export async function removeImage(deleteUrl) {
 	const images = stored
 		? JSON.parse(stored).filter((i) => i.deleteUrl !== deleteUrl)
 		: [];
-	if (images.length > 9) {
-		images.sort((a, b) => a.date - b.date);
-		images.shift();
-	}
 	await AsyncStorage.setItem('images', JSON.stringify(images));
 	return images;
 }
@@ -219,30 +106,28 @@ export async function deleteImage(hash) {
 	const settings = await getSettings();
 	const host = await getHostSettings();
 
-	if (host === aHosts[1]) {
-		await doRequest(
-			hash,
-			'GET',
-			null,
-			null,
-			() => {},
-			() => {},
-			() => {}
-		);
-	} else {
-		await doRequest(
-			`https://api.imgur.com/3/image/${hash}`,
-			'DELETE',
-			null,
-			{
-				text: 'Authorization',
-				value: `Client-ID ${settings.apiClientId}`
-			},
-			() => {},
-			() => {},
-			() => {}
-		);
-	}
+	const get = host === aHosts[1];
+
+	await doRequest(
+		get ? hash : `https://api.imgur.com/3/image/${hash}`,
+		get ? 'GET' : 'DELETE',
+		null,
+		get
+			? null
+			: {
+					text: 'Authorization',
+					value: `Client-ID ${settings.apiClientId}`
+			  },
+		(o, res) => {
+			res();
+		},
+		(o, u, res, rej) => {
+			rej();
+		},
+		(o, u, res, rej) => {
+			rej();
+		}
+	);
 }
 
 export async function getImages() {
@@ -250,4 +135,119 @@ export async function getImages() {
 	const images = stored ? JSON.parse(stored) : [];
 	images.sort((a, b) => b.date - a.date);
 	return images;
+}
+
+export async function uploadImages(
+	files,
+	Toast,
+	setNoPick,
+	setProgress,
+	setUploading,
+	setImages,
+	next,
+	resolve
+) {
+	const host = await getHostSettings();
+	const settings = await getSettings();
+	/* eslint-disable no-nested-ternary */
+	const url =
+		host === aHosts[1]
+			? settings.apiUrl
+			: host === aHosts[0]
+			? 'https://api.imgbb.com/1/upload'
+			: 'https://api.imgur.com/3/image';
+	let reason = '';
+
+	const onerror = (error, task, res, rej) => {
+		/* eslint-disable no-underscore-dangle */
+		reason = task._response;
+		rej();
+	};
+
+	const onprogress = ({ total, loaded }) => {
+		const progress = loaded / total;
+		setProgress(progress);
+	};
+
+	let failed = 0;
+	const remaining = [...files];
+	/* eslint-disable no-restricted-syntax */
+	for (const file of files) {
+		const formData = getFormData(file, settings, host);
+		const onload = (task, res, rej) => {
+			if (task.status !== 200) return rej(task);
+			setProgress(0);
+
+			const response = JSON.parse(task.response);
+			setStringAsync(host.getUrl(response));
+			storeImage(file.uri, response, host);
+			return res();
+		};
+		/* eslint-disable no-await-in-loop,no-loop-func */
+		await doRequest(
+			url,
+			'POST',
+			formData,
+			host === aHosts[2]
+				? {
+						text: 'Authorization',
+						value: `Client-ID ${settings.apiClientId}`
+				  }
+				: null,
+			onload,
+			onprogress,
+			onerror
+		).catch((task) => {
+			let response;
+			try {
+				response = JSON.parse(task.response);
+			} catch (err) {
+				if (task.status === 404) {
+					reason = 'Incorrect URL specified';
+				}
+			}
+			if (!reason) {
+				reason = response.error_msg.includes('send a file')
+					? 'Invalid Formname specified'
+					: response.error_msg;
+			}
+			failed += 1;
+		});
+		if (reason) {
+			failed = files.length;
+			break;
+		}
+		// Please ignore this, this is just til I figure out a nice way to show multiple images
+		// and display the remaining images to upload
+		if (remaining.length > 1) {
+			remaining.shift();
+			setImages(remaining);
+		}
+	}
+	if (failed === files.length) {
+		Toast.show({
+			type: 'error',
+			text1: 'Upload failed',
+			text2: reason || 'No image could be uploaded'
+		});
+	} else if (failed > 0) {
+		Toast.show({
+			type: 'info',
+			text1: 'Upload incomplete',
+			text2: `${files.length - failed}/${files.length} images uploaded`
+		});
+	} else {
+		Toast.show({
+			type: 'success',
+			text1: 'Upload completed',
+			text2: `Image URL${
+				files.length > 1 ? 's' : ''
+			} copied to the clipboard`
+		});
+	}
+	setNoPick(false);
+	setUploading(true);
+	setProgress(0);
+	resolve(true);
+	next();
 }

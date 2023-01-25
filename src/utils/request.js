@@ -7,25 +7,28 @@ export default async function doRequest(
 	onprogress,
 	onerror
 ) {
-	const uploadTask = new XMLHttpRequest();
+	return new Promise((resolve, reject) => {
+		const uploadTask = new XMLHttpRequest();
 
-	// Perform request
-	uploadTask.open(method, url);
-	if (header) {
-		uploadTask.setRequestHeader(header.text, header.value);
-	}
+		// Perform request
+		uploadTask.open(method, url);
+		if (header) {
+			uploadTask.setRequestHeader(header.text, header.value);
+		}
 
-	const onloadoverride = () => onload(uploadTask);
-	const onprogressoverride = (o) => onprogress(o, uploadTask);
-	const onerroroverride = (e) => onerror(e, uploadTask);
+		const onloadoverride = () => onload(uploadTask, resolve, reject);
+		const onprogressoverride = (o) =>
+			onprogress(o, uploadTask, resolve, reject);
+		const onerroroverride = (e) => onerror(e, uploadTask, resolve, reject);
 
-	uploadTask.onload = onloadoverride;
-	uploadTask.onerror = onerroroverride;
-	uploadTask.ontimeout = onerroroverride;
+		uploadTask.onload = onloadoverride;
+		uploadTask.onerror = onerroroverride;
+		uploadTask.ontimeout = onerroroverride;
 
-	uploadTask.send(formData ?? undefined);
+		uploadTask.send(formData ?? undefined);
 
-	if (uploadTask.upload) {
-		uploadTask.upload.onprogress = onprogressoverride;
-	}
+		if (uploadTask.upload) {
+			uploadTask.upload.onprogress = onprogressoverride;
+		}
+	});
 }
