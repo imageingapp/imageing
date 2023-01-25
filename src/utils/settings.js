@@ -1,28 +1,34 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+<<<<<<< HEAD
+=======
 import { View } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import React from 'react';
 import aHosts from './hosts';
 import styles from '../Styles';
+>>>>>>> main
 
 export const empty = {
 	// ImgBB
-	apiKey: '',
+	'apiKey': '',
 	// SXCU
-	apiUrl: '',
-	apiToken: '',
-	apiEndpoint: '',
-	apiFormName: '',
+	'apiUrl': '',
+	'apiToken': '',
+	'apiEndpoint': '',
+	'apiFormName': '',
 	// Imgur
-	apiClientId: '867afe9433c0a53'
+	'apiClientId': '867afe9433c0a53',
+	// Other
+	'Multi-Upload': false,
+	'Image Zoom and Drag': false
 };
 
-export async function getHost() {
+export async function getHostSettings() {
 	const stored = await AsyncStorage.getItem('host');
 	return aHosts.find((host) => host.name === stored) ?? aHosts[0];
 }
 
-export async function setHost(host) {
+export async function setHostSettings(host) {
 	await AsyncStorage.setItem('host', host.name);
 }
 
@@ -38,6 +44,9 @@ export async function getSettings() {
 
 export async function setSettings(options) {
 	await AsyncStorage.setItem('settings', JSON.stringify(options));
+<<<<<<< HEAD
+}
+=======
 }
 
 export function buildSettings(options) {
@@ -106,3 +115,4 @@ export function buildSettings(options) {
 		}
 	}
 }
+>>>>>>> main

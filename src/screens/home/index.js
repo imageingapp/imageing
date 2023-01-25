@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Text, View, Image } from 'react-native';
 import { Bar } from 'react-native-progress';
+import { useIsFocused } from "@react-navigation/native";
+import { getSettings } from "../../utils/settings";
 
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
+import Placeholder from '../../../assets/placeholder.png';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -19,7 +22,19 @@ export default function HomeScreen() {
 	const [uploading, setUploading] = useState(true);
 	const [noPick, setNoPick] = useState(false);
 	const [draggable, setDraggable] = useState(false);
+	const [zoomable, setZoomable] = useState(false);
 	const [gestures, setGestures] = useState({});
+
+	const isFocused = useIsFocused();
+	useEffect(() => {
+		let isMounted = true;
+		getSettings().then((settings) => {
+			setZoomable(settings['Image Zoom and Drag']);
+		})
+		return () => {
+			isMounted = false;
+		};
+		}, [isFocused]);
 
 	return (
 		<View style={styles.fileWrap}>
@@ -36,7 +51,7 @@ export default function HomeScreen() {
 					}}
 					rotatable={false}
 					draggable={draggable}
-					scalable={{ min: 1, max: 10 }}>
+					scalable={zoomable && { min: 1, max: 10 }}>
 					<Image
 						style={styles.preview}
 						source={image}

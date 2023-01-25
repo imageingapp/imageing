@@ -4,7 +4,8 @@ export default async function doRequest(
 	formData,
 	header,
 	onload,
-	onprogress
+	onprogress,
+	onerror
 ) {
 	const uploadTask = new XMLHttpRequest();
 
@@ -16,12 +17,11 @@ export default async function doRequest(
 
 	const onloadoverride = () => onload(uploadTask);
 	const onprogressoverride = (o) => onprogress(o, uploadTask);
+	const onerroroverride = (e) => onerror(e, uploadTask);
 
 	uploadTask.onload = onloadoverride;
-	// eslint-disable-next-line no-console
-	uploadTask.onerror = (e) => console.log('error', e);
-	// eslint-disable-next-line no-console
-	uploadTask.ontimeout = (e) => console.log('timeout', e);
+	uploadTask.onerror = onerroroverride;
+	uploadTask.ontimeout = onerroroverride;
 
 	uploadTask.send(formData ?? undefined);
 
