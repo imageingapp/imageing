@@ -33,7 +33,6 @@ export default function HomeScreen() {
 			isMounted = false;
 		};
 	}, [isFocused]);
-	// height 90 width 95
 	return (
 		<View style={styles.fileWrap}>
 			<View style={styles.container}>
