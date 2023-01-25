@@ -9,14 +9,14 @@
     "web": "expo start --web",
     "eject": "expo eject",
     "postinstall": "patch-package",
-	"lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "lint-staged": {
-	"*.{js,jsx,ts,tsx}": [
-		"prettier --write",
-		"eslint --fix"
-	]
-},
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
   "dependencies": {
     "@react-native-async-storage/async-storage": "~1.17.3",
     "@react-native-community/netinfo": "9.3.5",
@@ -54,6 +54,7 @@
     "@commitlint/config-conventional": "^17.4.2",
     "eslint": "^8.32.0",
     "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-react": "^7.32.1",
     "husky": "^8.0.3",
     "lint-staged": "^13.1.0",
     "prettier": "^2.8.3"
