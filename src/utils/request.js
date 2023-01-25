@@ -1,4 +1,4 @@
-export async function doRequest(
+export default async function doRequest(
 	url,
 	method,
 	formData,

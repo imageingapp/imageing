@@ -1,4 +1,5 @@
 import { getHostSettings, getSettings } from './settings';
+/* eslint-disable no-console */
 import { setStringAsync } from 'expo-clipboard';
 import {
 	launchCameraAsync,
@@ -9,8 +10,9 @@ import {
 } from 'expo-image-picker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { aHosts } from './hosts';
-import { doRequest } from './request';
+import { getHost, getSettings } from './settings';
+import aHosts from './hosts';
+import doRequest from './request';
 
 export async function pickImage() {
 	const response = await requestMediaLibraryPermissionsAsync();
@@ -92,6 +94,8 @@ export async function uploadImage(
 			});
 			break;
 		}
+		default:
+			break;
 	}
 
 	try {
@@ -126,6 +130,7 @@ export async function uploadImage(
 					await setStringAsync(host.getUrl(response)).catch(
 						console.log
 					);
+					// eslint-disable-next-line no-use-before-define
 					await storeImage(file.uri, response, host);
 					Toast.show({
 						type: 'success',

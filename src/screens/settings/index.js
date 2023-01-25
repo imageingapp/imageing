@@ -34,6 +34,23 @@ export default function SettingScreen() {
 	const [inputApiFormName, setInputApiFormName] = useState('');
 
 	const isFocused = useIsFocused();
+<<<<<<< HEAD
+=======
+
+	const buildOptions = {
+		host: selHost,
+		fields: {
+			// ImgBB
+			apiKey: { inputApiKey, setInputApiKey },
+			// SXCU
+			apiUrl: { inputApiUrl, setInputApiUrl },
+			apiToken: { inputApiToken, setInputApiToken },
+			apiEndpoint: { inputApiEndpoint, setInputApiEndpoint },
+			apiFormName: { inputApiFormName, setInputApiFormName }
+		}
+	};
+
+>>>>>>> main
 	useEffect(() => {
 		let isMounted = true;
 		if (isMounted) setHostPage(false);
@@ -41,6 +58,21 @@ export default function SettingScreen() {
 			if (isMounted) {
 				setHost(host);
 			}
+<<<<<<< HEAD
+=======
+			getSettings()
+				.then((settings) => {
+					if (isMounted) {
+						setInputApiKey(settings.apiKey);
+						setInputApiUrl(settings.apiUrl);
+						setInputApiToken(settings.apiToken);
+						setInputApiEndpoint(settings.apiEndpoint);
+						setInputApiFormName(settings.apiFormName);
+					}
+				})
+				// eslint-disable-next-line no-console
+				.catch((err) => console.log(err));
+>>>>>>> main
 		});
 		getSettings().then((settings) => {
 			if (isMounted) {
@@ -58,6 +90,7 @@ export default function SettingScreen() {
 		};
 	}, [isFocused]);
 
+<<<<<<< HEAD
 
 	const saveSetting = async (name, state) => {
 		// Get Settings
@@ -292,6 +325,161 @@ export default function SettingScreen() {
 				{ dialogButton !== 'Close' ? <Dialog.Button label={dialogButton} onPress={handlePush} /> : null }
 			</Dialog.Container>
 			{ hostPage ? <SettingsComponent settingsOptions={hostOptions} /> : <SettingsComponent settingsOptions={settingsOptions} /> }
+=======
+	return (
+		<SafeAreaView
+			style={{
+				flex: 1,
+				flexDirection: 'column',
+				justifyContent: 'space-between',
+				alignItems: 'center',
+				paddingTop: 20
+			}}>
+			<View>
+				<SelectDropdown
+					data={hosts}
+					onSelect={async (sel) => {
+						await setHost(sel);
+						setSelHost(sel);
+						const settings = await getSettings();
+						setInputApiKey(settings.apiKey);
+						setInputApiUrl(settings.apiUrl);
+						setInputApiToken(settings.apiToken);
+						setInputApiEndpoint(settings.apiEndpoint);
+						setInputApiFormName(settings.apiFormName);
+					}}
+					defaultValue={selHost}
+					buttonStyle={styles.dropdownButton}
+					buttonTextStyle={styles.dropdownButtonText}
+					dropdownIconPosition='right'
+					dropdownStyle={styles.dropdown}
+					rowStyle={styles.dropdownRow}
+					rowTextStyle={styles.dropdownRowText}
+					renderCustomizedButtonChild={(sel) => (
+						<View style={styles.dropdownChild}>
+							{sel ? (
+								<Image
+									source={sel?.image}
+									style={styles.dropdownImage}
+								/>
+							) : (
+								<Ionicons
+									name='md-earth-sharp'
+									color='#444'
+									size={32}
+								/>
+							)}
+							<Text style={styles.dropdownButtonText}>
+								{sel?.name}
+								{sel?.add ? ` ${sel?.add}` : ''}
+							</Text>
+							<Ionicons
+								name='chevron-down-outline'
+								color='#FFF'
+								size={18}
+							/>
+						</View>
+					)}
+					renderCustomizedRowChild={(sel) => (
+						<View style={styles.dropdownRowChild}>
+							<Image
+								source={sel.image}
+								style={styles.dropdownRowImage}
+							/>
+							<Text style={styles.dropdownRowText}>
+								{sel.name}
+								{sel.add ? ` ${sel.add}` : ''}
+							</Text>
+						</View>
+					)}
+				/>
+				{selHost.name ? buildSettings(buildOptions) : null}
+			</View>
+			<View style={styles.buttonContainerSettings}>
+				<AwesomeButton
+					style={{ ...styles.button, marginBottom: 20 }}
+					size='medium'
+					onPress={async () => {
+						const settings = {
+							// ImgBB
+							apiKey: inputApiKey,
+							// SXCU
+							apiUrl: inputApiUrl,
+							apiToken: inputApiToken,
+							apiEndpoint: inputApiEndpoint,
+							apiFormName: inputApiFormName,
+							// Imgur
+							apiClientId: '867afe9433c0a53'
+						};
+						await setSettings(settings);
+					}}>
+					<Text style={{ fontSize: 20, color: 'white' }}>
+						Save Settings
+					</Text>
+				</AwesomeButton>
+				{selHost?.name === 'SXCU' ? (
+					<AwesomeButton
+						style={{ ...styles.button, marginBottom: 20 }}
+						onPress={async () => {
+							const file = await getDocumentAsync();
+							if (file.type !== 'cancel') {
+								let fileData;
+								try {
+									fileData = JSON.parse(
+										(
+											await readAsStringAsync(file.uri)
+										).trim()
+									);
+								} catch (err) {
+									/* empty */
+								}
+								if (
+									!fileData ||
+									!fileData.RequestURL ||
+									!fileData.Arguments?.token ||
+									!fileData.Arguments?.endpoint ||
+									!fileData.FileFormName
+								) {
+									Toast.show({
+										type: 'error',
+										text1: 'File import failed',
+										text2: 'The file contains invalid data.'
+									});
+									return;
+								}
+								const url = fileData.RequestURL;
+								const apiToken = fileData.Arguments.token;
+								const apiEndpoint = fileData.Arguments.endpoint;
+								const apiFormName = fileData.FileFormName;
+								const settings = {
+									apiKey: inputApiKey,
+									apiUrl: url,
+									apiToken,
+									apiEndpoint,
+									apiFormName,
+									apiClientId: '867afe9433c0a53'
+								};
+								setInputApiUrl(url);
+								setInputApiToken(apiToken);
+								setInputApiEndpoint(apiEndpoint);
+								setInputApiFormName(apiFormName);
+								await setSettings(settings);
+								Toast.show({
+									type: 'success',
+									text1: 'File imported',
+									text2: 'The data was saved.'
+								});
+							}
+						}}>
+						<Ionicons
+							style={{ margin: 8, color: 'white' }}
+							name='download-outline'
+							size={30}
+						/>
+					</AwesomeButton>
+				) : null}
+			</View>
+>>>>>>> main
 			<Toast />
 		</SafeAreaView>
 	);
