@@ -1,19 +1,17 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, View, Image } from 'react-native';
 import { Bar } from 'react-native-progress';
-import { useIsFocused } from "@react-navigation/native";
-import { getSettings } from "../../utils/settings";
-
-import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
-import Placeholder from '../../../assets/placeholder.png';
+import { useIsFocused } from '@react-navigation/native';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Toast from 'react-native-toast-message';
 import NetInfo from '@react-native-community/netinfo';
 import Gestures from 'react-native-easy-gestures';
+import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Placeholder from '../../../assets/placeholder.png';
 import { pickImage, takeImage, uploadImage } from '../../utils/image';
+import { getSettings } from '../../utils/settings';
 import styles from '../../Styles';
 
 export default function HomeScreen() {
@@ -29,12 +27,12 @@ export default function HomeScreen() {
 	useEffect(() => {
 		let isMounted = true;
 		getSettings().then((settings) => {
-			setZoomable(settings['Image Zoom and Drag']);
-		})
+			if (isMounted) setZoomable(settings['Image Zoom and Drag']);
+		});
 		return () => {
 			isMounted = false;
 		};
-		}, [isFocused]);
+	}, [isFocused]);
 
 	return (
 		<View style={styles.fileWrap}>

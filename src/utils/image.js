@@ -1,4 +1,3 @@
-import { getHostSettings, getSettings } from './settings';
 /* eslint-disable no-console */
 import { setStringAsync } from 'expo-clipboard';
 import {
@@ -10,7 +9,7 @@ import {
 } from 'expo-image-picker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getHost, getSettings } from './settings';
+import { getHostSettings, getSettings } from './settings';
 import aHosts from './hosts';
 import doRequest from './request';
 
@@ -18,30 +17,28 @@ export async function pickImage() {
 	const response = await requestMediaLibraryPermissionsAsync();
 	if (response.granted) {
 		const settings = await getSettings();
-		return await launchImageLibraryAsync({
+		return launchImageLibraryAsync({
 			mediaTypes: MediaTypeOptions.Images,
 			allowsEditing: !settings['Multi-Upload'],
 			quality: 1,
 			allowsMultipleSelection: settings['Multi-Upload']
 		}).catch(console.log);
-	} else {
-		return { canceled: true }
 	}
+	return { canceled: true };
 }
 
 export async function takeImage() {
 	const response = await requestCameraPermissionsAsync();
 	if (response.granted) {
 		const settings = await getSettings();
-		return await launchCameraAsync({
+		return launchCameraAsync({
 			mediaTypes: MediaTypeOptions.Images,
 			allowsEditing: !settings['Multi-Upload'],
 			quality: 1,
 			allowsMultipleSelection: settings['Multi-Upload']
 		}).catch(console.log);
-	} else {
-		return { canceled: true }
 	}
+	return { canceled: true };
 }
 
 export async function uploadImage(
@@ -69,19 +66,19 @@ export async function uploadImage(
 				type: 'image/jpeg',
 				name: 'upload.jpeg'
 			});
-			formData.append('key', settings['apiKey']);
+			formData.append('key', settings.apiKey);
 			break;
 		}
 		case aHosts[1]: {
 			// SXCU
-			url = settings['apiUrl'];
-			formData.append(settings['apiFormName'], {
+			url = settings.apiUrl;
+			formData.append(settings.apiFormName, {
 				uri: file.uri,
 				type: 'image/jpeg',
 				name: 'upload.jpeg'
 			});
-			formData.append('endpoint', settings['apiEndpoint']);
-			formData.append('token', settings['apiToken']);
+			formData.append('endpoint', settings.apiEndpoint);
+			formData.append('token', settings.apiToken);
 			break;
 		}
 		case aHosts[2]: {
@@ -106,12 +103,13 @@ export async function uploadImage(
 			setProgress(0);
 			resolve(false);
 			next();
+			/* eslint-disable no-underscore-dangle */
 			Toast.show({
 				type: 'error',
 				text1: 'Error',
 				text2: task._response
 			});
-		}
+		};
 		const onprogress = ({ total, loaded }) => {
 			const uploadProgress = loaded / total;
 			setProgress(uploadProgress);
@@ -165,7 +163,7 @@ export async function uploadImage(
 			{
 				text: 'Authorization',
 				value: `Client-ID ${
-					host === aHosts[2] ? settings['apiClientId'] : ''
+					host === aHosts[2] ? settings.apiClientId : ''
 				}`
 			},
 			onload,
