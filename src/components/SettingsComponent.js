@@ -2,12 +2,13 @@ import React from 'react';
 import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Ionicons from '@expo/vector-icons/Ionicons';
-import colors from '../theme/colors';
+import { useTheme } from '@react-navigation/native';
 
 // eslint-disable-next-line react/prop-types
 function SettingsComponent({ settingsOptions }) {
+	const { colors } = useTheme();
 	return (
-		<ScrollView style={{ backgroundColor: colors.white }}>
+		<ScrollView style={{ backgroundColor: colors.card }}>
 			{
 				// eslint-disable-next-line react/prop-types
 				settingsOptions.map(
@@ -28,11 +29,16 @@ function SettingsComponent({ settingsOptions }) {
 											flexDirection: 'row',
 											position: 'relative'
 										}}>
-										<Text style={{ fontSize: 17 }}>
+										<Text
+											style={{
+												fontSize: 17,
+												color: colors.text
+											}}>
 											{title}
 										</Text>
 										<Ionicons
 											style={{
+												color: colors.text,
 												position: 'absolute',
 												right: 5,
 												top: '50%',
@@ -52,6 +58,7 @@ function SettingsComponent({ settingsOptions }) {
 									{subTitle && (
 										<Text
 											style={{
+												color: colors.text,
 												fontSize: 14,
 												opacity: 0.5,
 												paddingTop: 5
@@ -63,7 +70,7 @@ function SettingsComponent({ settingsOptions }) {
 								<View
 									style={{
 										height: 1,
-										backgroundColor: colors.grey
+										backgroundColor: colors.card
 									}}
 								/>
 							</TouchableOpacity>

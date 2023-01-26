@@ -1,7 +1,12 @@
 /* eslint-disable react/style-prop-object */
 // eslint-disable-next-line import/no-extraneous-dependencies
 
-import { NavigationContainer } from '@react-navigation/native';
+import {
+	NavigationContainer,
+	DefaultTheme,
+	DarkTheme
+} from '@react-navigation/native';
+import { useColorScheme } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { StatusBar } from 'expo-status-bar';
 
@@ -14,9 +19,12 @@ import SettingScreen from './src/screens/settings';
 const Tab = createMaterialTopTabNavigator();
 
 export default function App() {
+	const scheme = useColorScheme();
+	console.log(scheme);
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
-			<NavigationContainer>
+			<NavigationContainer
+				theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
 				<Tab.Navigator
 					screenOptions={() => ({
 						tabBarActiveTintColor: 'turquoise',
