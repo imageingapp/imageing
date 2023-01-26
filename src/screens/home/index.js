@@ -33,42 +33,45 @@ export default function HomeScreen() {
 			isMounted = false;
 		};
 	}, [isFocused]);
+
+	const imageOrImages = () => {
+		if (images.length > 1) {
+			return images.map((image) => (
+				<Image
+					style={{
+						width: `${95 / images.length}%`,
+						height: `${95 / images.length}%`
+					}}
+					key={image.uri}
+					source={{ uri: image.uri }}
+				/>
+			));
+		}
+		return (
+			<Gestures
+				style={styles.container}
+				ref={(c) => setGestures(c)}
+				onScaleStart={() => {
+					setDraggable(true);
+				}}
+				onScaleEnd={() => {
+					gestures.reset(() => {});
+					setDraggable(false);
+				}}
+				rotatable={false}
+				draggable={draggable}
+				scalable={zoomable && { min: 1, max: 10 }}>
+				<Image
+					style={styles.preview}
+					source={images[0]}
+				/>
+			</Gestures>
+		);
+	};
+
 	return (
 		<View style={styles.fileWrap}>
-			<View style={styles.container}>
-				{ if (images.length > 1) { return (
-					images.map((image) => (
-						<Image
-							style={{
-								width: `${95 / images.length}%`,
-								height: `${95 / images.length}%`
-							}}
-							key={image.uri}
-							source={{ uri: image.uri }}
-						/>
-					))
-				) 
-				} else return  (
-					<Gestures
-						style={styles.container}
-						ref={(c) => setGestures(c)}
-						onScaleStart={() => {
-							setDraggable(true);
-						}}
-						onScaleEnd={() => {
-							gestures.reset(() => {});
-							setDraggable(false);
-						}}
-						rotatable={false}
-						draggable={draggable}
-						scalable={zoomable && { min: 1, max: 10 }}>
-						<Image
-							style={styles.preview}
-							source={images[0]}
-						/>
-					</Gestures>
-				)}
-			</View>
+			<View style={styles.container}>{imageOrImages()}</View>
 			<View style={{ paddingVertical: 10 }}>
 				<Bar
 					progress={progress}
