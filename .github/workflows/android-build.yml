@@ -65,10 +65,11 @@ jobs:
           path: android/app/build/outputs/apk/
 
       - name: Send Discord Webhook Message
-        uses: appleboy/discord-action@master
+        uses: Ilshidur/action-discord@v3
         with:
-          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-          color: "#FF0000"
-          message: "New Android build is ready to download"
-          file: ${{ steps.artifact.outputs.download_url }}
+          args: "Android Build Completed"
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_USERNAME: "Android Build"
+          DISCORD_CONTENT: "Android Build Completed\n\nCommit: ${{ github.sha }}\nBranch: ${{ github.ref }}\nTime: ${{ steps.time.outputs.time }}"
+          DISCORD_FILE: ${{ steps.artifact.outputs.download_url }}
