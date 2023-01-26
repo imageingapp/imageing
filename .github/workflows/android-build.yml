@@ -67,7 +67,7 @@ jobs:
       - name: Send Discord Webhook Message
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: "Android Build Completed\n\nCommit: ${{ github.sha }}\nBranch: ${{ github.ref }}\nTime: ${{ steps.time.outputs.time }}\n\n[Download APK](${{ steps.artifact.outputs.download_url }})]}"
+          args: "Android Build Completed\n\nCommit: ${{ github.event.head_commit.url }}\nBranch: ${{ github.event.repository.html_url }}/tree/${{ github.event.ref }}\n\nDownload APK: ${{ steps.artifact.outputs.download_url }}"
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           DISCORD_USERNAME: "Android Build"
