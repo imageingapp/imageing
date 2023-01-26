@@ -65,7 +65,7 @@ jobs:
           path: android/app/build/outputs/apk/
 
       - name: Send Discord Webhook Message
-        uses: Ilshidur/action-discord@v3
+        uses: Ilshidur/action-discord@master
         with:
           args: "Android Build Completed"
         env:
