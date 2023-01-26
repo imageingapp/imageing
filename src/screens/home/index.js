@@ -10,13 +10,13 @@ import NetInfo from '@react-native-community/netinfo';
 import Gestures from 'react-native-easy-gestures';
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import Placeholder from '../../../assets/placeholder.png';
-import { pickImage, takeImage, uploadImage } from '../../utils/image';
+import { pickImage, takeImage, uploadImages } from '../../utils/image';
 import { getSettings } from '../../utils/settings';
 import styles from '../../Styles';
 
 export default function HomeScreen() {
 	const [progress, setProgress] = useState(0);
-	const [image, setImage] = useState(Placeholder);
+	const [images, setImages] = useState([Placeholder]);
 	const [uploading, setUploading] = useState(true);
 	const [noPick, setNoPick] = useState(false);
 	const [draggable, setDraggable] = useState(false);
@@ -34,28 +34,44 @@ export default function HomeScreen() {
 		};
 	}, [isFocused]);
 
+	const imageOrImages = () => {
+		if (images.length > 1) {
+			return images.map((image) => (
+				<Image
+					style={{
+						width: `${95 / images.length}%`,
+						height: `${95 / images.length}%`
+					}}
+					key={image.uri}
+					source={{ uri: image.uri }}
+				/>
+			));
+		}
+		return (
+			<Gestures
+				style={styles.container}
+				ref={(c) => setGestures(c)}
+				onScaleStart={() => {
+					setDraggable(true);
+				}}
+				onScaleEnd={() => {
+					gestures.reset(() => {});
+					setDraggable(false);
+				}}
+				rotatable={false}
+				draggable={draggable}
+				scalable={zoomable && { min: 1, max: 10 }}>
+				<Image
+					style={styles.preview}
+					source={images[0]}
+				/>
+			</Gestures>
+		);
+	};
+
 	return (
 		<View style={styles.fileWrap}>
-			<View style={styles.container}>
-				<Gestures
-					style={styles.container}
-					ref={(c) => setGestures(c)}
-					onScaleStart={() => {
-						setDraggable(true);
-					}}
-					onScaleEnd={() => {
-						gestures.reset(() => {});
-						setDraggable(false);
-					}}
-					rotatable={false}
-					draggable={draggable}
-					scalable={zoomable && { min: 1, max: 10 }}>
-					<Image
-						style={styles.preview}
-						source={image}
-					/>
-				</Gestures>
-			</View>
+			<View style={styles.container}>{imageOrImages()}</View>
 			<View style={{ paddingVertical: 10 }}>
 				<Bar
 					progress={progress}
@@ -71,7 +87,11 @@ export default function HomeScreen() {
 					onPress={async () => {
 						const capturedImage = await takeImage();
 						if (!capturedImage.canceled) {
-							setImage({ uri: capturedImage.assets[0].uri });
+							setImages(
+								capturedImage.assets.map((asset) => ({
+									uri: asset.uri
+								}))
+							);
 							setUploading(false);
 						}
 					}}>
@@ -87,7 +107,11 @@ export default function HomeScreen() {
 					onPress={async () => {
 						const pickedImage = await pickImage();
 						if (!pickedImage.canceled) {
-							setImage({ uri: pickedImage.assets[0].uri });
+							setImages(
+								pickedImage.assets.map((asset) => ({
+									uri: asset.uri
+								}))
+							);
 							setUploading(false);
 						}
 					}}>
@@ -118,17 +142,18 @@ export default function HomeScreen() {
 							return;
 						}
 						const resolve = (finished) => {
-							if (finished) setImage(Placeholder);
+							if (finished) setImages([Placeholder]);
 						};
-						await uploadImage(
-							image,
+						await uploadImages({
+							files: images,
 							Toast,
 							setNoPick,
 							setProgress,
 							setUploading,
+							setImages,
 							next,
 							resolve
-						);
+						});
 					}}>
 					<Text style={{ fontSize: 20, color: 'white' }}>Upload</Text>
 				</AwesomeButton>
