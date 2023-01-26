@@ -63,11 +63,11 @@ jobs:
         with:
           name: app-debug.apk
           path: android/app/build/outputs/apk/
-
+      
       - name: Send Discord Webhook Message
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: "Android Build Completed\n\nCommit: ${{ github.event.head_commit.url }}\nBranch: ${{ github.event.repository.html_url }}/tree/${{ github.event.ref }}\n\nDownload APK: ${{ steps.artifact.outputs.download_url }}"
+          args: "Android Build Completed\n\nCommit: <${{ github.event.head_commit.url }}>\n\n[Download APK](<https://nightly.link/${{ github.repository_owner }}/${{ github.repository }}/workflows/android-build/main/app-debug.apk.zip>)"
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           DISCORD_USERNAME: "Android Build"
