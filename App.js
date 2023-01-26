@@ -20,7 +20,6 @@ const Tab = createMaterialTopTabNavigator();
 
 export default function App() {
 	const scheme = useColorScheme();
-	console.log(scheme);
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
 			<NavigationContainer

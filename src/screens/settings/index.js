@@ -19,7 +19,8 @@ import aHosts from '../../utils/hosts';
 
 export default function SettingScreen() {
 	const [host, setHost] = useState({});
-	const [hostPage, setHostPage] = useState(false);
+	const [subSettings, showSubSettings] = useState('');
+	const [theme, setTheme] = useState('');
 	const [multiUpload, setMultiUpload] = useState('Disabled');
 	const [zoomAndDrag, setZoomAndDrag] = useState('Disabled');
 	const [bDialog, setDialog] = useState(false);
@@ -41,7 +42,7 @@ export default function SettingScreen() {
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		let isMounted = true;
-		if (isMounted) setHostPage(false);
+		if (isMounted) showSubSettings('');
 		getHostSettings().then((h) => {
 			if (isMounted) {
 				setHost(h);
@@ -60,6 +61,10 @@ export default function SettingScreen() {
 				setInputApiToken(settings.apiToken);
 				setInputApiEndpoint(settings.apiEndpoint);
 				setInputApiFormName(settings.apiFormName);
+				// if no theme is set, set it to default
+				if (!settings.theme) {
+					setTheme('Auto');
+				}
 			}
 		});
 		return () => {
@@ -176,11 +181,18 @@ export default function SettingScreen() {
 
 	const settingsOptions = [
 		{
+			title: 'Theme',
+			subTitle: theme,
+			icon: 'color-palette-outline',
+			show: true,
+			onPress: () => showSubSettings('theme')
+		},
+		{
 			title: 'Host',
 			subTitle: host?.name,
 			icon: 'chevron-forward-outline',
 			show: true,
-			onPress: () => setHostPage(true)
+			onPress: () => showSubSettings('host')
 		}, // Navigate to new Screen just like this
 		{
 			title: 'Multi-Upload',
@@ -350,7 +362,56 @@ export default function SettingScreen() {
 			title: 'Back',
 			subTitle: null,
 			show: true,
-			onPress: () => setHostPage(false)
+			onPress: () => showSubSettings('')
+		} // Select of Hosts
+	];
+
+	const themeOptions = [
+		{
+			title: 'Auto',
+			subTitle: 'Follows your system theme',
+			show: true,
+			onPress: async () => {
+				await saveSetting('theme', 'auto');
+				setTheme('Auto');
+				showSubSettings('');
+			}
+		}, // Auto
+		{
+			title: 'Light',
+			subTitle: 'Light theme',
+			show: true,
+			onPress: async () => {
+				await saveSetting('theme', 'light');
+				setTheme('Light');
+				showSubSettings('');
+			}
+		}, // Light
+		{
+			title: 'Dark',
+			subTitle: 'Dark theme',
+			show: true,
+			onPress: async () => {
+				await saveSetting('theme', 'dark');
+				setTheme('Dark');
+				showSubSettings('');
+			}
+		}, // Dark
+		{
+			title: 'Material You',
+			subTitle: 'Dynamic theme',
+			show: true,
+			onPress: async () => {
+				await saveSetting('theme', 'material');
+				setTheme('Material You');
+				showSubSettings('');
+			}
+		}, // Material You
+		{
+			title: 'Back',
+			subTitle: null,
+			show: true,
+			onPress: () => showSubSettings('')
 		} // Select of Hosts
 	];
 
@@ -394,11 +455,24 @@ export default function SettingScreen() {
 					/>
 				) : null}
 			</Dialog.Container>
-			{hostPage ? (
-				<SettingsComponent settingsOptions={hostOptions} />
-			) : (
-				<SettingsComponent settingsOptions={settingsOptions} />
-			)}
+			{(() => {
+				switch (subSettings) {
+					case 'host':
+						return (
+							<SettingsComponent settingsOptions={hostOptions} />
+						);
+					case 'theme':
+						return (
+							<SettingsComponent settingsOptions={themeOptions} />
+						);
+					default:
+						return (
+							<SettingsComponent
+								settingsOptions={settingsOptions}
+							/>
+						);
+				}
+			})()}
 			<Toast />
 		</SafeAreaView>
 	);
