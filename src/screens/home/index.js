@@ -36,7 +36,7 @@ export default function HomeScreen() {
 	return (
 		<View style={styles.fileWrap}>
 			<View style={styles.container}>
-				{images.length > 1 ? (
+				{ if (images.length > 1) { return (
 					images.map((image) => (
 						<Image
 							style={{
@@ -47,7 +47,8 @@ export default function HomeScreen() {
 							source={{ uri: image.uri }}
 						/>
 					))
-				) : (
+				) 
+				} else return  (
 					<Gestures
 						style={styles.container}
 						ref={(c) => setGestures(c)}
