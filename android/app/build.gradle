@@ -2,7 +2,6 @@ apply plugin: "com.android.application"
 
 import groovy.json.JsonSlurper
 
-// Read package.json and return `version` field
 def getVersionName() {
     //  Read and parse package.json file from project root
     def inputFile = new File("$rootDir/../package.json")
@@ -14,21 +13,15 @@ def getVersionName() {
     return packageJson["version"]
 }
 
-// Convert version name to a version number
 def getVersionCode() {
+	//  Read and parse app.json file from project root
+    def inputFile = new File("$rootDir/../app.json")
+    def appJson = new JsonSlurper().parseText(inputFile.text)
 
-    def versionName =  getVersionFromNpm()
-    def parts = versionName.split("\\.")
 
-
-    int hotfix = parts[2] as int
-    int minor = parts[1] as int
-    int major = parts[0] as int
-
-    def numericVersion =  major*100000 + minor*1000 + hotfix
-    println('Version Code: ' + numericVersion)
-
-    return numericVersion
+    println ("Version Code: " +  appJson["expo"]["android"]["versionCode"]);
+    // Return the version code, you can get any value this way
+    return appJson["expo"]["android"]["versionCode"]
 }
 
 import com.android.build.OutputFile

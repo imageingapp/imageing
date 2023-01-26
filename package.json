@@ -14,7 +14,8 @@
     "prebuilt": "expo prebuild --no-install",
     "prepare": "husky install",
 	"release": "yarn version",
-	"version": "yarn lint",
+	"version": "yarn lint && yarn expover && git add app.json",
+	"expover": "node -e \"let fs = require('fs'); let app = require('./app.json'); app.expo.version = process.env.npm_package_version; app.expo.android.versionCode = parseInt(app.expo.android.versionCode) + 1; fs.writeFileSync('./app.json', JSON.stringify(app, null, 2));\"",
 	"postversion": "git push && git push --tags && semantic-release --no-ci"
   },
   "lint-staged": {
