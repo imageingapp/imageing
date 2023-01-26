@@ -13,7 +13,9 @@
     "precommit": "lint-staged",
     "prebuilt": "expo prebuild --no-install",
     "prepare": "husky install",
-	"release": "semantic-release"
+	"release": "yarn version",
+	"version": "yarn lint",
+	"postversion": "git push && git push --tags && semantic-release --no-ci"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

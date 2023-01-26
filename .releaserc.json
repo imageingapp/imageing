@@ -1,7 +1,7 @@
 {
 	"repository": {
 	  "type": "git",
-	  "url": "https://github.com/<org>/<repo>.git"
+	  "url": "https://github.com/ImageingApp/Imageing.git"
 	},
 	"publishConfig": {
 	  "access": "restricted"
