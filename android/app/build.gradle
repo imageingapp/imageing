@@ -1,5 +1,36 @@
 apply plugin: "com.android.application"
 
+import groovy.json.JsonSlurper
+
+// Read package.json and return `version` field
+def getVersionName() {
+    //  Read and parse package.json file from project root
+    def inputFile = new File("$rootDir/../package.json")
+    def packageJson = new JsonSlurper().parseText(inputFile.text)
+
+
+    println ("Version Name: " +  packageJson["version"]);
+    // Return the version, you can get any value this way
+    return packageJson["version"]
+}
+
+// Convert version name to a version number
+def getVersionCode() {
+
+    def versionName =  getVersionFromNpm()
+    def parts = versionName.split("\\.")
+
+
+    int hotfix = parts[2] as int
+    int minor = parts[1] as int
+    int major = parts[0] as int
+
+    def numericVersion =  major*100000 + minor*1000 + hotfix
+    println('Version Code: ' + numericVersion)
+
+    return numericVersion
+}
+
 import com.android.build.OutputFile
 
 /**
@@ -145,8 +176,8 @@ android {
         applicationId 'org.imageing.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 12
-        versionName "0.4.2"
+        versionCode getVersionCode()
+        versionName getVersionName()
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
 
         if (isNewArchitectureEnabled()) {
