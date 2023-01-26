@@ -16,7 +16,7 @@ import doRequest from './request';
 function getFormData(file, settings, host) {
 	const formData = new FormData();
 	switch (host) {
-		case aHosts[0]: {
+		case aHosts.ImgBB: {
 			// ImgBB
 			formData.append('image', {
 				uri: file.uri,
@@ -26,7 +26,16 @@ function getFormData(file, settings, host) {
 			formData.append('key', settings.apiKey);
 			break;
 		}
-		case aHosts[1]: {
+		case aHosts.Imgur: {
+			// Imgur
+			formData.append('image', {
+				uri: file.uri,
+				type: 'image/jpeg',
+				name: 'upload.jpeg'
+			});
+			break;
+		}
+		case aHosts.SXCU: {
 			// SXCU
 			formData.append(settings.apiFormName, {
 				uri: file.uri,
@@ -35,15 +44,6 @@ function getFormData(file, settings, host) {
 			});
 			formData.append('endpoint', settings.apiEndpoint);
 			formData.append('token', settings.apiToken);
-			break;
-		}
-		case aHosts[2]: {
-			// Imgur
-			formData.append('image', {
-				uri: file.uri,
-				type: 'image/jpeg',
-				name: 'upload.jpeg'
-			});
 			break;
 		}
 		default:
@@ -88,7 +88,7 @@ export async function storeImage(localUrl, uploadData, host) {
 		url: host.getUrl(uploadData),
 		deleteUrl: host.getDeleteUrl(uploadData),
 		date: Date.now(),
-		manual: host === aHosts[0]
+		manual: host.deleteMethod === 'URL'
 	});
 	await AsyncStorage.setItem('images', JSON.stringify(images));
 }
@@ -102,32 +102,19 @@ export async function removeImage(deleteUrl) {
 	return images;
 }
 
-export async function deleteImage(hash) {
-	const settings = await getSettings();
+export async function deleteImage(deleteUrl) {
 	const host = await getHostSettings();
 
-	const get = host === aHosts[1];
-
-	await doRequest(
-		get ? hash : `https://api.imgur.com/3/image/${hash}`,
-		get ? 'GET' : 'DELETE',
-		null,
-		get
-			? null
-			: {
-					text: 'Authorization',
-					value: `Client-ID ${settings.apiClientId}`
-			  },
-		(o, res) => {
-			res();
-		},
-		(o, u, res, rej) => {
-			rej();
-		},
-		(o, u, res, rej) => {
-			rej();
-		}
-	);
+	const onLoad = ({ res }) => res();
+	const onError = ({ rej }) => rej();
+	await doRequest({
+		url: deleteUrl,
+		method: host.deleteMethod,
+		header: host.header,
+		onLoad,
+		onProgress: () => {},
+		onError
+	});
 }
 
 export async function getImages() {
@@ -137,7 +124,19 @@ export async function getImages() {
 	return images;
 }
 
-export async function uploadImages(
+/**
+ * This method uploads one or more images to the configured host.
+ *
+ * @param files Array of files to upload
+ * @param Toast Reference to the toast object
+ * @param setNoPick Function to disable/enable being able to pick a new image
+ * @param setProgress Function to set the progress
+ * @param setUploading Function to disable/enable being able to press upload
+ * @param setImages Function to set the images displayed
+ * @param next Function to end the loading state
+ * @param resolve Callback
+ */
+export async function uploadImages({
 	files,
 	Toast,
 	setNoPick,
@@ -146,26 +145,20 @@ export async function uploadImages(
 	setImages,
 	next,
 	resolve
-) {
+}) {
 	const host = await getHostSettings();
 	const settings = await getSettings();
-	/* eslint-disable no-nested-ternary */
-	const url =
-		host === aHosts[1]
-			? settings.apiUrl
-			: host === aHosts[0]
-			? 'https://api.imgbb.com/1/upload'
-			: 'https://api.imgur.com/3/image';
+	const url = host.url || settings.apiUrl;
 	let reason = '';
 
-	const onerror = (error, task, res, rej) => {
+	const onError = ({ task, rej }) => {
 		/* eslint-disable no-underscore-dangle */
 		reason = task._response;
 		rej();
 	};
 
-	const onprogress = ({ total, loaded }) => {
-		const progress = loaded / total;
+	const onProgress = ({ data }) => {
+		const progress = data.loaded / data.total;
 		setProgress(progress);
 	};
 
@@ -174,7 +167,7 @@ export async function uploadImages(
 	/* eslint-disable no-restricted-syntax */
 	for (const file of files) {
 		const formData = getFormData(file, settings, host);
-		const onload = (task, res, rej) => {
+		const onLoad = ({ task, res, rej }) => {
 			if (task.status !== 200) return rej(task);
 			setProgress(0);
 
@@ -184,20 +177,15 @@ export async function uploadImages(
 			return res();
 		};
 		/* eslint-disable no-await-in-loop,no-loop-func */
-		await doRequest(
+		await doRequest({
 			url,
-			'POST',
+			method: 'POST',
 			formData,
-			host === aHosts[2]
-				? {
-						text: 'Authorization',
-						value: `Client-ID ${settings.apiClientId}`
-				  }
-				: null,
-			onload,
-			onprogress,
-			onerror
-		).catch((task) => {
+			header: host.header,
+			onLoad,
+			onProgress,
+			onError
+		}).catch((task) => {
 			let response;
 			try {
 				response = JSON.parse(task.response);

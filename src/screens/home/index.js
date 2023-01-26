@@ -140,8 +140,8 @@ export default function HomeScreen() {
 						const resolve = (finished) => {
 							if (finished) setImages([Placeholder]);
 						};
-						await uploadImages(
-							images,
+						await uploadImages({
+							files: images,
 							Toast,
 							setNoPick,
 							setProgress,
@@ -149,7 +149,7 @@ export default function HomeScreen() {
 							setImages,
 							next,
 							resolve
-						);
+						});
 					}}>
 					<Text style={{ fontSize: 20, color: 'white' }}>Upload</Text>
 				</AwesomeButton>

@@ -371,14 +371,17 @@ export default function SettingScreen() {
 						/>
 					)}
 					{switchShow &&
-						aHosts.map((aHost) => (
-							<Dialog.Switch
-								key={aHost?.name}
-								label={aHost?.name}
-								value={host === aHost}
-								onChange={() => handleSwitch(aHost)}
-							/>
-						))}
+						Object.keys(aHosts).map((aHost) => {
+							const nHost = aHosts[aHost];
+							return (
+								<Dialog.Switch
+									key={nHost?.name}
+									label={nHost?.name}
+									value={host === nHost}
+									onChange={() => handleSwitch(nHost)}
+								/>
+							);
+						})}
 				</View>
 				<Dialog.Button
 					label={dialogButton === 'Close' ? dialogButton : 'Cancel'}

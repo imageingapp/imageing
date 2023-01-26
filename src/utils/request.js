@@ -1,12 +1,12 @@
-export default async function doRequest(
+export default async function doRequest({
 	url,
 	method,
 	formData,
 	header,
-	onload,
-	onprogress,
-	onerror
-) {
+	onLoad,
+	onProgress,
+	onError
+}) {
 	return new Promise((resolve, reject) => {
 		const uploadTask = new XMLHttpRequest();
 
@@ -16,10 +16,17 @@ export default async function doRequest(
 			uploadTask.setRequestHeader(header.text, header.value);
 		}
 
-		const onloadoverride = () => onload(uploadTask, resolve, reject);
+		const onloadoverride = () =>
+			onLoad({ task: uploadTask, res: resolve, rej: reject });
 		const onprogressoverride = (o) =>
-			onprogress(o, uploadTask, resolve, reject);
-		const onerroroverride = (e) => onerror(e, uploadTask, resolve, reject);
+			onProgress({
+				data: o,
+				task: uploadTask,
+				res: resolve,
+				rej: reject
+			});
+		const onerroroverride = (e) =>
+			onError({ data: e, task: uploadTask, res: resolve, rej: reject });
 
 		uploadTask.onload = onloadoverride;
 		uploadTask.onerror = onerroroverride;

@@ -9,8 +9,6 @@ export const empty = {
 	apiToken: '',
 	apiEndpoint: '',
 	apiFormName: '',
-	// Imgur
-	apiClientId: '867afe9433c0a53',
 	// Other
 	'Multi-Upload': false,
 	'Image Zoom and Drag': false
@@ -18,7 +16,7 @@ export const empty = {
 
 export async function getHostSettings() {
 	const stored = await AsyncStorage.getItem('host');
-	return aHosts.find((host) => host.name === stored) ?? aHosts[0];
+	return aHosts[stored] ?? aHosts.ImgBB;
 }
 
 export async function setHostSettings(host) {
