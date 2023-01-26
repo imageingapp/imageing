@@ -3,7 +3,7 @@ import { getDocumentAsync } from 'expo-document-picker';
 import { readAsStringAsync } from 'expo-file-system';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View } from 'react-native';
+import { ToastAndroid, View } from 'react-native';
 
 import Dialog from 'react-native-dialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -374,6 +374,7 @@ export default function SettingScreen() {
 			onPress: async () => {
 				await saveSetting('theme', 'auto');
 				setTheme('Auto');
+				ToastAndroid.show('Theme set to Auto', ToastAndroid.SHORT);
 				showSubSettings('');
 			}
 		}, // Auto
@@ -384,6 +385,7 @@ export default function SettingScreen() {
 			onPress: async () => {
 				await saveSetting('theme', 'light');
 				setTheme('Light');
+				ToastAndroid.show('Theme set to Light', ToastAndroid.SHORT);
 				showSubSettings('');
 			}
 		}, // Light
@@ -394,6 +396,7 @@ export default function SettingScreen() {
 			onPress: async () => {
 				await saveSetting('theme', 'dark');
 				setTheme('Dark');
+				ToastAndroid.show('Theme set to Dark', ToastAndroid.SHORT);
 				showSubSettings('');
 			}
 		}, // Dark
@@ -404,6 +407,10 @@ export default function SettingScreen() {
 			onPress: async () => {
 				await saveSetting('theme', 'material');
 				setTheme('Material You');
+				ToastAndroid.show(
+					'Theme set to Material You',
+					ToastAndroid.SHORT
+				);
 				showSubSettings('');
 			}
 		}, // Material You
