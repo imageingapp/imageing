@@ -213,25 +213,17 @@ export async function uploadImages({
 		}
 	}
 	if (failed === files.length) {
-		Toast.show({
-			type: 'error',
-			text1: 'Upload failed',
-			text2: reason || 'No image could be uploaded'
-		});
+		Toast.show('Upload failed', Toast.SHORT);
 	} else if (failed > 0) {
-		Toast.show({
-			type: 'info',
-			text1: 'Upload incomplete',
-			text2: `${files.length - failed}/${files.length} images uploaded`
-		});
+		Toast.show(
+			`${files.length - failed}/${files.length} images uploaded`,
+			Toast.SHORT
+		);
 	} else {
-		Toast.show({
-			type: 'success',
-			text1: 'Upload completed',
-			text2: `Image URL${
-				files.length > 1 ? 's' : ''
-			} copied to the clipboard`
-		});
+		Toast.show(
+			`Image URL${files.length > 1 ? 's' : ''} copied to the clipboard`,
+			Toast.SHORT
+		);
 	}
 	setNoPick(false);
 	setUploading(true);

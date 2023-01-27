@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable react/no-children-prop */
+/* eslint-disable react/no-unstable-nested-components */
+import React, { useEffect, useState, useContext } from 'react';
 import { getDocumentAsync } from 'expo-document-picker';
 import { readAsStringAsync } from 'expo-file-system';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View } from 'react-native';
+import { View, Appearance } from 'react-native';
 
 import Dialog from 'react-native-dialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Toast from 'react-native-toast-message';
+import Toast from 'react-native-simple-toast';
+import { createStackNavigator } from '@react-navigation/stack';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import ModalSelector from 'react-native-modal-selector';
 import {
 	empty,
 	getHostSettings,
@@ -16,10 +21,14 @@ import {
 } from '../../utils/settings';
 import SettingsComponent from '../../components/SettingsComponent';
 import aHosts from '../../utils/hosts';
+import { ThemeContext } from '../../utils/theme';
 
-export default function SettingScreen() {
+export default function SettingScreen({ navigation }) {
+	const { colors } = useTheme();
+	const Stack = createStackNavigator();
+	const { changeTheme } = useContext(ThemeContext);
 	const [host, setHost] = useState({});
-	const [hostPage, setHostPage] = useState(false);
+	const [theme, setTheme] = useState('');
 	const [multiUpload, setMultiUpload] = useState('Disabled');
 	const [zoomAndDrag, setZoomAndDrag] = useState('Disabled');
 	const [bDialog, setDialog] = useState(false);
@@ -28,7 +37,7 @@ export default function SettingScreen() {
 	const [dialogButton, setDialogButton] = useState('Enable');
 	const [inputValue, setInputValue] = useState('');
 	const [inputShow, setInputShow] = useState(false);
-	const [switchShow, setSwitchShow] = useState(false);
+	const [selectShow, setSelectShow] = useState(false);
 
 	// ImgBB
 	const [inputApiKey, setInputApiKey] = useState('');
@@ -41,12 +50,12 @@ export default function SettingScreen() {
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		let isMounted = true;
-		if (isMounted) setHostPage(false);
-		getHostSettings().then((h) => {
-			if (isMounted) {
-				setHost(h);
-			}
-		});
+		if (isMounted)
+			getHostSettings().then((h) => {
+				if (isMounted) {
+					setHost(h);
+				}
+			});
 		getSettings().then((settings) => {
 			if (isMounted) {
 				setMultiUpload(
@@ -60,6 +69,25 @@ export default function SettingScreen() {
 				setInputApiToken(settings.apiToken);
 				setInputApiEndpoint(settings.apiEndpoint);
 				setInputApiFormName(settings.apiFormName);
+				// if no theme is set, set it to default
+				if (!settings.theme) {
+					setTheme('Auto');
+				} else {
+					switch (settings.theme) {
+						case 'light':
+							setTheme('Light');
+							break;
+						case 'dark':
+							setTheme('Dark');
+							break;
+						case 'material':
+							setTheme('Material You');
+							break;
+						default:
+							setTheme('Auto');
+							break;
+					}
+				}
 			}
 		});
 		return () => {
@@ -77,14 +105,19 @@ export default function SettingScreen() {
 		await AsyncStorage.setItem('settings', JSON.stringify(parsed));
 	};
 
-	const openDialog = (title, description, { show, value }, sShow, button) => {
+	const openDialog = (
+		title,
+		description,
+		{ show, value },
+		_sShow,
+		button
+	) => {
 		// Alert
 		setDialog(true);
 		setDialogTitle(title);
 		setDialogDescription(description);
 		setInputShow(show);
 		setInputValue(value);
-		setSwitchShow(sShow);
 		setDialogButton(button);
 	};
 
@@ -134,11 +167,7 @@ export default function SettingScreen() {
 					(await readAsStringAsync(file.uri)).trim()
 				);
 			} catch (err) {
-				Toast.show({
-					type: 'error',
-					text1: 'File import failed',
-					text2: 'The file contains invalid data.'
-				});
+				Toast.show('The file contains invalid data.', Toast.SHORT);
 			}
 			if (
 				!fileData ||
@@ -147,11 +176,7 @@ export default function SettingScreen() {
 				!fileData.Arguments?.endpoint ||
 				!fileData.FileFormName
 			) {
-				Toast.show({
-					type: 'error',
-					text1: 'File import failed',
-					text2: 'The file contains invalid data.'
-				});
+				Toast.show('The file contains invalid data.', Toast.SHORT);
 				return;
 			}
 			await saveSetting('apiUrl', fileData.RequestURL);
@@ -162,11 +187,7 @@ export default function SettingScreen() {
 			setInputApiToken(fileData.Arguments.token);
 			setInputApiEndpoint(fileData.Arguments.endpoint);
 			setInputApiFormName(fileData.FileFormName);
-			Toast.show({
-				type: 'success',
-				text1: 'File imported',
-				text2: 'The data was saved.'
-			});
+			Toast.show('The data was saved.', Toast.SHORT);
 		}
 	};
 
@@ -176,16 +197,23 @@ export default function SettingScreen() {
 
 	const settingsOptions = [
 		{
+			title: 'Theme',
+			subTitle: theme,
+			icon: 'color-palette-outline',
+			show: true,
+			onPress: () => navigation.navigate('Theme')
+		},
+		{
 			title: 'Host',
 			subTitle: host?.name,
-			icon: 'chevron-forward-outline',
+			icon: 'cloud-upload-outline',
 			show: true,
-			onPress: () => setHostPage(true)
+			onPress: () => navigation.navigate('Host')
 		}, // Navigate to new Screen just like this
 		{
 			title: 'Multi-Upload',
 			subTitle: multiUpload,
-			icon: 'checkbox-outline',
+			icon: 'images-outline',
 			show: true,
 			onPress: () => {
 				openDialog(
@@ -204,7 +232,7 @@ export default function SettingScreen() {
 		{
 			title: 'Image Zoom and Drag',
 			subTitle: zoomAndDrag,
-			icon: 'checkbox-outline',
+			icon: 'move-outline',
 			show: true,
 			onPress: () => {
 				openDialog(
@@ -257,22 +285,18 @@ export default function SettingScreen() {
 
 	const hostOptions = [
 		{
-			title: 'Host',
+			title: 'Upload Destination',
 			subTitle: host?.name,
+			icon: 'cloud-upload-outline',
 			show: true,
 			onPress: () => {
-				openDialog(
-					'Host',
-					'Choose the host to upload to.',
-					{ show: false, value: '' },
-					true,
-					'Close'
-				);
+				setSelectShow(true);
 			}
 		}, // Select of Hosts
 		{
 			title: 'API URL',
 			subTitle: inputApiUrl,
+			icon: 'code-slash-outline',
 			show: host?.name === 'SXCU',
 			onPress: () => {
 				openDialog(
@@ -287,6 +311,7 @@ export default function SettingScreen() {
 		{
 			title: 'API Key',
 			subTitle: inputApiKey,
+			icon: 'key-outline',
 			show: host?.name === 'ImgBB',
 			onPress: () => {
 				openDialog(
@@ -301,6 +326,7 @@ export default function SettingScreen() {
 		{
 			title: 'API Token',
 			subTitle: inputApiToken,
+			icon: 'key-outline',
 			show: host?.name === 'SXCU',
 			onPress: () => {
 				openDialog(
@@ -315,6 +341,7 @@ export default function SettingScreen() {
 		{
 			title: 'API Endpoint',
 			subTitle: inputApiEndpoint,
+			icon: 'code-slash-outline',
 			show: host?.name === 'SXCU',
 			onPress: () => {
 				openDialog(
@@ -329,6 +356,7 @@ export default function SettingScreen() {
 		{
 			title: 'API Formname',
 			subTitle: inputApiFormName,
+			icon: 'code-slash-outline',
 			show: host?.name === 'SXCU',
 			onPress: () => {
 				openDialog(
@@ -343,19 +371,92 @@ export default function SettingScreen() {
 		{
 			title: 'Import',
 			subTitle: null,
+			icon: 'download-outline',
 			show: host?.name === 'SXCU',
 			onPress: handleImport
-		}, // Import Settings File
-		{
-			title: 'Back',
-			subTitle: null,
-			show: true,
-			onPress: () => setHostPage(false)
-		} // Select of Hosts
+		} // Import Settings File
 	];
 
-	return (
+	const themeOptions = [
+		{
+			title: 'Auto',
+			subTitle: 'Follows your system theme',
+			icon: 'settings-outline',
+			show: true,
+			onPress: async () => {
+				await saveSetting('theme', 'auto');
+				setTheme('Auto');
+				const systemTheme = Appearance.getColorScheme();
+				changeTheme(systemTheme);
+				Toast.show('Theme set to Auto', Toast.SHORT);
+				navigation.navigate('App Settings');
+			}
+		}, // Auto
+		{
+			title: 'Light',
+			subTitle: 'Light theme',
+			icon: 'sunny-outline',
+			show: true,
+			onPress: async () => {
+				await saveSetting('theme', 'light');
+				setTheme('Light');
+				changeTheme('light');
+				Toast.show('Theme set to Light', Toast.SHORT);
+				navigation.navigate('App Settings');
+			}
+		}, // Light
+		{
+			title: 'Dark',
+			subTitle: 'Dark theme',
+			icon: 'moon-outline',
+			show: true,
+			onPress: async () => {
+				await saveSetting('theme', 'dark');
+				setTheme('Dark');
+				changeTheme('dark');
+				Toast.show('Theme set to Dark', Toast.SHORT);
+				navigation.navigate('App Settings');
+			}
+		} // Dark
+		/* {
+			title: 'Material You',
+			subTitle: 'Dynamic theme',
+			icon: 'color-palette-outline',
+			show: true,
+			onPress: async () => {
+				await saveSetting('theme', 'material');
+				setTheme('Material You');
+				changeTheme('material');
+				Toast.show('Theme set to Material You', Toast.SHORT);
+				navigation.navigate('App Settings');
+			}
+		} */ // Material You module not working properly atm
+	];
+
+	const selectData = Object.keys(aHosts).map((x) => {
+		const y = aHosts[x];
+		return { key: y.name, label: y.name };
+	});
+
+	const MainSettingsAreaView = (
 		<SafeAreaView>
+			<ModalSelector
+				initValue={null}
+				visible={selectShow}
+				customSelector={<View />}
+				data={selectData}
+				optionContainerStyle={{
+					backgroundColor: colors.card,
+					borderColor: colors.text,
+					borderWidth: 2,
+					borderRadius: 5
+				}}
+				optionTextStyle={{ color: colors.text }}
+				onModalClose={() => setSelectShow(false)}
+				onChange={(option) => {
+					handleSwitch(aHosts[option.key]);
+				}}
+			/>
 			<Dialog.Container
 				visible={bDialog}
 				onBackdropPress={handleCancel}>
@@ -370,18 +471,6 @@ export default function SettingScreen() {
 							onChangeText={setInputValue}
 						/>
 					)}
-					{switchShow &&
-						Object.keys(aHosts).map((aHost) => {
-							const nHost = aHosts[aHost];
-							return (
-								<Dialog.Switch
-									key={nHost?.name}
-									label={nHost?.name}
-									value={host === nHost}
-									onChange={() => handleSwitch(nHost)}
-								/>
-							);
-						})}
 				</View>
 				<Dialog.Button
 					label={dialogButton === 'Close' ? dialogButton : 'Cancel'}
@@ -394,12 +483,28 @@ export default function SettingScreen() {
 					/>
 				) : null}
 			</Dialog.Container>
-			{hostPage ? (
-				<SettingsComponent settingsOptions={hostOptions} />
-			) : (
-				<SettingsComponent settingsOptions={settingsOptions} />
-			)}
-			<Toast />
+			<SettingsComponent settingsOptions={settingsOptions} />
 		</SafeAreaView>
+	);
+
+	return (
+		<Stack.Navigator initialRouteName='App Settings'>
+			<Stack.Screen
+				name='App Settings'
+				children={() => MainSettingsAreaView}
+			/>
+			<Stack.Screen
+				name='Theme'
+				children={() => (
+					<SettingsComponent settingsOptions={themeOptions} />
+				)}
+			/>
+			<Stack.Screen
+				name='Host'
+				children={() => (
+					<SettingsComponent settingsOptions={hostOptions} />
+				)}
+			/>
+		</Stack.Navigator>
 	);
 }

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View, Image } from 'react-native';
 import { Bar } from 'react-native-progress';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useTheme } from '@react-navigation/native';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Ionicons from '@expo/vector-icons/Ionicons';
-import Toast from 'react-native-toast-message';
+import Toast from 'react-native-simple-toast';
 import NetInfo from '@react-native-community/netinfo';
 import Gestures from 'react-native-easy-gestures';
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
@@ -22,6 +22,7 @@ export default function HomeScreen() {
 	const [draggable, setDraggable] = useState(false);
 	const [zoomable, setZoomable] = useState(false);
 	const [gestures, setGestures] = useState({});
+	const { colors } = useTheme();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -76,8 +77,8 @@ export default function HomeScreen() {
 				<Bar
 					progress={progress}
 					width={260}
-					color='#1775C8'
-					borderColor='#f2f2f2'
+					color={colors.background}
+					borderColor={colors.background}
 				/>
 			</View>
 			<View style={styles.buttonContainer}>
@@ -96,7 +97,7 @@ export default function HomeScreen() {
 						}
 					}}>
 					<Ionicons
-						style={{ margin: 10, color: 'white' }}
+						style={{ margin: 10, color: colors.background }}
 						name='camera-outline'
 						size={30}
 					/>
@@ -116,7 +117,7 @@ export default function HomeScreen() {
 						}
 					}}>
 					<Ionicons
-						style={{ margin: 10, color: 'white' }}
+						style={{ margin: 10, color: colors.background }}
 						name='add-circle-outline'
 						size={30}
 					/>
@@ -126,16 +127,20 @@ export default function HomeScreen() {
 					progress
 					size='medium'
 					disabled={uploading}
+					backgroundColor={colors.border}
+					backgroundDarker={colors.card}
+					backgroundProgress={colors.primary}
+					backgroundPlaceholder={colors.background}
+					backgroundShadow={colors.card}
 					onPress={async (next) => {
 						setUploading(true);
 						setNoPick(true);
 						const netInfo = await NetInfo.fetch();
 						if (!netInfo.isConnected) {
-							Toast.show({
-								type: 'error',
-								text1: 'No Internet Connection',
-								text2: 'Are you connected to the internet?'
-							});
+							Toast.show(
+								'No network connection available',
+								Toast.SHORT
+							);
 							setUploading(false);
 							setNoPick(false);
 							next();
@@ -155,10 +160,11 @@ export default function HomeScreen() {
 							resolve
 						});
 					}}>
-					<Text style={{ fontSize: 20, color: 'white' }}>Upload</Text>
+					<Text style={{ fontSize: 20, color: colors.text }}>
+						Upload
+					</Text>
 				</AwesomeButton>
 			</View>
-			<Toast />
 		</View>
 	);
 }
