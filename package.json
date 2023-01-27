@@ -13,10 +13,10 @@
     "precommit": "lint-staged",
     "prebuilt": "expo prebuild --no-install",
     "prepare": "husky install",
-	"release": "yarn version",
-	"preversion": "yarn lint && yarn expover && git add app.json",
-	"expover": "node -e \"let fs = require('fs'); let app = require('./app.json'); app.expo.version = require('./package.json').version; app.expo.android.versionCode = parseInt(app.expo.android.versionCode) + 1; fs.writeFileSync('./app.json', JSON.stringify(app, null, 2));\"",
-	"postversion": "git push && git push --tags && semantic-release --no-ci"
+    "release": "yarn version",
+    "preversion": "yarn lint && yarn expover && git add app.json",
+    "expover": "node -e \"let fs = require('fs'); let app = require('./app.json'); app.expo.version = require('./package.json').version; app.expo.android.versionCode = parseInt(app.expo.android.versionCode) + 1; fs.writeFileSync('./app.json', JSON.stringify(app, null, 2));\"",
+    "postversion": "git push && git push --tags && semantic-release --no-ci"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -53,6 +53,7 @@
     "react-native-safe-area-context": "4.4.1",
     "react-native-screens": "~3.18.0",
     "react-native-select-dropdown": "^3.2.1",
+    "react-native-simple-toast": "^2.0.0",
     "react-native-svg": "13.4.0",
     "react-native-tab-view": "^3.3.4",
     "react-native-toast-message": "^2.1.5",

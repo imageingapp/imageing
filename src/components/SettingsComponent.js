@@ -69,8 +69,8 @@ function SettingsComponent({ settingsOptions }) {
 								</View>
 								<View
 									style={{
-										height: 1,
-										backgroundColor: colors.card
+										height: 1.5,
+										backgroundColor: colors.background
 									}}
 								/>
 							</TouchableOpacity>
