@@ -77,8 +77,8 @@ export default function HomeScreen() {
 				<Bar
 					progress={progress}
 					width={260}
-					color='#1775C8'
-					borderColor='#f2f2f2'
+					color={colors.background}
+					borderColor={colors.background}
 				/>
 			</View>
 			<View style={styles.buttonContainer}>
@@ -129,7 +129,7 @@ export default function HomeScreen() {
 					disabled={uploading}
 					backgroundColor={colors.border}
 					backgroundDarker={colors.card}
-					backgroundProgress={colors.background}
+					backgroundProgress={colors.primary}
 					backgroundPlaceholder={colors.background}
 					backgroundShadow={colors.card}
 					onPress={async (next) => {
