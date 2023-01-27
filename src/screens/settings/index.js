@@ -181,14 +181,14 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'Host',
 			subTitle: host?.name,
-			icon: 'chevron-forward-outline',
+			icon: 'cloud-upload-outline',
 			show: true,
 			onPress: () => navigation.navigate('Host')
 		}, // Navigate to new Screen just like this
 		{
 			title: 'Multi-Upload',
 			subTitle: multiUpload,
-			icon: 'checkbox-outline',
+			icon: 'images-outline',
 			show: true,
 			onPress: () => {
 				openDialog(
@@ -207,7 +207,7 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'Image Zoom and Drag',
 			subTitle: zoomAndDrag,
-			icon: 'checkbox-outline',
+			icon: 'move-outline',
 			show: true,
 			onPress: () => {
 				openDialog(
@@ -260,13 +260,14 @@ export default function SettingScreen({ navigation }) {
 
 	const hostOptions = [
 		{
-			title: 'Host',
+			title: 'Upload Destination',
 			subTitle: host?.name,
+			icon: 'cloud-upload-outline',
 			show: true,
 			onPress: () => {
 				openDialog(
-					'Host',
-					'Choose the host to upload to.',
+					'Upload Destination',
+					'Choose the upload destination.',
 					{ show: false, value: '' },
 					true,
 					'Close'
@@ -276,6 +277,7 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'API URL',
 			subTitle: inputApiUrl,
+			icon: 'code-slash-outline',
 			show: host?.name === 'SXCU',
 			onPress: () => {
 				openDialog(
@@ -290,6 +292,7 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'API Key',
 			subTitle: inputApiKey,
+			icon: 'key-outline',
 			show: host?.name === 'ImgBB',
 			onPress: () => {
 				openDialog(
@@ -304,6 +307,7 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'API Token',
 			subTitle: inputApiToken,
+			icon: 'key-outline',
 			show: host?.name === 'SXCU',
 			onPress: () => {
 				openDialog(
@@ -318,6 +322,7 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'API Endpoint',
 			subTitle: inputApiEndpoint,
+			icon: 'code-slash-outline',
 			show: host?.name === 'SXCU',
 			onPress: () => {
 				openDialog(
@@ -332,6 +337,7 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'API Formname',
 			subTitle: inputApiFormName,
+			icon: 'code-slash-outline',
 			show: host?.name === 'SXCU',
 			onPress: () => {
 				openDialog(
@@ -346,6 +352,7 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'Import',
 			subTitle: null,
+			icon: 'download-outline',
 			show: host?.name === 'SXCU',
 			onPress: handleImport
 		} // Import Settings File
@@ -355,6 +362,7 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'Auto',
 			subTitle: 'Follows your system theme',
+			icon: 'settings-outline',
 			show: true,
 			onPress: async () => {
 				await saveSetting('theme', 'auto');
@@ -366,6 +374,7 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'Light',
 			subTitle: 'Light theme',
+			icon: 'sunny-outline',
 			show: true,
 			onPress: async () => {
 				await saveSetting('theme', 'light');
@@ -377,6 +386,7 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'Dark',
 			subTitle: 'Dark theme',
+			icon: 'moon-outline',
 			show: true,
 			onPress: async () => {
 				await saveSetting('theme', 'dark');
@@ -388,6 +398,7 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'Material You',
 			subTitle: 'Dynamic theme',
+			icon: 'color-palette-outline',
 			show: true,
 			onPress: async () => {
 				await saveSetting('theme', 'material');
