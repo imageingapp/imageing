@@ -67,6 +67,21 @@ export default function SettingScreen({ navigation }) {
 				// if no theme is set, set it to default
 				if (!settings.theme) {
 					setTheme('Auto');
+				} else {
+					switch (settings.theme) {
+						case 'light':
+							setTheme('Light');
+							break;
+						case 'dark':
+							setTheme('Dark');
+							break;
+						case 'material':
+							setTheme('Material You');
+							break;
+						default:
+							setTheme('Auto');
+							break;
+					}
 				}
 			}
 		});
