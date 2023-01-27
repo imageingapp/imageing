@@ -127,17 +127,11 @@ export default function HomeScreen() {
 					progress
 					size='medium'
 					disabled={uploading}
-					// apply colors from the theme
-					theme={{
-						active: {
-							backgroundColor: '#1775C8',
-							borderColor: '#1775C8'
-						},
-						disabled: {
-							backgroundColor: colors.card,
-							borderColor: '#f2f2f2'
-						}
-					}}
+					backgroundColor={colors.border}
+					backgroundDarker={colors.card}
+					backgroundProgress={colors.background}
+					backgroundPlaceholder={colors.background}
+					backgroundShadow={colors.card}
 					onPress={async (next) => {
 						setUploading(true);
 						setNoPick(true);
