@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View, Image } from 'react-native';
 import { Bar } from 'react-native-progress';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useTheme } from '@react-navigation/native';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -22,6 +22,7 @@ export default function HomeScreen() {
 	const [draggable, setDraggable] = useState(false);
 	const [zoomable, setZoomable] = useState(false);
 	const [gestures, setGestures] = useState({});
+	const { colors } = useTheme();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -96,7 +97,7 @@ export default function HomeScreen() {
 						}
 					}}>
 					<Ionicons
-						style={{ margin: 10, color: 'white' }}
+						style={{ margin: 10, color: colors.background }}
 						name='camera-outline'
 						size={30}
 					/>
@@ -116,7 +117,7 @@ export default function HomeScreen() {
 						}
 					}}>
 					<Ionicons
-						style={{ margin: 10, color: 'white' }}
+						style={{ margin: 10, color: colors.background }}
 						name='add-circle-outline'
 						size={30}
 					/>
@@ -126,6 +127,17 @@ export default function HomeScreen() {
 					progress
 					size='medium'
 					disabled={uploading}
+					// apply colors from the theme
+					theme={{
+						active: {
+							backgroundColor: '#1775C8',
+							borderColor: '#1775C8'
+						},
+						disabled: {
+							backgroundColor: colors.card,
+							borderColor: '#f2f2f2'
+						}
+					}}
 					onPress={async (next) => {
 						setUploading(true);
 						setNoPick(true);
@@ -154,7 +166,9 @@ export default function HomeScreen() {
 							resolve
 						});
 					}}>
-					<Text style={{ fontSize: 20, color: 'white' }}>Upload</Text>
+					<Text style={{ fontSize: 20, color: colors.text }}>
+						Upload
+					</Text>
 				</AwesomeButton>
 			</View>
 		</View>
