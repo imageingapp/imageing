@@ -12,41 +12,47 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { StatusBar } from 'expo-status-bar';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React from 'react';
+import React, { useState } from 'react';
 import HomeScreen from './src/screens/home';
 import GalleryScreen from './src/screens/gallery';
 import SettingScreen from './src/screens/settings';
+import ThemeContext from './src/utils/theme';
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function App() {
 	const scheme = useColorScheme();
+	const [currentTheme, changeTheme] = useState(scheme);
+	// eslint-disable-next-line react/jsx-no-constructed-context-values
+	const themeData = { currentTheme, changeTheme };
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
-			<NavigationContainer
-				theme={scheme === 'dark' ? DarkTheme : DefaultTheme}>
-				<Tab.Navigator
-					screenOptions={() => ({
-						tabBarActiveTintColor: 'turquoise',
-						tabBarInactiveTintColor: 'gray',
-						headerShown: false,
-						unmountOnBlur: true,
-						lazy: true
-					})}>
-					<Tab.Screen
-						name='Home'
-						component={HomeScreen}
-					/>
-					<Tab.Screen
-						name='Gallery'
-						component={GalleryScreen}
-					/>
-					<Tab.Screen
-						name='Settings'
-						component={SettingScreen}
-					/>
-				</Tab.Navigator>
-			</NavigationContainer>
+			<ThemeContext.Provider value={themeData}>
+				<NavigationContainer
+					theme={currentTheme === 'dark' ? DarkTheme : DefaultTheme}>
+					<Tab.Navigator
+						screenOptions={() => ({
+							tabBarActiveTintColor: 'turquoise',
+							tabBarInactiveTintColor: 'gray',
+							headerShown: false,
+							unmountOnBlur: true,
+							lazy: true
+						})}>
+						<Tab.Screen
+							name='Home'
+							component={HomeScreen}
+						/>
+						<Tab.Screen
+							name='Gallery'
+							component={GalleryScreen}
+						/>
+						<Tab.Screen
+							name='Settings'
+							component={SettingScreen}
+						/>
+					</Tab.Navigator>
+				</NavigationContainer>
+			</ThemeContext.Provider>
 			<StatusBar style='dark' />
 		</SafeAreaView>
 	);

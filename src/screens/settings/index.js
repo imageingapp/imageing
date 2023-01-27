@@ -1,11 +1,11 @@
 /* eslint-disable react/no-children-prop */
 /* eslint-disable react/no-unstable-nested-components */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { getDocumentAsync } from 'expo-document-picker';
 import { readAsStringAsync } from 'expo-file-system';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View } from 'react-native';
+import { View, Appearance } from 'react-native';
 
 import Dialog from 'react-native-dialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -19,9 +19,11 @@ import {
 } from '../../utils/settings';
 import SettingsComponent from '../../components/SettingsComponent';
 import aHosts from '../../utils/hosts';
+import ThemeContext from '../../utils/theme';
 
 export default function SettingScreen({ navigation }) {
 	const Stack = createStackNavigator();
+	const { changeTheme } = useContext(ThemeContext);
 	const [host, setHost] = useState({});
 	const [theme, setTheme] = useState('');
 	const [multiUpload, setMultiUpload] = useState('Disabled');
@@ -382,6 +384,8 @@ export default function SettingScreen({ navigation }) {
 			onPress: async () => {
 				await saveSetting('theme', 'auto');
 				setTheme('Auto');
+				const systemTheme = Appearance.getColorScheme();
+				changeTheme(systemTheme);
 				Toast.show('Theme set to Auto', Toast.SHORT);
 				navigation.navigate('App Settings');
 			}
@@ -394,6 +398,7 @@ export default function SettingScreen({ navigation }) {
 			onPress: async () => {
 				await saveSetting('theme', 'light');
 				setTheme('Light');
+				changeTheme('light');
 				Toast.show('Theme set to Light', Toast.SHORT);
 				navigation.navigate('App Settings');
 			}
@@ -406,6 +411,7 @@ export default function SettingScreen({ navigation }) {
 			onPress: async () => {
 				await saveSetting('theme', 'dark');
 				setTheme('Dark');
+				changeTheme('dark');
 				Toast.show('Theme set to Dark', Toast.SHORT);
 				navigation.navigate('App Settings');
 			}
@@ -418,6 +424,7 @@ export default function SettingScreen({ navigation }) {
 			onPress: async () => {
 				await saveSetting('theme', 'material');
 				setTheme('Material You');
+				changeTheme('material');
 				Toast.show('Theme set to Material You', Toast.SHORT);
 				navigation.navigate('App Settings');
 			}
