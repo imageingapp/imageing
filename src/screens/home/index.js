@@ -5,7 +5,7 @@ import { useIsFocused } from '@react-navigation/native';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Ionicons from '@expo/vector-icons/Ionicons';
-import Toast from 'react-native-toast-message';
+import Toast from 'react-native-simple-toast';
 import NetInfo from '@react-native-community/netinfo';
 import Gestures from 'react-native-easy-gestures';
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
@@ -131,11 +131,10 @@ export default function HomeScreen() {
 						setNoPick(true);
 						const netInfo = await NetInfo.fetch();
 						if (!netInfo.isConnected) {
-							Toast.show({
-								type: 'error',
-								text1: 'No Internet Connection',
-								text2: 'Are you connected to the internet?'
-							});
+							Toast.show(
+								'No network connection available',
+								Toast.SHORT
+							);
 							setUploading(false);
 							setNoPick(false);
 							next();
@@ -158,7 +157,6 @@ export default function HomeScreen() {
 					<Text style={{ fontSize: 20, color: 'white' }}>Upload</Text>
 				</AwesomeButton>
 			</View>
-			<Toast />
 		</View>
 	);
 }

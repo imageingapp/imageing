@@ -16,7 +16,6 @@ import { useIsFocused } from '@react-navigation/native';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Ionicons from '@expo/vector-icons/Ionicons';
-import Toast from 'react-native-toast-message';
 import Dialog from 'react-native-dialog';
 import Gestures from 'react-native-easy-gestures';
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
@@ -200,7 +199,6 @@ export default function GalleryScreen({ navigation }) {
 							/>
 						</AwesomeButton>
 					</View>
-					<Toast />
 				</View>
 			) : images.length > 0 ? (
 				<FlatList
