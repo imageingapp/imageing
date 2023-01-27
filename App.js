@@ -1,5 +1,6 @@
 /* eslint-disable react/style-prop-object */
 // eslint-disable-next-line import/no-extraneous-dependencies
+import 'react-native-gesture-handler';
 
 import {
 	NavigationContainer,
