@@ -360,7 +360,7 @@ export default function SettingScreen({ navigation }) {
 				await saveSetting('theme', 'auto');
 				setTheme('Auto');
 				Toast.show('Theme set to Auto', Toast.SHORT);
-				navigation.navigate('Setting');
+				navigation.navigate('App Settings');
 			}
 		}, // Auto
 		{
@@ -371,7 +371,7 @@ export default function SettingScreen({ navigation }) {
 				await saveSetting('theme', 'light');
 				setTheme('Light');
 				Toast.show('Theme set to Light', Toast.SHORT);
-				navigation.navigate('Setting');
+				navigation.navigate('App Settings');
 			}
 		}, // Light
 		{
@@ -382,7 +382,7 @@ export default function SettingScreen({ navigation }) {
 				await saveSetting('theme', 'dark');
 				setTheme('Dark');
 				Toast.show('Theme set to Dark', Toast.SHORT);
-				navigation.navigate('Setting');
+				navigation.navigate('App Settings');
 			}
 		}, // Dark
 		{
@@ -393,7 +393,7 @@ export default function SettingScreen({ navigation }) {
 				await saveSetting('theme', 'material');
 				setTheme('Material You');
 				Toast.show('Theme set to Material You', Toast.SHORT);
-				navigation.navigate('Setting');
+				navigation.navigate('App Settings');
 			}
 		} // Material You
 	];
@@ -444,9 +444,9 @@ export default function SettingScreen({ navigation }) {
 	);
 
 	return (
-		<Stack.Navigator initialRouteName='Setting'>
+		<Stack.Navigator initialRouteName='App Settings'>
 			<Stack.Screen
-				name='Setting'
+				name='App Settings'
 				children={() => MainSettingsAreaView}
 			/>
 			<Stack.Screen
