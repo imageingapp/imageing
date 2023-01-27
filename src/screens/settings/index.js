@@ -1,3 +1,5 @@
+/* eslint-disable react/no-children-prop */
+/* eslint-disable react/no-unstable-nested-components */
 import React, { useEffect, useState } from 'react';
 import { getDocumentAsync } from 'expo-document-picker';
 import { readAsStringAsync } from 'expo-file-system';
@@ -8,6 +10,7 @@ import { View } from 'react-native';
 import Dialog from 'react-native-dialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
+import { createStackNavigator } from '@react-navigation/stack';
 import {
 	empty,
 	getHostSettings,
@@ -17,9 +20,9 @@ import {
 import SettingsComponent from '../../components/SettingsComponent';
 import aHosts from '../../utils/hosts';
 
-export default function SettingScreen() {
+export default function SettingScreen({ navigation }) {
+	const Stack = createStackNavigator();
 	const [host, setHost] = useState({});
-	const [subSettings, showSubSettings] = useState('');
 	const [theme, setTheme] = useState('');
 	const [multiUpload, setMultiUpload] = useState('Disabled');
 	const [zoomAndDrag, setZoomAndDrag] = useState('Disabled');
@@ -42,12 +45,12 @@ export default function SettingScreen() {
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		let isMounted = true;
-		if (isMounted) showSubSettings('');
-		getHostSettings().then((h) => {
-			if (isMounted) {
-				setHost(h);
-			}
-		});
+		if (isMounted)
+			getHostSettings().then((h) => {
+				if (isMounted) {
+					setHost(h);
+				}
+			});
 		getSettings().then((settings) => {
 			if (isMounted) {
 				setMultiUpload(
@@ -173,14 +176,14 @@ export default function SettingScreen() {
 			subTitle: theme,
 			icon: 'color-palette-outline',
 			show: true,
-			onPress: () => showSubSettings('theme')
+			onPress: () => navigation.navigate('Theme')
 		},
 		{
 			title: 'Host',
 			subTitle: host?.name,
 			icon: 'chevron-forward-outline',
 			show: true,
-			onPress: () => showSubSettings('host')
+			onPress: () => navigation.navigate('Host')
 		}, // Navigate to new Screen just like this
 		{
 			title: 'Multi-Upload',
@@ -345,13 +348,7 @@ export default function SettingScreen() {
 			subTitle: null,
 			show: host?.name === 'SXCU',
 			onPress: handleImport
-		}, // Import Settings File
-		{
-			title: 'Back',
-			subTitle: null,
-			show: true,
-			onPress: () => showSubSettings('')
-		} // Select of Hosts
+		} // Import Settings File
 	];
 
 	const themeOptions = [
@@ -363,7 +360,7 @@ export default function SettingScreen() {
 				await saveSetting('theme', 'auto');
 				setTheme('Auto');
 				Toast.show('Theme set to Auto', Toast.SHORT);
-				showSubSettings('');
+				navigation.navigate('Setting');
 			}
 		}, // Auto
 		{
@@ -374,7 +371,7 @@ export default function SettingScreen() {
 				await saveSetting('theme', 'light');
 				setTheme('Light');
 				Toast.show('Theme set to Light', Toast.SHORT);
-				showSubSettings('');
+				navigation.navigate('Setting');
 			}
 		}, // Light
 		{
@@ -385,7 +382,7 @@ export default function SettingScreen() {
 				await saveSetting('theme', 'dark');
 				setTheme('Dark');
 				Toast.show('Theme set to Dark', Toast.SHORT);
-				showSubSettings('');
+				navigation.navigate('Setting');
 			}
 		}, // Dark
 		{
@@ -396,18 +393,13 @@ export default function SettingScreen() {
 				await saveSetting('theme', 'material');
 				setTheme('Material You');
 				Toast.show('Theme set to Material You', Toast.SHORT);
-				showSubSettings('');
+				navigation.navigate('Setting');
 			}
-		}, // Material You
-		{
-			title: 'Back',
-			subTitle: null,
-			show: true,
-			onPress: () => showSubSettings('')
-		} // Select of Hosts
+		} // Material You
 	];
 
-	return (
+	// make a safe area view as const
+	const MainSettingsAreaView = (
 		<SafeAreaView>
 			<Dialog.Container
 				visible={bDialog}
@@ -447,24 +439,28 @@ export default function SettingScreen() {
 					/>
 				) : null}
 			</Dialog.Container>
-			{(() => {
-				switch (subSettings) {
-					case 'host':
-						return (
-							<SettingsComponent settingsOptions={hostOptions} />
-						);
-					case 'theme':
-						return (
-							<SettingsComponent settingsOptions={themeOptions} />
-						);
-					default:
-						return (
-							<SettingsComponent
-								settingsOptions={settingsOptions}
-							/>
-						);
-				}
-			})()}
+			<SettingsComponent settingsOptions={settingsOptions} />
 		</SafeAreaView>
+	);
+
+	return (
+		<Stack.Navigator initialRouteName='Setting'>
+			<Stack.Screen
+				name='Setting'
+				children={() => MainSettingsAreaView}
+			/>
+			<Stack.Screen
+				name='Theme'
+				children={() => (
+					<SettingsComponent settingsOptions={themeOptions} />
+				)}
+			/>
+			<Stack.Screen
+				name='Host'
+				children={() => (
+					<SettingsComponent settingsOptions={hostOptions} />
+				)}
+			/>
+		</Stack.Navigator>
 	);
 }
