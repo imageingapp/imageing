@@ -3,11 +3,11 @@ import { getDocumentAsync } from 'expo-document-picker';
 import { readAsStringAsync } from 'expo-file-system';
 import { useIsFocused } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ToastAndroid, View } from 'react-native';
+import { View } from 'react-native';
 
 import Dialog from 'react-native-dialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Toast from 'react-native-toast-message';
+import Toast from 'react-native-simple-toast';
 import {
 	empty,
 	getHostSettings,
@@ -139,11 +139,7 @@ export default function SettingScreen() {
 					(await readAsStringAsync(file.uri)).trim()
 				);
 			} catch (err) {
-				Toast.show({
-					type: 'error',
-					text1: 'File import failed',
-					text2: 'The file contains invalid data.'
-				});
+				Toast.show('The file contains invalid data.', Toast.SHORT);
 			}
 			if (
 				!fileData ||
@@ -152,11 +148,7 @@ export default function SettingScreen() {
 				!fileData.Arguments?.endpoint ||
 				!fileData.FileFormName
 			) {
-				Toast.show({
-					type: 'error',
-					text1: 'File import failed',
-					text2: 'The file contains invalid data.'
-				});
+				Toast.show('The file contains invalid data.', Toast.SHORT);
 				return;
 			}
 			await saveSetting('apiUrl', fileData.RequestURL);
@@ -167,11 +159,7 @@ export default function SettingScreen() {
 			setInputApiToken(fileData.Arguments.token);
 			setInputApiEndpoint(fileData.Arguments.endpoint);
 			setInputApiFormName(fileData.FileFormName);
-			Toast.show({
-				type: 'success',
-				text1: 'File imported',
-				text2: 'The data was saved.'
-			});
+			Toast.show('The data was saved.', Toast.SHORT);
 		}
 	};
 
@@ -374,7 +362,7 @@ export default function SettingScreen() {
 			onPress: async () => {
 				await saveSetting('theme', 'auto');
 				setTheme('Auto');
-				ToastAndroid.show('Theme set to Auto', ToastAndroid.SHORT);
+				Toast.show('Theme set to Auto', Toast.SHORT);
 				showSubSettings('');
 			}
 		}, // Auto
@@ -385,7 +373,7 @@ export default function SettingScreen() {
 			onPress: async () => {
 				await saveSetting('theme', 'light');
 				setTheme('Light');
-				ToastAndroid.show('Theme set to Light', ToastAndroid.SHORT);
+				Toast.show('Theme set to Light', Toast.SHORT);
 				showSubSettings('');
 			}
 		}, // Light
@@ -396,7 +384,7 @@ export default function SettingScreen() {
 			onPress: async () => {
 				await saveSetting('theme', 'dark');
 				setTheme('Dark');
-				ToastAndroid.show('Theme set to Dark', ToastAndroid.SHORT);
+				Toast.show('Theme set to Dark', Toast.SHORT);
 				showSubSettings('');
 			}
 		}, // Dark
@@ -407,10 +395,7 @@ export default function SettingScreen() {
 			onPress: async () => {
 				await saveSetting('theme', 'material');
 				setTheme('Material You');
-				ToastAndroid.show(
-					'Theme set to Material You',
-					ToastAndroid.SHORT
-				);
+				Toast.show('Theme set to Material You', Toast.SHORT);
 				showSubSettings('');
 			}
 		}, // Material You
@@ -480,7 +465,6 @@ export default function SettingScreen() {
 						);
 				}
 			})()}
-			<Toast />
 		</SafeAreaView>
 	);
 }
