@@ -417,8 +417,8 @@ export default function SettingScreen({ navigation }) {
 				Toast.show('Theme set to Dark', Toast.SHORT);
 				navigation.navigate('App Settings');
 			}
-		}, // Dark
-		{
+		} // Dark
+		/* {
 			title: 'Material You',
 			subTitle: 'Dynamic theme',
 			icon: 'color-palette-outline',
@@ -430,7 +430,7 @@ export default function SettingScreen({ navigation }) {
 				Toast.show('Theme set to Material You', Toast.SHORT);
 				navigation.navigate('App Settings');
 			}
-		} // Material You
+		} */ // Material You module not working properly atm
 	];
 
 	const selectData = Object.keys(aHosts).map((x) => {

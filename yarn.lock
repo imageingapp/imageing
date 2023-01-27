@@ -10,11 +10,6 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
-"@assembless/react-native-material-you@^1.0.0-beta.4":
-  version "1.0.0-beta.4"
-  resolved "https://registry.yarnpkg.com/@assembless/react-native-material-you/-/react-native-material-you-1.0.0-beta.4.tgz#fe327641614fe890b3a69ea3612796182a588c14"
-  integrity sha512-sgQZPu4Qzc6xfbbIpWcujh6F2Ibx0aJdge9ajQTA1N2BknNny8mDnLOMNycXKaXlk1+sjcNv+oe/h48iElSfLg==
-
 "@babel/code-frame@7.10.4", "@babel/code-frame@~7.10.4":
   version "7.10.4"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.10.4.tgz#168da1a36e90da68ae8d49c0f1b48c7c6249213a"
