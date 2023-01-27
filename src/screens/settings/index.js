@@ -19,7 +19,7 @@ import {
 } from '../../utils/settings';
 import SettingsComponent from '../../components/SettingsComponent';
 import aHosts from '../../utils/hosts';
-import ThemeContext from '../../utils/theme';
+import { ThemeContext } from '../../utils/theme';
 
 export default function SettingScreen({ navigation }) {
 	const Stack = createStackNavigator();

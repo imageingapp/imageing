@@ -12,7 +12,7 @@ import {
 	TouchableOpacity
 } from 'react-native';
 import { setStringAsync } from 'expo-clipboard';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useTheme } from '@react-navigation/native';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -34,6 +34,7 @@ export default function GalleryScreen({ navigation }) {
 	const [gestures, setGestures] = useState({});
 
 	const isFocused = useIsFocused();
+	const { colors } = useTheme();
 
 	useEffect(() => {
 		let isMounted = true;
@@ -140,7 +141,8 @@ export default function GalleryScreen({ navigation }) {
 										}}>
 										<View
 											style={{
-												backgroundColor: 'white',
+												backgroundColor:
+													colors.background,
 												borderRadius: 10
 											}}>
 											<Ionicons
@@ -169,7 +171,7 @@ export default function GalleryScreen({ navigation }) {
 							onPress={async () => {
 								await Linking.openURL(fullImage.url);
 							}}>
-							<Text style={{ fontSize: 20, color: 'white' }}>
+							<Text style={{ fontSize: 20, color: colors.text }}>
 								Open
 							</Text>
 						</AwesomeButton>
@@ -177,7 +179,7 @@ export default function GalleryScreen({ navigation }) {
 							style={styles.button}
 							onPress={() => setStringAsync(fullImage.url)}>
 							<Ionicons
-								style={{ margin: 8, color: 'white' }}
+								style={{ margin: 8, color: colors.background }}
 								name='clipboard-outline'
 								size={30}
 							/>
@@ -215,7 +217,7 @@ export default function GalleryScreen({ navigation }) {
 						alignItems: 'center',
 						justifyContent: 'center'
 					}}>
-					<Text style={{ alignSelf: 'center' }}>
+					<Text style={{ alignSelf: 'center', color: colors.text }}>
 						Oh no, the gallery is empty!
 					</Text>
 				</View>

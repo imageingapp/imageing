@@ -12,24 +12,40 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { StatusBar } from 'expo-status-bar';
 
 import { SafeAreaView } from 'react-native-safe-area-context';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import HomeScreen from './src/screens/home';
 import GalleryScreen from './src/screens/gallery';
 import SettingScreen from './src/screens/settings';
-import ThemeContext from './src/utils/theme';
+import { ThemeContext } from './src/utils/theme';
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function App() {
 	const scheme = useColorScheme();
 	const [currentTheme, changeTheme] = useState(scheme);
+	// get the theme from the storage
+	useEffect(() => {
+		AsyncStorage.getItem('settings').then((x) => {
+			const value = JSON.parse(x);
+
+			if (value.theme) {
+				if (value.theme === 'auto') {
+					changeTheme(scheme);
+				} else changeTheme(value.theme);
+			} else {
+				changeTheme(scheme);
+			}
+		});
+	}, [scheme]);
+
+	const selectedTheme = currentTheme === 'dark' ? DarkTheme : DefaultTheme;
 	// eslint-disable-next-line react/jsx-no-constructed-context-values
 	const themeData = { currentTheme, changeTheme };
 	return (
 		<SafeAreaView style={{ flex: 1 }}>
 			<ThemeContext.Provider value={themeData}>
-				<NavigationContainer
-					theme={currentTheme === 'dark' ? DarkTheme : DefaultTheme}>
+				<NavigationContainer theme={selectedTheme}>
 					<Tab.Navigator
 						screenOptions={() => ({
 							tabBarActiveTintColor: 'turquoise',

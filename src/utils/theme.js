@@ -1,3 +1,4 @@
 import { createContext } from 'react';
 
-export default createContext();
+// eslint-disable-next-line import/prefer-default-export
+export const ThemeContext = createContext();
