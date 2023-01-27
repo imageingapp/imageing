@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { getDocumentAsync } from 'expo-document-picker';
 import { readAsStringAsync } from 'expo-file-system';
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Appearance } from 'react-native';
 
@@ -11,6 +11,8 @@ import Dialog from 'react-native-dialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
 import { createStackNavigator } from '@react-navigation/stack';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import ModalSelector from 'react-native-modal-selector';
 import {
 	empty,
 	getHostSettings,
@@ -22,6 +24,7 @@ import aHosts from '../../utils/hosts';
 import { ThemeContext } from '../../utils/theme';
 
 export default function SettingScreen({ navigation }) {
+	const { colors } = useTheme();
 	const Stack = createStackNavigator();
 	const { changeTheme } = useContext(ThemeContext);
 	const [host, setHost] = useState({});
@@ -34,7 +37,7 @@ export default function SettingScreen({ navigation }) {
 	const [dialogButton, setDialogButton] = useState('Enable');
 	const [inputValue, setInputValue] = useState('');
 	const [inputShow, setInputShow] = useState(false);
-	const [switchShow, setSwitchShow] = useState(false);
+	const [selectShow, setSelectShow] = useState(false);
 
 	// ImgBB
 	const [inputApiKey, setInputApiKey] = useState('');
@@ -102,14 +105,19 @@ export default function SettingScreen({ navigation }) {
 		await AsyncStorage.setItem('settings', JSON.stringify(parsed));
 	};
 
-	const openDialog = (title, description, { show, value }, sShow, button) => {
+	const openDialog = (
+		title,
+		description,
+		{ show, value },
+		_sShow,
+		button
+	) => {
 		// Alert
 		setDialog(true);
 		setDialogTitle(title);
 		setDialogDescription(description);
 		setInputShow(show);
 		setInputValue(value);
-		setSwitchShow(sShow);
 		setDialogButton(button);
 	};
 
@@ -282,13 +290,7 @@ export default function SettingScreen({ navigation }) {
 			icon: 'cloud-upload-outline',
 			show: true,
 			onPress: () => {
-				openDialog(
-					'Upload Destination',
-					'Choose the upload destination.',
-					{ show: false, value: '' },
-					true,
-					'Close'
-				);
+				setSelectShow(true);
 			}
 		}, // Select of Hosts
 		{
@@ -431,9 +433,30 @@ export default function SettingScreen({ navigation }) {
 		} // Material You
 	];
 
-	// make a safe area view as const
+	const selectData = Object.keys(aHosts).map((x) => {
+		const y = aHosts[x];
+		return { key: y.name, label: y.name };
+	});
+
 	const MainSettingsAreaView = (
 		<SafeAreaView>
+			<ModalSelector
+				initValue={null}
+				visible={selectShow}
+				customSelector={<View />}
+				data={selectData}
+				optionContainerStyle={{
+					backgroundColor: colors.card,
+					borderColor: colors.text,
+					borderWidth: 2,
+					borderRadius: 5
+				}}
+				optionTextStyle={{ color: colors.text }}
+				onModalClose={() => setSelectShow(false)}
+				onChange={(option) => {
+					handleSwitch(aHosts[option.key]);
+				}}
+			/>
 			<Dialog.Container
 				visible={bDialog}
 				onBackdropPress={handleCancel}>
@@ -448,18 +471,6 @@ export default function SettingScreen({ navigation }) {
 							onChangeText={setInputValue}
 						/>
 					)}
-					{switchShow &&
-						Object.keys(aHosts).map((aHost) => {
-							const nHost = aHosts[aHost];
-							return (
-								<Dialog.Switch
-									key={nHost?.name}
-									label={nHost?.name}
-									value={host === nHost}
-									onChange={() => handleSwitch(nHost)}
-								/>
-							);
-						})}
 				</View>
 				<Dialog.Button
 					label={dialogButton === 'Close' ? dialogButton : 'Cancel'}

@@ -51,8 +51,7 @@ export default function App() {
 							tabBarActiveTintColor: 'turquoise',
 							tabBarInactiveTintColor: 'gray',
 							headerShown: false,
-							unmountOnBlur: true,
-							lazy: true
+							unmountOnBlur: true
 						})}>
 						<Tab.Screen
 							name='Home'
