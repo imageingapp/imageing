@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable react/no-children-prop */
 /* eslint-disable react/no-unstable-nested-components */
@@ -502,7 +503,6 @@ export default function SettingScreen({ navigation }) {
 							<QRCode
 								value='this is a qr code'
 								size={Dimensions.get('window').width * 0.7}
-								// eslint-disable-next-line global-require
 								logo={
 									host.name === 'SXCU'
 										? require('../../../assets/SXCU.png')

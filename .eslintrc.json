@@ -29,6 +29,12 @@
         "no-use-before-define": ["error", { "variables": false }],
 
         // ignore errors for the react-navigation package
-        "react/prop-types": ["error", {"ignore": ["navigation", "navigation.navigate"]}]
+        "react/prop-types": ["error", {"ignore": ["navigation", "navigation.navigate"]}],
+
+		// allow require() statements
+		"global-require": 0,
+
+		// allow console.log() statements
+		"no-console": 0
     }
 }
