@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable react/no-children-prop */
 /* eslint-disable react/no-unstable-nested-components */
 import React, { useEffect, useState, useContext } from 'react';
@@ -11,7 +12,6 @@ import Dialog from 'react-native-dialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
 import { createStackNavigator } from '@react-navigation/stack';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import ModalSelector from 'react-native-modal-selector';
 import {
 	empty,
@@ -370,11 +370,25 @@ export default function SettingScreen({ navigation }) {
 		}, // SXCU: FormName
 		{
 			title: 'Import',
-			subTitle: null,
+			subTitle: 'Import SXCU File',
 			icon: 'download-outline',
 			show: host?.name === 'SXCU',
 			onPress: handleImport
-		} // Import Settings File
+		}, // Import Settings File
+		{
+			title: 'Scan QR Code',
+			subTitle: 'Scan QR Code to import config',
+			icon: 'qr-code-outline',
+			show: host?.name === 'SXCU' || host?.name === 'ImgBB',
+			onPress: null
+		},
+		{
+			title: 'Share Config',
+			subTitle: 'Share current config as QR Code',
+			icon: 'share-outline',
+			show: host?.name === 'SXCU' || host?.name === 'ImgBB',
+			onPress: null
+		}
 	];
 
 	const themeOptions = [
