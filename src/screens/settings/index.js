@@ -6,13 +6,23 @@ import { getDocumentAsync } from 'expo-document-picker';
 import { readAsStringAsync } from 'expo-file-system';
 import { useIsFocused, useTheme } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Appearance } from 'react-native';
+import {
+	View,
+	Appearance,
+	Modal,
+	StyleSheet,
+	Text,
+	Dimensions,
+	TouchableOpacity
+} from 'react-native';
 
 import Dialog from 'react-native-dialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
 import { createStackNavigator } from '@react-navigation/stack';
 import ModalSelector from 'react-native-modal-selector';
+import QRCode from 'react-native-qrcode-svg';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import {
 	empty,
 	getHostSettings,
@@ -38,6 +48,7 @@ export default function SettingScreen({ navigation }) {
 	const [inputValue, setInputValue] = useState('');
 	const [inputShow, setInputShow] = useState(false);
 	const [selectShow, setSelectShow] = useState(false);
+	const [modalVisible, setModalVisible] = useState(false);
 
 	// ImgBB
 	const [inputApiKey, setInputApiKey] = useState('');
@@ -195,6 +206,31 @@ export default function SettingScreen({ navigation }) {
 		setDialog(false);
 	};
 
+	function shareConfig() {
+		setModalVisible(true);
+		switch (host?.name) {
+			case 'ImgBB':
+				// if no api key is set show toast and return
+				if (inputApiKey === '') {
+					Toast.show('No Settings saved', Toast.SHORT);
+				}
+				break;
+			case 'SXCU':
+				// if no settings set show toast and return
+				if (
+					inputApiToken === '' ||
+					inputApiEndpoint === '' ||
+					inputApiFormName === '' ||
+					inputApiUrl === ''
+				) {
+					Toast.show('No Settings saved', Toast.SHORT);
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
 	const settingsOptions = [
 		{
 			title: 'Theme',
@@ -294,21 +330,6 @@ export default function SettingScreen({ navigation }) {
 			}
 		}, // Select of Hosts
 		{
-			title: 'API URL',
-			subTitle: inputApiUrl,
-			icon: 'code-slash-outline',
-			show: host?.name === 'SXCU',
-			onPress: () => {
-				openDialog(
-					'API URL',
-					'',
-					{ show: true, value: inputApiUrl },
-					false,
-					'Submit'
-				);
-			}
-		}, // SXCU: URL
-		{
 			title: 'API Key',
 			subTitle: inputApiKey,
 			icon: 'key-outline',
@@ -323,51 +344,6 @@ export default function SettingScreen({ navigation }) {
 				);
 			}
 		}, // ImgBB: Key
-		{
-			title: 'API Token',
-			subTitle: inputApiToken,
-			icon: 'key-outline',
-			show: host?.name === 'SXCU',
-			onPress: () => {
-				openDialog(
-					'API Token',
-					'',
-					{ show: true, value: inputApiToken },
-					false,
-					'Submit'
-				);
-			}
-		}, // SXCU: Token
-		{
-			title: 'API Endpoint',
-			subTitle: inputApiEndpoint,
-			icon: 'code-slash-outline',
-			show: host?.name === 'SXCU',
-			onPress: () => {
-				openDialog(
-					'API Endpoint',
-					'',
-					{ show: true, value: inputApiEndpoint },
-					false,
-					'Submit'
-				);
-			}
-		}, // SXCU: Endpoint
-		{
-			title: 'API Formname',
-			subTitle: inputApiFormName,
-			icon: 'code-slash-outline',
-			show: host?.name === 'SXCU',
-			onPress: () => {
-				openDialog(
-					'API Formname',
-					'',
-					{ show: true, value: inputApiFormName },
-					false,
-					'Submit'
-				);
-			}
-		}, // SXCU: FormName
 		{
 			title: 'Import',
 			subTitle: 'Import SXCU File',
@@ -385,9 +361,9 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'Share Config',
 			subTitle: 'Share current config as QR Code',
-			icon: 'share-outline',
+			icon: 'share-social-outline',
 			show: host?.name === 'SXCU' || host?.name === 'ImgBB',
-			onPress: null
+			onPress: shareConfig
 		}
 	];
 
@@ -452,8 +428,161 @@ export default function SettingScreen({ navigation }) {
 		return { key: y.name, label: y.name };
 	});
 
+	const styles = StyleSheet.create({
+		centeredView: {
+			flex: 1,
+			justifyContent: 'center',
+			alignItems: 'center',
+			marginTop: 22
+		},
+		modalView: {
+			// occupy 90% of screen width and height
+			width: Dimensions.get('window').width * 0.9,
+			height: Dimensions.get('window').height * 0.9,
+			margin: 20,
+			backgroundColor: colors.border,
+			borderRadius: 20,
+			padding: 35,
+			alignItems: 'center',
+			shadowColor: '#000',
+			shadowOffset: {
+				width: 0,
+				height: 2
+			},
+			shadowOpacity: 0.25,
+			shadowRadius: 4,
+			elevation: 5
+		},
+		button: {
+			// make slim oval buttons
+			borderRadius: 20,
+			padding: 10,
+			elevation: 2
+		},
+		buttonOpen: {
+			backgroundColor: '#F194FF'
+		},
+		buttonClose: {
+			backgroundColor: '#2196F3'
+		},
+		textStyle: {
+			color: colors.text,
+			fontWeight: 'bold',
+			textAlign: 'center'
+		},
+		modalText: {
+			color: colors.text,
+			marginBottom: 15,
+			textAlign: 'center'
+		}
+	});
+
 	const MainSettingsAreaView = (
 		<SafeAreaView>
+			<Modal
+				animationType='slide'
+				transparent
+				visible={modalVisible}
+				onRequestClose={() => {
+					setModalVisible(!modalVisible);
+				}}>
+				<View style={styles.centeredView}>
+					<View style={styles.modalView}>
+						<View
+							style={{
+								backgroundColor: 'white',
+								borderRadius: 20,
+								// make it square based on window dimensions
+								width: Dimensions.get('window').width * 0.8,
+								height: Dimensions.get('window').width * 0.8,
+								overflow: 'hidden',
+								alignItems: 'center',
+								justifyContent: 'center'
+							}}>
+							<QRCode
+								value='this is a qr code'
+								size={Dimensions.get('window').width * 0.7}
+								// eslint-disable-next-line global-require
+								logo={
+									host.name === 'SXCU'
+										? require('../../../assets/SXCU.png')
+										: require('../../../assets/ImgBB.png')
+								}
+								logoBackgroundColor='white'
+							/>
+						</View>
+						<Text style={styles.modalText}>
+							This QR code contains sensitive data
+						</Text>
+						<View
+							style={{
+								flexDirection: 'row',
+								justifyContent: 'space-between',
+								width: Dimensions.get('window').width * 0.8,
+								marginTop: 70
+							}}>
+							<TouchableOpacity
+								style={{
+									...styles.button,
+									backgroundColor: colors.background,
+									// center content
+									alignItems: 'center',
+									justifyContent: 'center',
+									width: Dimensions.get('window').width * 0.35
+								}}
+								onPress={() => setModalVisible(!modalVisible)}>
+								<View
+									style={{
+										flexDirection: 'row',
+										alignItems: 'center',
+										justifyContent: 'center'
+									}}>
+									<Ionicons
+										style={{
+											margin: 5,
+											color: colors.text
+										}}
+										name='bookmark-outline'
+										size={30}
+									/>
+									<Text style={{ color: colors.text }}>
+										Save image
+									</Text>
+								</View>
+							</TouchableOpacity>
+							<TouchableOpacity
+								style={{
+									...styles.button,
+									backgroundColor: colors.background,
+									// center content
+									alignItems: 'center',
+									justifyContent: 'center',
+									width: Dimensions.get('window').width * 0.35
+								}}
+								onPress={() => setModalVisible(!modalVisible)}>
+								<View
+									style={{
+										flexDirection: 'row',
+										alignItems: 'center',
+										justifyContent: 'center'
+									}}>
+									<Ionicons
+										style={{
+											margin: 5,
+											color: colors.text
+										}}
+										name='share-social-outline'
+										size={30}
+									/>
+									<Text style={{ color: colors.text }}>
+										Share code
+									</Text>
+								</View>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
 			<ModalSelector
 				initValue={null}
 				visible={selectShow}
@@ -469,6 +598,7 @@ export default function SettingScreen({ navigation }) {
 				onModalClose={() => setSelectShow(false)}
 				onChange={(option) => {
 					handleSwitch(aHosts[option.key]);
+					Toast.show(`Host set to ${option.label}`, Toast.SHORT);
 				}}
 			/>
 			<Dialog.Container
