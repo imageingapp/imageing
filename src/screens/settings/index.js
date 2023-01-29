@@ -567,13 +567,13 @@ export default function SettingScreen({ navigation }) {
 								onPress={() => {
 									const timestamp = new Date().getTime();
 									RNFS.writeFile(
-										`${RNFS.CachesDirectoryPath}/${timestamp}.png`,
+										`${RNFS.CachesDirectoryPath}/imageing-qr-${timestamp}.png`,
 										base64Code,
 										'base64'
 									)
 										.then(() =>
 											CameraRoll.save(
-												`${RNFS.CachesDirectoryPath}/${timestamp}.png`,
+												`${RNFS.CachesDirectoryPath}/imageing-qr-${timestamp}.png`,
 												'photo'
 											)
 										)
