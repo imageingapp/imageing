@@ -57,7 +57,6 @@ export default function SettingScreen({ navigation }) {
 	const [qrValue, setQrValue] = useState('');
 	const [base64Code, setBase64Code] = useState('');
 	const [showScanner, setShowScanner] = useState(false);
-	const [scanned, setScanned] = useState('');
 	const [hasPermission, setHasPermission] = useState(null);
 
 	// ImgBB
@@ -254,6 +253,47 @@ export default function SettingScreen({ navigation }) {
 		}
 	}
 
+	async function importQRCode(data) {
+		switch (host?.name) {
+			case 'ImgBB':
+				setInputApiKey(data);
+				await saveSetting('apiKey', data);
+				Toast.show('The data was saved.', Toast.SHORT);
+				break;
+			case 'SXCU':
+				try {
+					const config = JSON.parse(data);
+					if (
+						!config ||
+						!config.RequestURL ||
+						!config.Arguments?.token ||
+						!config.Arguments?.endpoint ||
+						!config.FileFormName
+					) {
+						Toast.show(
+							'The file contains invalid data.',
+							Toast.SHORT
+						);
+						return;
+					}
+					await saveSetting('apiUrl', config.RequestURL);
+					await saveSetting('apiToken', config.Arguments.token);
+					await saveSetting('apiEndpoint', config.Arguments.endpoint);
+					await saveSetting('apiFormName', config.FileFormName);
+					setInputApiUrl(config.RequestURL);
+					setInputApiToken(config.Arguments.token);
+					setInputApiEndpoint(config.Arguments.endpoint);
+					setInputApiFormName(config.FileFormName);
+					Toast.show('The data was saved.', Toast.SHORT);
+				} catch (err) {
+					Toast.show('The file contains invalid data.', Toast.SHORT);
+				}
+				break;
+			default:
+				break;
+		}
+	}
+
 	const settingsOptions = [
 		{
 			title: 'Theme',
@@ -350,8 +390,6 @@ export default function SettingScreen({ navigation }) {
 	];
 
 	const startScan = () => {
-		setScanned(false);
-
 		// Request camera permission
 		if (!hasPermission) {
 			(async () => {
@@ -361,15 +399,11 @@ export default function SettingScreen({ navigation }) {
 			})();
 		}
 		setShowScanner(true);
-		console.log('Scanning...');
-		console.log(`Has Permission: ${hasPermission}`);
-		console.log(`Scanned: ${scanned}`);
-		console.log(`Show Scanner: ${showScanner}`);
 	};
 
-	const handleBarCodeScanned = ({ data }) => {
-		setScanned(data);
+	const handleBarCodeScanned = async ({ data }) => {
 		setShowScanner(false);
+		await importQRCode(data);
 	};
 
 	const hostOptions = [
