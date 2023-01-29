@@ -24,6 +24,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import ModalSelector from 'react-native-modal-selector';
 import QRCode from 'react-native-qrcode-svg';
 import Ionicons from '@expo/vector-icons/Ionicons';
+// import RNFS from "react-native-fs"
+import Share from 'react-native-share';
 import {
 	empty,
 	getHostSettings,
@@ -51,6 +53,7 @@ export default function SettingScreen({ navigation }) {
 	const [selectShow, setSelectShow] = useState(false);
 	const [modalVisible, setModalVisible] = useState(false);
 	const [qrValue, setQrValue] = useState('');
+	const [base64Code, setBase64Code] = useState('');
 
 	// ImgBB
 	const [inputApiKey, setInputApiKey] = useState('');
@@ -245,6 +248,17 @@ export default function SettingScreen({ navigation }) {
 				break;
 		}
 	}
+
+	/* 	function saveQrToDisk() {
+		this.svg.toDataURL((data) => {
+			RNFS.writeFile(`${RNFS.CachesDirectoryPath}/some-name.png`, data, 'base64')
+			  .then(() => CameraRoll.saveToCameraRoll(`${RNFS.CachesDirectoryPath}/some-name.png`, 'photo'))
+			  .then(() => {
+				  this.setState({ busy: false, imageSaved: true  })
+				  Toast.show('Saved to gallery!', Toast.SHORT)
+			  })
+		})
+   } */
 
 	const settingsOptions = [
 		{
@@ -532,6 +546,13 @@ export default function SettingScreen({ navigation }) {
 								size={Dimensions.get('window').width * 0.7}
 								logo={require('../../../assets/icon.png')}
 								logoBackgroundColor='white'
+								getRef={(ref) => {
+									if (ref) {
+										ref.toDataURL((base64) => {
+											setBase64Code(base64);
+										});
+									}
+								}}
 							/>
 						</View>
 						<Text style={styles.modalText}>
@@ -553,7 +574,9 @@ export default function SettingScreen({ navigation }) {
 									justifyContent: 'center',
 									width: Dimensions.get('window').width * 0.35
 								}}
-								onPress={() => setModalVisible(!modalVisible)}>
+								onPress={() => {
+									setModalVisible(!modalVisible);
+								}}>
 								<View
 									style={{
 										flexDirection: 'row',
@@ -582,7 +605,19 @@ export default function SettingScreen({ navigation }) {
 									justifyContent: 'center',
 									width: Dimensions.get('window').width * 0.35
 								}}
-								onPress={() => setModalVisible(!modalVisible)}>
+								onPress={() => {
+									Share.open({
+										message: `This is my Imageing ${host.name} QR code`,
+										url: `data:image/png;base64,${base64Code}`
+									})
+										.then((res) => {
+											console.log(res);
+										})
+										.catch((err) => console.log(err))
+										.finally(() => {
+											setModalVisible(!modalVisible);
+										});
+								}}>
 								<View
 									style={{
 										flexDirection: 'row',
