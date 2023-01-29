@@ -242,7 +242,14 @@ export default function SettingScreen({ navigation }) {
 		},
 		{
 			title: 'Host',
-			subTitle: host?.name,
+			subTitle: (() => {
+				switch (host?.name) {
+					case 'SXCU':
+						return inputApiEndpoint || 'Custom';
+					default:
+						return host?.name;
+				}
+			})(),
 			icon: 'cloud-upload-outline',
 			show: true,
 			onPress: () => navigation.navigate('Host')
@@ -323,7 +330,14 @@ export default function SettingScreen({ navigation }) {
 	const hostOptions = [
 		{
 			title: 'Upload Destination',
-			subTitle: host?.name,
+			subTitle: (() => {
+				switch (host?.name) {
+					case 'SXCU':
+						return inputApiEndpoint || 'Custom';
+					default:
+						return host?.name;
+				}
+			})(),
 			icon: 'cloud-upload-outline',
 			show: true,
 			onPress: () => {
@@ -503,11 +517,7 @@ export default function SettingScreen({ navigation }) {
 							<QRCode
 								value='this is a qr code'
 								size={Dimensions.get('window').width * 0.7}
-								logo={
-									host.name === 'SXCU'
-										? require('../../../assets/SXCU.png')
-										: require('../../../assets/ImgBB.png')
-								}
+								logo={require('../../../assets/icon.png')}
 								logoBackgroundColor='white'
 							/>
 						</View>
