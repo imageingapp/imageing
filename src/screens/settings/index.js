@@ -24,7 +24,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import ModalSelector from 'react-native-modal-selector';
 import QRCode from 'react-native-qrcode-svg';
 import Ionicons from '@expo/vector-icons/Ionicons';
-// import RNFS from "react-native-fs"
+import RNFS from 'react-native-fs';
+import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Share from 'react-native-share';
 import {
 	empty,
@@ -248,17 +249,6 @@ export default function SettingScreen({ navigation }) {
 				break;
 		}
 	}
-
-	/* 	function saveQrToDisk() {
-		this.svg.toDataURL((data) => {
-			RNFS.writeFile(`${RNFS.CachesDirectoryPath}/some-name.png`, data, 'base64')
-			  .then(() => CameraRoll.saveToCameraRoll(`${RNFS.CachesDirectoryPath}/some-name.png`, 'photo'))
-			  .then(() => {
-				  this.setState({ busy: false, imageSaved: true  })
-				  Toast.show('Saved to gallery!', Toast.SHORT)
-			  })
-		})
-   } */
 
 	const settingsOptions = [
 		{
@@ -575,6 +565,24 @@ export default function SettingScreen({ navigation }) {
 									width: Dimensions.get('window').width * 0.35
 								}}
 								onPress={() => {
+									const timestamp = new Date().getTime();
+									RNFS.writeFile(
+										`${RNFS.CachesDirectoryPath}/${timestamp}.png`,
+										base64Code,
+										'base64'
+									)
+										.then(() =>
+											CameraRoll.save(
+												`${RNFS.CachesDirectoryPath}/${timestamp}.png`,
+												'photo'
+											)
+										)
+										.then(() => {
+											Toast.show(
+												'Saved to gallery!',
+												Toast.SHORT
+											);
+										});
 									setModalVisible(!modalVisible);
 								}}>
 								<View
