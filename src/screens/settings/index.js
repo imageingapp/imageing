@@ -50,6 +50,7 @@ export default function SettingScreen({ navigation }) {
 	const [inputShow, setInputShow] = useState(false);
 	const [selectShow, setSelectShow] = useState(false);
 	const [modalVisible, setModalVisible] = useState(false);
+	const [qrValue, setQrValue] = useState('');
 
 	// ImgBB
 	const [inputApiKey, setInputApiKey] = useState('');
@@ -208,12 +209,14 @@ export default function SettingScreen({ navigation }) {
 	};
 
 	function shareConfig() {
-		setModalVisible(true);
 		switch (host?.name) {
 			case 'ImgBB':
 				// if no api key is set show toast and return
 				if (inputApiKey === '') {
 					Toast.show('No Settings saved', Toast.SHORT);
+				} else {
+					setQrValue(inputApiKey);
+					setModalVisible(true);
 				}
 				break;
 			case 'SXCU':
@@ -225,6 +228,17 @@ export default function SettingScreen({ navigation }) {
 					inputApiUrl === ''
 				) {
 					Toast.show('No Settings saved', Toast.SHORT);
+				} else {
+					const config = {
+						RequestURL: inputApiUrl,
+						Arguments: {
+							token: inputApiToken,
+							endpoint: inputApiEndpoint
+						},
+						FileFormName: inputApiFormName
+					};
+					setQrValue(JSON.stringify(config));
+					setModalVisible(true);
 				}
 				break;
 			default:
@@ -346,7 +360,6 @@ export default function SettingScreen({ navigation }) {
 		}, // Select of Hosts
 		{
 			title: 'API Key',
-			subTitle: inputApiKey,
 			icon: 'key-outline',
 			show: host?.name === 'ImgBB',
 			onPress: () => {
@@ -515,7 +528,7 @@ export default function SettingScreen({ navigation }) {
 								justifyContent: 'center'
 							}}>
 							<QRCode
-								value='this is a qr code'
+								value={qrValue}
 								size={Dimensions.get('window').width * 0.7}
 								logo={require('../../../assets/icon.png')}
 								logoBackgroundColor='white'
