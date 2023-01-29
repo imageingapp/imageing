@@ -27,6 +27,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import RNFS from 'react-native-fs';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Share from 'react-native-share';
+import { BarCodeScanner } from 'expo-barcode-scanner';
 import {
 	empty,
 	getHostSettings,
@@ -55,6 +56,9 @@ export default function SettingScreen({ navigation }) {
 	const [modalVisible, setModalVisible] = useState(false);
 	const [qrValue, setQrValue] = useState('');
 	const [base64Code, setBase64Code] = useState('');
+	const [showScanner, setShowScanner] = useState(false);
+	const [scanned, setScanned] = useState('');
+	const [hasPermission, setHasPermission] = useState(null);
 
 	// ImgBB
 	const [inputApiKey, setInputApiKey] = useState('');
@@ -345,6 +349,29 @@ export default function SettingScreen({ navigation }) {
 		} // Modal with information about Imageing like Version, ...
 	];
 
+	const startScan = () => {
+		setScanned(false);
+
+		// Request camera permission
+		if (!hasPermission) {
+			(async () => {
+				const { status } =
+					await BarCodeScanner.requestPermissionsAsync();
+				setHasPermission(status === 'granted');
+			})();
+		}
+		setShowScanner(true);
+		console.log('Scanning...');
+		console.log(`Has Permission: ${hasPermission}`);
+		console.log(`Scanned: ${scanned}`);
+		console.log(`Show Scanner: ${showScanner}`);
+	};
+
+	const handleBarCodeScanned = ({ data }) => {
+		setScanned(data);
+		setShowScanner(false);
+	};
+
 	const hostOptions = [
 		{
 			title: 'Upload Destination',
@@ -388,7 +415,7 @@ export default function SettingScreen({ navigation }) {
 			subTitle: 'Scan QR Code to import config',
 			icon: 'qr-code-outline',
 			show: host?.name === 'SXCU' || host?.name === 'ImgBB',
-			onPress: null
+			onPress: startScan
 		},
 		{
 			title: 'Share Config',
@@ -511,6 +538,27 @@ export default function SettingScreen({ navigation }) {
 
 	const MainSettingsAreaView = (
 		<SafeAreaView>
+			<Modal
+				animationType='slide'
+				transparent
+				visible={showScanner}
+				onRequestClose={() => {
+					setShowScanner(!showScanner);
+				}}>
+				<View style={styles.centeredView}>
+					<View style={styles.modalView}>
+						<View style={StyleSheet.absoluteFillObject}>
+							<BarCodeScanner
+								style={StyleSheet.absoluteFillObject}
+								onBarCodeScanned={handleBarCodeScanned}
+								barCodeTypes={[
+									BarCodeScanner.Constants.BarCodeType.qr
+								]}
+							/>
+						</View>
+					</View>
+				</View>
+			</Modal>
 			<Modal
 				animationType='slide'
 				transparent
