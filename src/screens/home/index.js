@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable no-unused-vars */
+import React, { useEffect, useState, useCallback } from 'react';
 import { Text, View, Image } from 'react-native';
 import { Bar } from 'react-native-progress';
 import { useIsFocused, useTheme } from '@react-navigation/native';
@@ -9,6 +10,8 @@ import Toast from 'react-native-simple-toast';
 import NetInfo from '@react-native-community/netinfo';
 import Gestures from 'react-native-easy-gestures';
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import ShareMenu from 'react-native-share-menu';
 import Placeholder from '../../../assets/placeholder.png';
 import { pickImage, takeImage, uploadImages } from '../../utils/image';
 import { getSettings } from '../../utils/settings';
@@ -34,6 +37,33 @@ export default function HomeScreen() {
 			isMounted = false;
 		};
 	}, [isFocused]);
+
+	const handleShare = useCallback((item) => {
+		if (!item) {
+			return;
+		}
+
+		const { mimeType, data, extraData } = item;
+
+		console.log('Shared data: ', item);
+
+		if (mimeType === 'image/png' || mimeType === 'image/jpeg') {
+			setImages([{ uri: data }]);
+			setUploading(false);
+		}
+	}, []);
+
+	useEffect(() => {
+		ShareMenu.getInitialShare(handleShare);
+	}, [handleShare]);
+
+	useEffect(() => {
+		const listener = ShareMenu.addNewShareListener(handleShare);
+
+		return () => {
+			listener.remove();
+		};
+	}, [handleShare]);
 
 	const imageOrImages = () => {
 		if (images.length > 1) {
