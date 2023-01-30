@@ -56,7 +56,7 @@ jobs:
           system-images: android-30;google_apis;x86
 
       - name: Build Android APK
-        run: eas build --platform android --local
+        run: eas build --platform android --profile preview --local
 
       - name: Upload APK
         uses: actions/upload-artifact@v2
