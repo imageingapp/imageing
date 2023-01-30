@@ -9,6 +9,7 @@ import {
 } from 'expo-image-picker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Share from 'react-native-share';
 import { getHostSettings, getSettings } from './settings';
 import aHosts from './hosts';
 import doRequest from './request';
@@ -174,6 +175,15 @@ export async function uploadImages({
 			const response = JSON.parse(task.response);
 			setStringAsync(host.getUrl(response));
 			storeImage(file.uri, response, host);
+
+			Share.open({
+				message: host.getUrl(response)
+			})
+				.then((x) => {
+					console.log(x);
+				})
+				.catch((err) => console.log(err));
+
 			return res();
 		};
 		/* eslint-disable no-await-in-loop,no-loop-func */
