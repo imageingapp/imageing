@@ -16,7 +16,7 @@ jobs:
           node-version: 18.x
           cache: yarn
 
-      - name: Set up our JDK environment # setup JDK environment: mandatory as we need to build  android project
+      - name: Set up our JDK environment # setup JDK environment: mandatory as we need to build android project
         uses: actions/setup-java@v1.4.3
         with:
           java-version: 17
@@ -33,42 +33,45 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Install dependencies # install project deps with --frozen-lockfile to make sure we will have the same packages version ( very recommended  on running yarn install on ci)
+      - name: Setup Expo
+        uses: expo/expo-github-action@v7
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      ## configure cash for gradle : will help to reduce build time
-      - name: Cache Gradle Wrapper
-        uses: actions/cache@v2
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v2
         with:
-          path: ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+          sdk-version: 30
+          ndk-version: 21.4.7075529
+          ndk-bundle-version: 21.4.7075529
+          build-tools-version: 30.0.3
+          cmake-version: 3.10.2.4988404
+          target: android-30
+          abi: armeabi-v7a,arm64-v8a,x86,x86_64
+          system-images: android-30;google_apis;x86
 
-      - name: Cache Gradle Dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-caches-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-caches-
-      - name: Make Gradlew Executable
-        run: cd android && chmod +x ./gradlew
+      - name: Build Android APK
+        run: eas build --platform android --profile preview --local
 
-      - name: Generate App APK
-        run: |
-          cd android && ./gradlew assembleDebug --profile
-
-      - name: Upload Artifact
-        id: artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v2
         with:
-          name: app-debug.apk
+          name: app-release.apk
           path: android/app/build/outputs/apk/
-      
+
       - name: Send Discord Webhook Message
         continue-on-error: true
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: "Android Build Completed\n\nCommit: <${{ github.event.head_commit.url }}>\n\n[Download APK](<https://nightly.link/${{ github.repository }}/workflows/android-build/main/app-debug.apk.zip>)"
+          args: "Android Build Completed\n\nCommit: <${{ github.event.head_commit.url }}>\n\n[Download APK](<https://nightly.link/${{ github.repository }}/workflows/android-build/main/app-release.apk.zip>)"
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           DISCORD_USERNAME: "Android Build"
+      
+
+      
