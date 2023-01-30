@@ -412,7 +412,7 @@ export default function SettingScreen({ navigation }) {
 			subTitle: (() => {
 				switch (host?.name) {
 					case 'SXCU':
-						return inputApiEndpoint || 'Custom';
+						return inputApiUrl || 'Custom';
 					default:
 						return host?.name;
 				}
