@@ -1,6 +1,6 @@
 {
   "name": "newimageing",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
