@@ -19,24 +19,40 @@ const { withAndroidManifest } = require('@expo/config-plugins');
 
 module.exports = function androiManifestPlugin(config) {
 	return withAndroidManifest(config, (config) => {
-		if (config.modResults) {
-			// Append the activity if it exists, otherwise create it.
-			config.modResults.intentFilters = [
-				...(config.modResults.intentFilters || []),
-				{
-					action: 'android.intent.action.SEND',
-					category: 'android.intent.category.DEFAULT',
-					data: [
-						{
-							mimeType: 'text/plain'
-						},
-						{
-							mimeType: 'image/*'
+		// Add the intent filter as a child to the first activity.
+		config.modResults.manifest.application[0].activity[0].$[
+			'android:launchMode'
+		] = 'singleTask';
+		config.modResults.manifest.application[0].activity[0].intentFilter = [
+			{
+				action: [
+					{
+						$: {
+							'android:name': 'android.intent.action.SEND'
 						}
-					]
-				}
-			];
-		}
+					}
+				],
+				category: [
+					{
+						$: {
+							'android:name': 'android.intent.category.DEFAULT'
+						}
+					}
+				],
+				data: [
+					{
+						$: {
+							'android:mimeType': 'text/plain'
+						}
+					},
+					{
+						$: {
+							'android:mimeType': 'image/*'
+						}
+					}
+				]
+			}
+		];
 		return config;
 	});
 };
