@@ -2,7 +2,7 @@
   "expo": {
     "name": "Imageing",
     "slug": "Imageing",
-    "version": "0.4.2",
+    "version": "0.5.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -22,20 +22,20 @@
       "bundleIdentifier": "org.imageing.app"
     },
     "android": {
-		"intenFilters": [
-			{
-				"action": "android.intent.action.SEND",
-				"category": "android.intent.category.DEFAULT",
-				"data": [
-					{
-						"mimeType": "text/plain"
-					},
-					{
-						"mimeType": "image/*"
-					}
-				]
-			}
-		],
+      "intenFilters": [
+        {
+          "action": "android.intent.action.SEND",
+          "category": "android.intent.category.DEFAULT",
+          "data": [
+            {
+              "mimeType": "text/plain"
+            },
+            {
+              "mimeType": "image/*"
+            }
+          ]
+        }
+      ],
       "permissions": [
         "com.google.android.gms.permission.AD_ID",
         "READ_EXTERNAL_STORAGE",
@@ -46,7 +46,7 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "org.imageing.app",
-      "versionCode": 13
+      "versionCode": 14
     },
     "extra": {
       "eas": {
