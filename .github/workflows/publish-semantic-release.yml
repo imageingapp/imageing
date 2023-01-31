@@ -21,6 +21,9 @@ jobs:
       - name: Install Dependencies
         run: yarn install
         
+      - name: Fix (would clobber existing tag)
+        run: git fetch -tp -f --all
+        
       - name: Publish Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
