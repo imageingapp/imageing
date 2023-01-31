@@ -13,7 +13,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: 17.x
+          node-version: 18.x
           cache: yarn
 
       - name: Set up our JDK environment # setup JDK environment: mandatory as we need to build android project
