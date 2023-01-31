@@ -22,6 +22,20 @@
       "bundleIdentifier": "org.imageing.app"
     },
     "android": {
+		"intenFilters": [
+			{
+				"action": "android.intent.action.SEND",
+				"category": "android.intent.category.DEFAULT",
+				"data": [
+					{
+						"mimeType": "text/plain"
+					},
+					{
+						"mimeType": "image/*"
+					}
+				]
+			}
+		],
       "permissions": [
         "com.google.android.gms.permission.AD_ID",
         "READ_EXTERNAL_STORAGE",
