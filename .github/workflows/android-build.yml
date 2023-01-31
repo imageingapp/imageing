@@ -63,15 +63,3 @@ jobs:
         with:
           name: app-release.apk
           path: android/app/build/outputs/apk/release/
-
-      - name: Send Discord Webhook Message
-        continue-on-error: true
-        uses: Ilshidur/action-discord@0.3.2
-        with:
-          args: "Android Build Completed\n\nCommit: <${{ github.event.head_commit.url }}>\n\n[Download APK](<https://nightly.link/${{ github.repository }}/workflows/android-build/main/app-release.apk.zip>)"
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          DISCORD_USERNAME: "Android Build"
-      
-
-      
