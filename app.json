@@ -48,7 +48,6 @@
       "package": "org.imageing.app",
       "versionCode": 13
     },
-	"plugins": ["./plugins/android-manifest.plugin.js"],
     "extra": {
       "eas": {
         "projectId": "645f2964-d4c3-41e7-be29-63833ab50dd4"
