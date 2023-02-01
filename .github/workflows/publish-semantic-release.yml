@@ -20,8 +20,8 @@ jobs:
         with:
           node-version: 18.x
 
-      - name: Install Dependencies
-        run: yarn install
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
         
       - name: Publish Semantic Release
         env:
