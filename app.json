@@ -22,7 +22,7 @@
       "bundleIdentifier": "org.imageing.app"
     },
     "android": {
-      "intenFilters": [
+      "intentFilters": [
         {
           "action": "android.intent.action.SEND",
           "category": "android.intent.category.DEFAULT",
@@ -45,6 +45,9 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
+	  "androidStatusBar": {
+		"translucent": true
+	  },
       "package": "org.imageing.app",
       "versionCode": 18
     },
