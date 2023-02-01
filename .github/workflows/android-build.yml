@@ -3,6 +3,7 @@ on: [push, pull_request]
 
 jobs:
   android-build:
+    if: ${{ secrets.EXPO_TOKEN }}
     name: Android Build
     runs-on: ubuntu-latest # using ubuntu latest version / or you can use a specific version
 
