@@ -38,25 +38,15 @@ jobs:
         with:
           expo-version: latest
           eas-version: latest
-          token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
       - name: Install Android SDK
         uses: android-actions/setup-android@v2
-        with:
-          sdk-version: 30
-          ndk-version: 21.4.7075529
-          ndk-bundle-version: 21.4.7075529
-          build-tools-version: 30.0.3
-          cmake-version: 3.10.2.4988404
-          target: android-30
-          abi: armeabi-v7a,arm64-v8a,x86,x86_64
-          system-images: android-30;google_apis;x86
 
       - name: Build Android APK
-        run: eas build --platform android --profile preview --local
+        run: eas build --platform android --profile preview --local --non-interactive
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
