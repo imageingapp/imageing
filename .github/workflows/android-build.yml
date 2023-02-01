@@ -51,7 +51,7 @@ jobs:
         uses: android-actions/setup-android@v2
 
       - name: Build Android APK
-        run: eas build --platform android --profile preview --local
+        run: eas build --platform android --profile preview --local --non-interactive
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
