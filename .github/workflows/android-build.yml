@@ -3,15 +3,16 @@ on: [push, pull_request]
 
 jobs:
   android-build:
+    if: ${{ secrets.EXPO_TOKEN }}
     name: Android Build
     runs-on: ubuntu-latest # using ubuntu latest version / or you can use a specific version
 
     steps:
       - name: Check out Git repository # clone the repo to local ci workspace
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 18.x
           cache: yarn
@@ -59,7 +60,7 @@ jobs:
         run: eas build --platform android --profile preview --local
 
       - name: Upload APK
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: app-release.apk
-          path: android/app/build/outputs/apk/release/
+          path: /home/runner/work/Imageing/Imageing/build-*.apk

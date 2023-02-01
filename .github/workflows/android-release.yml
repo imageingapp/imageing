@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: EAS build
     runs-on: ubuntu-latest
     steps:
@@ -24,10 +25,10 @@ jobs:
           BASE_URL: https://exampleapp.com    
 
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 18.x
           cache: yarn
@@ -44,14 +45,14 @@ jobs:
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
       - name: Restore cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: "${{ steps.yarn-cache-path.outputs.dir }}"
           key: "${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}"
           restore-keys: "${{ runner.os }}-yarn-"
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install --frozen-lockfile
 
       - name: Publish build
         run: eas build --platform android --profile preview 
