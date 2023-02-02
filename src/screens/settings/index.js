@@ -307,7 +307,7 @@ export default function SettingScreen({ navigation }) {
 			subTitle: (() => {
 				switch (host?.name) {
 					case 'SXCU':
-						return inputApiEndpoint || 'Custom';
+						return 'Custom';
 					default:
 						return host?.name;
 				}
@@ -634,8 +634,7 @@ export default function SettingScreen({ navigation }) {
 							style={{
 								flexDirection: 'row',
 								justifyContent: 'space-between',
-								width: Dimensions.get('window').width * 0.8,
-								marginTop: 70
+								width: Dimensions.get('window').width * 0.8
 							}}>
 							<TouchableOpacity
 								style={{

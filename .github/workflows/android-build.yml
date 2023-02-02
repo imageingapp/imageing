@@ -1,5 +1,9 @@
 name: Android Build ## name of the workflow
-on: [push, pull_request]
+on: 
+  push: # trigger the workflow on push event
+    branches: [ main ] # trigger the workflow on push to main branch
+  pull_request: # trigger the workflow on pull request event
+    branches: [ main ] # trigger the workflow on pull request to main branch
 
 jobs:
   android-build:
@@ -7,13 +11,6 @@ jobs:
     runs-on: ubuntu-latest # using ubuntu latest version / or you can use a specific version
 
     steps:
-      - name: Check for EXPO_TOKEN
-        run: |
-          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
-            echo "You must provide an EXPO_TOKEN secret linked to this project's Expo account in this repo's secrets. Learn more: https://docs.expo.dev/eas-update/github-actions"
-            exit 1
-          fi
-          
       - name: Check out Git repository # clone the repo to local ci workspace
         uses: actions/checkout@v3
 
@@ -52,18 +49,9 @@ jobs:
 
       - name: Install Android SDK
         uses: android-actions/setup-android@v2
-        with:
-          sdk-version: 30
-          ndk-version: 21.4.7075529
-          ndk-bundle-version: 21.4.7075529
-          build-tools-version: 30.0.3
-          cmake-version: 3.10.2.4988404
-          target: android-30
-          abi: armeabi-v7a,arm64-v8a,x86,x86_64
-          system-images: android-30;google_apis;x86
 
       - name: Build Android APK
-        run: eas build --platform android --profile preview --local
+        run: eas build --platform android --profile preview --local --non-interactive
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
