@@ -634,8 +634,7 @@ export default function SettingScreen({ navigation }) {
 							style={{
 								flexDirection: 'row',
 								justifyContent: 'space-between',
-								width: Dimensions.get('window').width * 0.8,
-								marginTop: 70
+								width: Dimensions.get('window').width * 0.8
 							}}>
 							<TouchableOpacity
 								style={{

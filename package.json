@@ -15,7 +15,7 @@
     "preversion": "yarn lint",
     "expover": "node -e \"let fs = require('fs'); let app = require('./app.json'); app.expo.version = require('./package.json').version; app.expo.android.versionCode = parseInt(app.expo.android.versionCode) + 1; fs.writeFileSync('./app.json', JSON.stringify(app, null, 2));\"",
     "postversion": "yarn expover && git add app.json && yarn push-release",
-	"push-release": "FOR /F \"usebackq\" %i IN (`node -e \"console.log(require('./package.json').version)\"`) DO git commit -m \"chore(release): v%i\" --allow-empty && git push"
+    "push-release": "FOR /F \"usebackq\" %i IN (`node -e \"console.log(require('./package.json').version)\"`) DO git commit -m \"chore(release): v%i\" --allow-empty && git push"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
