@@ -30,6 +30,8 @@
     "@react-navigation/material-top-tabs": "^6.5.2",
     "@react-navigation/native": "^6.0.11",
     "@react-navigation/stack": "^6.3.11",
+    "@types/react": "~18.0.24",
+    "@types/react-native": "~0.70.6",
     "deprecated-react-native-prop-types": "^4.0.0",
     "expo": "~47.0.12",
     "expo-barcode-scanner": "~12.1.0",
