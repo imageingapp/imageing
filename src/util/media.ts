@@ -5,44 +5,44 @@ import {
 	launchImageLibraryAsync,
 	requestCameraPermissionsAsync,
 	requestMediaLibraryPermissionsAsync,
-	MediaTypeOptions
+	MediaTypeOptions,
 } from 'expo-image-picker';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Share from 'react-native-share';
-import { getHostSettings, getSettings } from './settings';
-import aHosts from './hosts';
-import doRequest from './request';
+import { Destinations } from '@util/constants';
+import { performRequest } from '@util/http';
+import { getDestinationSettings, getSettings } from '@util/settings';
 
 function getFormData(file, settings, host) {
 	const formData = new FormData();
 	switch (host) {
-		case aHosts.ImgBB: {
+		case Destinations.ImgBB: {
 			// ImgBB
 			formData.append('image', {
 				uri: file.uri,
 				type: 'image/jpeg',
-				name: 'upload.jpeg'
-			});
+				name: 'upload.jpeg',
+			} as unknown as Blob);
 			formData.append('key', settings.apiKey);
 			break;
 		}
-		case aHosts.Imgur: {
+		case Destinations.Imgur: {
 			// Imgur
 			formData.append('image', {
 				uri: file.uri,
 				type: 'image/jpeg',
-				name: 'upload.jpeg'
-			});
+				name: 'upload.jpeg',
+			} as unknown as Blob);
 			break;
 		}
-		case aHosts.SXCU: {
+		case Destinations.SXCU: {
 			// SXCU
 			formData.append(settings.apiFormName, {
 				uri: file.uri,
 				type: 'image/jpeg',
-				name: 'upload.jpeg'
-			});
+				name: 'upload.jpeg',
+			} as unknown as Blob);
 			formData.append('endpoint', settings.apiEndpoint);
 			formData.append('token', settings.apiToken);
 			break;
@@ -61,7 +61,7 @@ export async function pickImage() {
 			mediaTypes: MediaTypeOptions.Images,
 			allowsEditing: !settings['Multi-Upload'],
 			quality: 1,
-			allowsMultipleSelection: settings['Multi-Upload']
+			allowsMultipleSelection: settings['Multi-Upload'],
 		}).catch(console.log);
 	}
 	return { canceled: true };
@@ -75,7 +75,7 @@ export async function takeImage() {
 			mediaTypes: MediaTypeOptions.Images,
 			allowsEditing: !settings['Multi-Upload'],
 			quality: 1,
-			allowsMultipleSelection: settings['Multi-Upload']
+			allowsMultipleSelection: settings['Multi-Upload'],
 		}).catch(console.log);
 	}
 	return { canceled: true };
@@ -89,7 +89,7 @@ export async function storeImage(localUrl, uploadData, host) {
 		url: host.getUrl(uploadData),
 		deleteUrl: host.getDeleteUrl(uploadData),
 		date: Date.now(),
-		manual: host.deleteMethod === 'URL'
+		manual: host.deleteMethod === 'URL',
 	});
 	await AsyncStorage.setItem('images', JSON.stringify(images));
 }
@@ -97,24 +97,25 @@ export async function storeImage(localUrl, uploadData, host) {
 export async function removeImage(deleteUrl) {
 	const stored = await AsyncStorage.getItem('images');
 	const images = stored
-		? JSON.parse(stored).filter((i) => i.deleteUrl !== deleteUrl)
+		? JSON.parse(stored).filter(i => i.deleteUrl !== deleteUrl)
 		: [];
 	await AsyncStorage.setItem('images', JSON.stringify(images));
 	return images;
 }
 
 export async function deleteImage(deleteUrl) {
-	const host = await getHostSettings();
+	const host = await getDestinationSettings();
 
 	const onLoad = ({ res }) => res();
 	const onError = ({ rej }) => rej();
-	await doRequest({
+	await performRequest({
 		url: deleteUrl,
 		method: host.deleteMethod,
+		formData: null,
 		header: host.header,
 		onLoad,
-		onProgress: () => {},
-		onError
+		onProgress: () => null,
+		onError,
 	});
 }
 
@@ -145,9 +146,9 @@ export async function uploadImages({
 	setUploading,
 	setImages,
 	next,
-	resolve
+	resolve,
 }) {
-	const host = await getHostSettings();
+	const host = await getDestinationSettings();
 	const settings = await getSettings();
 	const url = host.url || settings.apiUrl;
 	let reason = '';
@@ -177,25 +178,25 @@ export async function uploadImages({
 			storeImage(file.uri, response, host);
 
 			Share.open({
-				message: host.getUrl(response)
+				message: host.getUrl(response),
 			})
-				.then((x) => {
+				.then(x => {
 					console.log(x);
 				})
-				.catch((err) => console.log(err));
+				.catch(err => console.log(err));
 
 			return res();
 		};
 		/* eslint-disable no-await-in-loop,no-loop-func */
-		await doRequest({
+		await performRequest({
 			url,
 			method: 'POST',
 			formData,
 			header: host.header,
 			onLoad,
 			onProgress,
-			onError
-		}).catch((task) => {
+			onError,
+		}).catch(task => {
 			let response;
 			try {
 				response = JSON.parse(task.response);
@@ -227,12 +228,12 @@ export async function uploadImages({
 	} else if (failed > 0) {
 		Toast.show(
 			`${files.length - failed}/${files.length} images uploaded`,
-			Toast.SHORT
+			Toast.SHORT,
 		);
 	} else {
 		Toast.show(
 			`Image URL${files.length > 1 ? 's' : ''} copied to the clipboard`,
-			Toast.SHORT
+			Toast.SHORT,
 		);
 	}
 	setNoPick(false);

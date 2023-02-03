@@ -1,11 +1,12 @@
-export default async function doRequest({
+// eslint-disable-next-line import/prefer-default-export
+export async function performRequest({
 	url,
 	method,
 	formData,
 	header,
 	onLoad,
 	onProgress,
-	onError
+	onError,
 }) {
 	return new Promise((resolve, reject) => {
 		const uploadTask = new XMLHttpRequest();
@@ -18,14 +19,14 @@ export default async function doRequest({
 
 		const onloadoverride = () =>
 			onLoad({ task: uploadTask, res: resolve, rej: reject });
-		const onprogressoverride = (o) =>
+		const onprogressoverride = o =>
 			onProgress({
 				data: o,
 				task: uploadTask,
 				res: resolve,
-				rej: reject
+				rej: reject,
 			});
-		const onerroroverride = (e) =>
+		const onerroroverride = e =>
 			onError({ data: e, task: uploadTask, res: resolve, rej: reject });
 
 		uploadTask.onload = onloadoverride;

@@ -14,7 +14,7 @@ import {
 	StyleSheet,
 	Text,
 	Dimensions,
-	TouchableOpacity
+	TouchableOpacity,
 } from 'react-native';
 
 import Dialog from 'react-native-dialog';
@@ -29,20 +29,20 @@ import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import Share from 'react-native-share';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import {
-	empty,
-	getHostSettings,
+	getDestinationSettings,
 	getSettings,
-	setHostSettings
-} from '../../utils/settings';
-import SettingsComponent from '../../components/SettingsComponent';
-import aHosts from '../../utils/hosts';
-import { ThemeContext } from '../../utils/theme';
+	setDestinationSettings,
+} from '@util/settings';
+import SettingsComponent from '@components/SettingsComponent';
+import { Destinations, emptySettings, ThemeContext } from '@util/constants';
+import AppIcon from '@assets/icon.png';
+import { Destination } from '@util/types';
 
 export default function SettingScreen({ navigation }) {
 	const { colors } = useTheme();
 	const Stack = createStackNavigator();
 	const { changeTheme } = useContext(ThemeContext);
-	const [host, setHost] = useState({});
+	const [destination, setDestination] = useState({} as Destination);
 	const [theme, setTheme] = useState('');
 	const [multiUpload, setMultiUpload] = useState('Disabled');
 	const [zoomAndDrag, setZoomAndDrag] = useState('Disabled');
@@ -71,18 +71,18 @@ export default function SettingScreen({ navigation }) {
 	useEffect(() => {
 		let isMounted = true;
 		if (isMounted)
-			getHostSettings().then((h) => {
+			getDestinationSettings().then(h => {
 				if (isMounted) {
-					setHost(h);
+					setDestination(h);
 				}
 			});
-		getSettings().then((settings) => {
+		getSettings().then(settings => {
 			if (isMounted) {
 				setMultiUpload(
-					settings['Multi-Upload'] ? 'Enabled' : 'Disabled'
+					settings['Multi-Upload'] ? 'Enabled' : 'Disabled',
 				);
 				setZoomAndDrag(
-					settings['Image Zoom and Drag'] ? 'Enabled' : 'Disabled'
+					settings['Image Zoom and Drag'] ? 'Enabled' : 'Disabled',
 				);
 				setInputApiKey(settings.apiKey);
 				setInputApiUrl(settings.apiUrl);
@@ -118,7 +118,7 @@ export default function SettingScreen({ navigation }) {
 	const saveSetting = async (name, state) => {
 		// Get Settings
 		const stored = await AsyncStorage.getItem('settings');
-		const parsed = stored ? JSON.parse(stored) : empty;
+		const parsed = stored ? JSON.parse(stored) : emptySettings;
 		// Set Setting
 		parsed[name] = state;
 		// Save Settings
@@ -130,7 +130,7 @@ export default function SettingScreen({ navigation }) {
 		description,
 		{ show, value },
 		_sShow,
-		button
+		button,
 	) => {
 		// Alert
 		setDialog(true);
@@ -148,7 +148,7 @@ export default function SettingScreen({ navigation }) {
 		} else if (dialogTitle.includes('Image Zoom and Drag')) {
 			await saveSetting(
 				'Image Zoom and Drag',
-				!(zoomAndDrag === 'Enabled')
+				!(zoomAndDrag === 'Enabled'),
 			);
 			setZoomAndDrag(zoomAndDrag === 'Enabled' ? 'Disabled' : 'Enabled');
 		} else if (dialogTitle.includes('Clear Image Gallery')) {
@@ -173,9 +173,9 @@ export default function SettingScreen({ navigation }) {
 		setDialog(false);
 	};
 
-	const handleSwitch = async (h) => {
-		await setHostSettings(h);
-		setHost(h);
+	const handleSwitch = async h => {
+		await setDestinationSettings(h);
+		setDestination(h);
 	};
 
 	const handleImport = async () => {
@@ -184,7 +184,7 @@ export default function SettingScreen({ navigation }) {
 			let fileData;
 			try {
 				fileData = JSON.parse(
-					(await readAsStringAsync(file.uri)).trim()
+					(await readAsStringAsync(file.uri)).trim(),
 				);
 			} catch (err) {
 				Toast.show('The file contains invalid data.', Toast.SHORT);
@@ -216,7 +216,7 @@ export default function SettingScreen({ navigation }) {
 	};
 
 	function shareConfig() {
-		switch (host?.name) {
+		switch (destination?.name) {
 			case 'ImgBB':
 				// if no api key is set show toast and return
 				if (inputApiKey === '') {
@@ -240,9 +240,9 @@ export default function SettingScreen({ navigation }) {
 						RequestURL: inputApiUrl,
 						Arguments: {
 							token: inputApiToken,
-							endpoint: inputApiEndpoint
+							endpoint: inputApiEndpoint,
 						},
-						FileFormName: inputApiFormName
+						FileFormName: inputApiFormName,
 					};
 					setQrValue(JSON.stringify(config));
 					setModalVisible(true);
@@ -254,7 +254,7 @@ export default function SettingScreen({ navigation }) {
 	}
 
 	async function importQRCode(data) {
-		switch (host?.name) {
+		switch (destination?.name) {
 			case 'ImgBB':
 				setInputApiKey(data);
 				await saveSetting('apiKey', data);
@@ -272,7 +272,7 @@ export default function SettingScreen({ navigation }) {
 					) {
 						Toast.show(
 							'The file contains invalid data.',
-							Toast.SHORT
+							Toast.SHORT,
 						);
 						return;
 					}
@@ -300,22 +300,22 @@ export default function SettingScreen({ navigation }) {
 			subTitle: theme,
 			icon: 'color-palette-outline',
 			show: true,
-			onPress: () => navigation.navigate('Theme')
+			onPress: () => navigation.navigate('Theme'),
 		},
 		{
-			title: 'Host',
+			title: 'Destination',
 			subTitle: (() => {
-				switch (host?.name) {
+				switch (destination?.name) {
 					case 'SXCU':
 						return 'Custom';
 					default:
-						return host?.name;
+						return destination?.name;
 				}
 			})(),
 			icon: 'cloud-upload-outline',
 			show: true,
-			onPress: () => navigation.navigate('Host')
-		}, // Navigate to new Screen just like this
+			onPress: () => navigation.navigate('Destination'),
+		},
 		{
 			title: 'Multi-Upload',
 			subTitle: multiUpload,
@@ -331,9 +331,9 @@ export default function SettingScreen({ navigation }) {
 					} the multi-upload feature?`,
 					{ show: false, value: '' },
 					false,
-					multiUpload === 'Enabled' ? 'Disable' : 'Enable'
+					multiUpload === 'Enabled' ? 'Disable' : 'Enable',
 				);
-			}
+			},
 		}, // Modal which asks for Enabled/Disabled
 		{
 			title: 'Image Zoom and Drag',
@@ -350,9 +350,9 @@ export default function SettingScreen({ navigation }) {
 					} the image zoom and drag feature?`,
 					{ show: false, value: '' },
 					false,
-					zoomAndDrag === 'Enabled' ? 'Disable' : 'Enable'
+					zoomAndDrag === 'Enabled' ? 'Disable' : 'Enable',
 				);
-			}
+			},
 		}, // Modal which asks for Enabled/Disabled
 		// { title: 'Import Settings', subTitle: null, onPress: () => {} }, // Lets you import Settings via QR Code or file
 		// { title: 'Export Settings', subTitle: null, onPress: () => {} }, // Saves Settings in a QR Code which you can share
@@ -367,9 +367,9 @@ export default function SettingScreen({ navigation }) {
 					'Are you sure you want to clear your gallery history?',
 					{ show: false, value: '' },
 					false,
-					'Clear'
+					'Clear',
 				);
-			}
+			},
 		}, // Clears the Gallery
 		// { title: 'Credits', subTitle: null, onPress: onCredits }, // Modal with Credits that show who worked on Imageing
 		{
@@ -383,10 +383,10 @@ export default function SettingScreen({ navigation }) {
 					'This is a wonderful placeholder about the app Imageing',
 					{ show: false, value: '' },
 					false,
-					'Close'
+					'Close',
 				);
-			}
-		} // Modal with information about Imageing like Version, ...
+			},
+		}, // Modal with information about Imageing like Version, ...
 	];
 
 	const startScan = () => {
@@ -406,58 +406,58 @@ export default function SettingScreen({ navigation }) {
 		await importQRCode(data);
 	};
 
-	const hostOptions = [
+	const destinationOptions = [
 		{
 			title: 'Upload Destination',
 			subTitle: (() => {
-				switch (host?.name) {
+				switch (destination?.name) {
 					case 'SXCU':
 						return inputApiUrl || 'Custom';
 					default:
-						return host?.name;
+						return destination?.name;
 				}
 			})(),
 			icon: 'cloud-upload-outline',
 			show: true,
 			onPress: () => {
 				setSelectShow(true);
-			}
+			},
 		}, // Select of Hosts
 		{
 			title: 'API Key',
 			icon: 'key-outline',
-			show: host?.name === 'ImgBB',
+			show: destination?.name === 'ImgBB',
 			onPress: () => {
 				openDialog(
 					'API Key',
 					'',
 					{ show: true, value: inputApiKey },
 					false,
-					'Submit'
+					'Submit',
 				);
-			}
+			},
 		}, // ImgBB: Key
 		{
 			title: 'Import',
 			subTitle: 'Import SXCU File',
 			icon: 'download-outline',
-			show: host?.name === 'SXCU',
-			onPress: handleImport
+			show: destination?.name === 'SXCU',
+			onPress: handleImport,
 		}, // Import Settings File
 		{
 			title: 'Scan QR Code',
 			subTitle: 'Scan QR Code to import config',
 			icon: 'qr-code-outline',
-			show: host?.name === 'SXCU' || host?.name === 'ImgBB',
-			onPress: startScan
+			show: destination?.name === 'SXCU' || destination?.name === 'ImgBB',
+			onPress: startScan,
 		},
 		{
 			title: 'Share Config',
 			subTitle: 'Share current config as QR Code',
 			icon: 'share-social-outline',
-			show: host?.name === 'SXCU' || host?.name === 'ImgBB',
-			onPress: shareConfig
-		}
+			show: destination?.name === 'SXCU' || destination?.name === 'ImgBB',
+			onPress: shareConfig,
+		},
 	];
 
 	const themeOptions = [
@@ -473,7 +473,7 @@ export default function SettingScreen({ navigation }) {
 				changeTheme(systemTheme);
 				Toast.show('Theme set to Auto', Toast.SHORT);
 				navigation.navigate('App Settings');
-			}
+			},
 		}, // Auto
 		{
 			title: 'Light',
@@ -486,7 +486,7 @@ export default function SettingScreen({ navigation }) {
 				changeTheme('light');
 				Toast.show('Theme set to Light', Toast.SHORT);
 				navigation.navigate('App Settings');
-			}
+			},
 		}, // Light
 		{
 			title: 'Dark',
@@ -499,8 +499,8 @@ export default function SettingScreen({ navigation }) {
 				changeTheme('dark');
 				Toast.show('Theme set to Dark', Toast.SHORT);
 				navigation.navigate('App Settings');
-			}
-		} // Dark
+			},
+		}, // Dark
 		/* {
 			title: 'Material You',
 			subTitle: 'Dynamic theme',
@@ -516,8 +516,8 @@ export default function SettingScreen({ navigation }) {
 		} */ // Material You module not working properly atm
 	];
 
-	const selectData = Object.keys(aHosts).map((x) => {
-		const y = aHosts[x];
+	const selectData = Object.keys(Destinations).map(x => {
+		const y = Destinations[x];
 		return { key: y.name, label: y.name };
 	});
 
@@ -526,7 +526,7 @@ export default function SettingScreen({ navigation }) {
 			flex: 1,
 			justifyContent: 'center',
 			alignItems: 'center',
-			marginTop: 22
+			marginTop: 22,
 		},
 		modalView: {
 			// occupy 90% of screen width and height
@@ -540,34 +540,34 @@ export default function SettingScreen({ navigation }) {
 			shadowColor: '#000',
 			shadowOffset: {
 				width: 0,
-				height: 2
+				height: 2,
 			},
 			shadowOpacity: 0.25,
 			shadowRadius: 4,
-			elevation: 5
+			elevation: 5,
 		},
 		button: {
 			// make slim oval buttons
 			borderRadius: 20,
 			padding: 10,
-			elevation: 2
+			elevation: 2,
 		},
 		buttonOpen: {
-			backgroundColor: '#F194FF'
+			backgroundColor: '#F194FF',
 		},
 		buttonClose: {
-			backgroundColor: '#2196F3'
+			backgroundColor: '#2196F3',
 		},
 		textStyle: {
 			color: colors.text,
 			fontWeight: 'bold',
-			textAlign: 'center'
+			textAlign: 'center',
 		},
 		modalText: {
 			color: colors.text,
 			marginBottom: 15,
-			textAlign: 'center'
-		}
+			textAlign: 'center',
+		},
 	});
 
 	const MainSettingsAreaView = (
@@ -586,7 +586,7 @@ export default function SettingScreen({ navigation }) {
 								style={StyleSheet.absoluteFillObject}
 								onBarCodeScanned={handleBarCodeScanned}
 								barCodeTypes={[
-									BarCodeScanner.Constants.BarCodeType.qr
+									BarCodeScanner.Constants.BarCodeType.qr,
 								]}
 							/>
 						</View>
@@ -611,16 +611,16 @@ export default function SettingScreen({ navigation }) {
 								height: Dimensions.get('window').width * 0.8,
 								overflow: 'hidden',
 								alignItems: 'center',
-								justifyContent: 'center'
+								justifyContent: 'center',
 							}}>
 							<QRCode
 								value={qrValue}
 								size={Dimensions.get('window').width * 0.7}
-								logo={require('../../../assets/icon.png')}
+								logo={AppIcon}
 								logoBackgroundColor='white'
-								getRef={(ref) => {
+								getRef={ref => {
 									if (ref) {
-										ref.toDataURL((base64) => {
+										ref.toDataURL(base64 => {
 											setBase64Code(base64);
 										});
 									}
@@ -634,7 +634,7 @@ export default function SettingScreen({ navigation }) {
 							style={{
 								flexDirection: 'row',
 								justifyContent: 'space-between',
-								width: Dimensions.get('window').width * 0.8
+								width: Dimensions.get('window').width * 0.8,
 							}}>
 							<TouchableOpacity
 								style={{
@@ -643,25 +643,25 @@ export default function SettingScreen({ navigation }) {
 									// center content
 									alignItems: 'center',
 									justifyContent: 'center',
-									width: Dimensions.get('window').width * 0.35
+									width:
+										Dimensions.get('window').width * 0.35,
 								}}
 								onPress={() => {
 									const timestamp = new Date().getTime();
 									RNFS.writeFile(
 										`${RNFS.CachesDirectoryPath}/imageing-qr-${timestamp}.png`,
 										base64Code,
-										'base64'
+										'base64',
 									)
 										.then(() =>
 											CameraRoll.save(
 												`${RNFS.CachesDirectoryPath}/imageing-qr-${timestamp}.png`,
-												'photo'
-											)
+											),
 										)
 										.then(() => {
 											Toast.show(
 												'Saved to gallery!',
-												Toast.SHORT
+												Toast.SHORT,
 											);
 										});
 									setModalVisible(!modalVisible);
@@ -670,12 +670,12 @@ export default function SettingScreen({ navigation }) {
 									style={{
 										flexDirection: 'row',
 										alignItems: 'center',
-										justifyContent: 'center'
+										justifyContent: 'center',
 									}}>
 									<Ionicons
 										style={{
 											margin: 5,
-											color: colors.text
+											color: colors.text,
 										}}
 										name='bookmark-outline'
 										size={30}
@@ -692,17 +692,16 @@ export default function SettingScreen({ navigation }) {
 									// center content
 									alignItems: 'center',
 									justifyContent: 'center',
-									width: Dimensions.get('window').width * 0.35
+									width:
+										Dimensions.get('window').width * 0.35,
 								}}
 								onPress={() => {
 									Share.open({
-										message: `This is my Imageing ${host.name} QR code`,
-										url: `data:image/png;base64,${base64Code}`
+										message: `This is my Imageing ${destination.name} QR code`,
+										url: `data:image/png;base64,${base64Code}`,
 									})
-										.then((res) => {
-											console.log(res);
-										})
-										.catch((err) => console.log(err))
+										.then(() => null)
+										.catch(() => null)
 										.finally(() => {
 											setModalVisible(!modalVisible);
 										});
@@ -711,12 +710,12 @@ export default function SettingScreen({ navigation }) {
 									style={{
 										flexDirection: 'row',
 										alignItems: 'center',
-										justifyContent: 'center'
+										justifyContent: 'center',
 									}}>
 									<Ionicons
 										style={{
 											margin: 5,
-											color: colors.text
+											color: colors.text,
 										}}
 										name='share-social-outline'
 										size={30}
@@ -739,13 +738,16 @@ export default function SettingScreen({ navigation }) {
 					backgroundColor: colors.card,
 					borderColor: colors.text,
 					borderWidth: 2,
-					borderRadius: 5
+					borderRadius: 5,
 				}}
 				optionTextStyle={{ color: colors.text }}
 				onModalClose={() => setSelectShow(false)}
-				onChange={(option) => {
-					handleSwitch(aHosts[option.key]);
-					Toast.show(`Host set to ${option.label}`, Toast.SHORT);
+				onChange={option => {
+					handleSwitch(Destinations[option.key]);
+					Toast.show(
+						`Destination set to ${option.label}`,
+						Toast.SHORT,
+					);
 				}}
 			/>
 			<Dialog.Container
@@ -791,9 +793,9 @@ export default function SettingScreen({ navigation }) {
 				)}
 			/>
 			<Stack.Screen
-				name='Host'
+				name='Destination'
 				children={() => (
-					<SettingsComponent settingsOptions={hostOptions} />
+					<SettingsComponent settingsOptions={destinationOptions} />
 				)}
 			/>
 		</Stack.Navigator>

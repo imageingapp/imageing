@@ -5,11 +5,11 @@
     "version": "0.6.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -22,17 +22,18 @@
       "bundleIdentifier": "org.imageing.app"
     },
     "android": {
+	  "allowBackup": true,
       "intentFilters": [
         {
-          "action": "android.intent.action.SEND",
-          "category": "android.intent.category.DEFAULT",
+          "action": "SEND",
+          "category": "DEFAULT",
           "data": [
             {
-              "mimeType": "text/plain"
-            },
-            {
               "mimeType": "image/*"
-            }
+            },
+			{
+			  "mimeType": "video/*"
+			}
           ]
         }
       ],
@@ -43,9 +44,10 @@
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#000000"
       },
       "androidStatusBar": {
+		"backgroundColor": "#000000",
         "translucent": true
       },
       "package": "org.imageing.app",

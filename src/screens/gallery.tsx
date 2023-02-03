@@ -9,7 +9,7 @@ import {
 	TouchableHighlight,
 	Text,
 	Linking,
-	TouchableOpacity
+	TouchableOpacity,
 } from 'react-native';
 import { setStringAsync } from 'expo-clipboard';
 import { useIsFocused, useTheme } from '@react-navigation/native';
@@ -19,31 +19,32 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import Dialog from 'react-native-dialog';
 import Gestures from 'react-native-easy-gestures';
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
-import styles from '../../Styles';
-import AnimatedImages from '../../components/AnimatedImages';
-import { getImages, removeImage, deleteImage } from '../../utils/image';
+import { Styles } from '@util/constants';
+import AnimatedImages from '@components/AnimatedImages';
+import { getImages, removeImage, deleteImage } from '@util/media';
+import type { StoredImage } from '@util/types';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function GalleryScreen({ navigation }) {
 	const [images, setImages] = useState([]);
-	const [fullImage, setFullImage] = useState({});
+	const [fullImage, setFullImage] = useState({} as StoredImage);
 	const [deletePopup, setDeletePopup] = useState(false);
 	const [additionalInfo, setAdditionalInfo] = useState('');
 	const [draggable, setDraggable] = useState(false);
-	const [gestures, setGestures] = useState({});
+	const [gestures, setGestures] = useState({} as Gestures);
 
 	const isFocused = useIsFocused();
 	const { colors } = useTheme();
 
 	useEffect(() => {
 		let isMounted = true;
-		setFullImage({});
-		getImages().then((imgs) => {
+		setFullImage({} as StoredImage);
+		getImages().then(imgs => {
 			if (isMounted) setImages(imgs);
 		});
 		const unsubscribe = navigation.addListener('tabPress', () => {
-			setFullImage({});
+			setFullImage({} as StoredImage);
 		});
 		return () => {
 			isMounted = false;
@@ -51,11 +52,11 @@ export default function GalleryScreen({ navigation }) {
 		};
 	}, [isFocused, navigation]);
 
-	const openImage = (image) => {
+	const openImage = image => {
 		setFullImage(image);
 	};
 
-	const renderImages = (image) => (
+	const renderImages = image => (
 		<AnimatedImages imageIndex={image.index}>
 			<View style={{ flex: 1, alignItems: 'flex-start' }}>
 				<TouchableHighlight
@@ -67,7 +68,7 @@ export default function GalleryScreen({ navigation }) {
 							margin: 2,
 							height: screenWidth / 3.1,
 							width: screenWidth / 3.1,
-							borderRadius: 10
+							borderRadius: 10,
 						}}
 					/>
 				</TouchableHighlight>
@@ -88,7 +89,7 @@ export default function GalleryScreen({ navigation }) {
 		setImages(await removeImage(fullImage.deleteUrl));
 		setDeletePopup(false);
 		setAdditionalInfo('');
-		setFullImage({});
+		setFullImage({} as StoredImage);
 	};
 
 	return (
@@ -110,22 +111,22 @@ export default function GalleryScreen({ navigation }) {
 				/>
 			</Dialog.Container>
 			{fullImage.localUrl ? (
-				<View style={styles.fileWrap}>
-					<View style={styles.container}>
+				<View style={Styles.fileWrap}>
+					<View style={Styles.container}>
 						<Gestures
-							style={styles.container}
-							ref={(c) => setGestures(c)}
+							style={Styles.container}
+							ref={c => setGestures(c)}
 							onScaleStart={() => {
 								setDraggable(true);
 							}}
 							onScaleEnd={() => {
-								gestures.reset(() => {});
+								gestures.reset(() => null);
 								setDraggable(false);
 							}}
 							rotatable={false}
 							draggable={draggable}
 							scalable={{ min: 1, max: 10 }}>
-							<View style={styles.container}>
+							<View style={Styles.container}>
 								{!draggable ? (
 									<TouchableOpacity
 										style={{
@@ -134,21 +135,21 @@ export default function GalleryScreen({ navigation }) {
 											right: '5%',
 											zIndex: 1,
 											alignItems: 'center',
-											justifyContent: 'center'
+											justifyContent: 'center',
 										}}
 										onPress={() => {
-											setFullImage({});
+											setFullImage({} as StoredImage);
 										}}>
 										<View
 											style={{
 												backgroundColor:
 													colors.background,
-												borderRadius: 10
+												borderRadius: 10,
 											}}>
 											<Ionicons
 												style={{
 													margin: 0,
-													color: '#ff0000'
+													color: '#ff0000',
 												}}
 												name='close-outline'
 												size={40}
@@ -158,15 +159,15 @@ export default function GalleryScreen({ navigation }) {
 								) : null}
 
 								<Image
-									style={styles.preview}
+									style={Styles.preview}
 									source={{ uri: fullImage.localUrl }}
 								/>
 							</View>
 						</Gestures>
 					</View>
-					<View style={styles.buttonContainer}>
+					<View style={Styles.buttonContainer}>
 						<AwesomeButton
-							style={styles.button}
+							style={Styles.button}
 							size='medium'
 							onPress={async () => {
 								await Linking.openURL(fullImage.url);
@@ -176,7 +177,7 @@ export default function GalleryScreen({ navigation }) {
 							</Text>
 						</AwesomeButton>
 						<AwesomeButton
-							style={styles.button}
+							style={Styles.button}
 							onPress={() => setStringAsync(fullImage.url)}>
 							<Ionicons
 								style={{ margin: 8, color: colors.background }}
@@ -185,11 +186,11 @@ export default function GalleryScreen({ navigation }) {
 							/>
 						</AwesomeButton>
 						<AwesomeButton
-							style={styles.button}
+							style={Styles.button}
 							onPress={() => {
 								if (fullImage.manual) {
 									setAdditionalInfo(
-										'\n\nYou will get redirected to the website and you need to press delete manually.'
+										'\n\nYou will get redirected to the website and you need to press delete manually.',
 									);
 								}
 								setDeletePopup(true);
@@ -215,7 +216,7 @@ export default function GalleryScreen({ navigation }) {
 					style={{
 						flex: 1,
 						alignItems: 'center',
-						justifyContent: 'center'
+						justifyContent: 'center',
 					}}>
 					<Text style={{ alignSelf: 'center', color: colors.text }}>
 						Oh no, the gallery is empty!

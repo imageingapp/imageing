@@ -12,10 +12,11 @@ import Gestures from 'react-native-easy-gestures';
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import ShareMenu from 'react-native-share-menu';
-import Placeholder from '../../../assets/placeholder.png';
-import { pickImage, takeImage, uploadImages } from '../../utils/image';
-import { getSettings } from '../../utils/settings';
-import styles from '../../Styles';
+import Placeholder from '@assets/placeholder.png';
+import { Styles } from '@util/constants';
+import { ImagePickerSuccessResult } from 'expo-image-picker/build/ImagePicker.types';
+import { pickImage, takeImage, uploadImages } from '@util/media';
+import { getSettings } from '@util/settings';
 
 export default function HomeScreen() {
 	const [progress, setProgress] = useState(0);
@@ -24,13 +25,13 @@ export default function HomeScreen() {
 	const [noPick, setNoPick] = useState(false);
 	const [draggable, setDraggable] = useState(false);
 	const [zoomable, setZoomable] = useState(false);
-	const [gestures, setGestures] = useState({});
+	const [gestures, setGestures] = useState({} as Gestures);
 	const { colors } = useTheme();
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		let isMounted = true;
-		getSettings().then((settings) => {
+		getSettings().then(settings => {
 			if (isMounted) setZoomable(settings['Image Zoom and Drag']);
 		});
 		return () => {
@@ -38,14 +39,12 @@ export default function HomeScreen() {
 		};
 	}, [isFocused]);
 
-	const handleShare = useCallback((item) => {
+	const handleShare = useCallback(item => {
 		if (!item) {
 			return;
 		}
 
-		const { mimeType, data, extraData } = item;
-
-		console.log('Shared data: ', item);
+		const { mimeType, data } = item;
 
 		if (mimeType === 'image/png' || mimeType === 'image/jpeg') {
 			setImages([{ uri: data }]);
@@ -67,11 +66,11 @@ export default function HomeScreen() {
 
 	const imageOrImages = () => {
 		if (images.length > 1) {
-			return images.map((image) => (
+			return images.map(image => (
 				<Image
 					style={{
 						width: `${95 / images.length}%`,
-						height: `${95 / images.length}%`
+						height: `${95 / images.length}%`,
 					}}
 					key={image.uri}
 					source={{ uri: image.uri }}
@@ -80,20 +79,20 @@ export default function HomeScreen() {
 		}
 		return (
 			<Gestures
-				style={styles.container}
-				ref={(c) => setGestures(c)}
+				style={Styles.container}
+				ref={c => setGestures(c)}
 				onScaleStart={() => {
 					setDraggable(true);
 				}}
 				onScaleEnd={() => {
-					gestures.reset(() => {});
+					gestures.reset(() => null);
 					setDraggable(false);
 				}}
 				rotatable={false}
 				draggable={draggable}
 				scalable={zoomable && { min: 1, max: 10 }}>
 				<Image
-					style={styles.preview}
+					style={Styles.preview}
 					source={images[0]}
 				/>
 			</Gestures>
@@ -101,8 +100,8 @@ export default function HomeScreen() {
 	};
 
 	return (
-		<View style={styles.fileWrap}>
-			<View style={styles.container}>{imageOrImages()}</View>
+		<View style={Styles.fileWrap}>
+			<View style={Styles.container}>{imageOrImages()}</View>
 			<View style={{ paddingVertical: 10 }}>
 				<Bar
 					progress={progress}
@@ -111,17 +110,20 @@ export default function HomeScreen() {
 					borderColor={colors.background}
 				/>
 			</View>
-			<View style={styles.buttonContainer}>
+			<View style={Styles.buttonContainer}>
 				<AwesomeButton
-					style={styles.button}
+					style={Styles.button}
 					disabled={noPick}
 					onPress={async () => {
 						const capturedImage = await takeImage();
-						if (!capturedImage.canceled) {
+
+						if (capturedImage && !capturedImage.canceled) {
 							setImages(
-								capturedImage.assets.map((asset) => ({
-									uri: asset.uri
-								}))
+								(
+									capturedImage as ImagePickerSuccessResult
+								).assets.map(asset => ({
+									uri: asset.uri,
+								})),
 							);
 							setUploading(false);
 						}
@@ -133,15 +135,17 @@ export default function HomeScreen() {
 					/>
 				</AwesomeButton>
 				<AwesomeButton
-					style={styles.button}
+					style={Styles.button}
 					disabled={noPick}
 					onPress={async () => {
 						const pickedImage = await pickImage();
-						if (!pickedImage.canceled) {
+						if (pickedImage && !pickedImage.canceled) {
 							setImages(
-								pickedImage.assets.map((asset) => ({
-									uri: asset.uri
-								}))
+								(
+									pickedImage as ImagePickerSuccessResult
+								).assets.map(asset => ({
+									uri: asset.uri,
+								})),
 							);
 							setUploading(false);
 						}
@@ -153,7 +157,7 @@ export default function HomeScreen() {
 					/>
 				</AwesomeButton>
 				<AwesomeButton
-					style={styles.button}
+					style={Styles.button}
 					progress
 					size='medium'
 					disabled={uploading}
@@ -162,21 +166,21 @@ export default function HomeScreen() {
 					backgroundProgress={colors.primary}
 					backgroundPlaceholder={colors.background}
 					backgroundShadow={colors.card}
-					onPress={async (next) => {
+					onPress={async next => {
 						setUploading(true);
 						setNoPick(true);
 						const netInfo = await NetInfo.fetch();
 						if (!netInfo.isConnected) {
 							Toast.show(
 								'No network connection available',
-								Toast.SHORT
+								Toast.SHORT,
 							);
 							setUploading(false);
 							setNoPick(false);
 							next();
 							return;
 						}
-						const resolve = (finished) => {
+						const resolve = finished => {
 							if (finished) setImages([Placeholder]);
 						};
 						await uploadImages({
@@ -187,7 +191,7 @@ export default function HomeScreen() {
 							setUploading,
 							setImages,
 							next,
-							resolve
+							resolve,
 						});
 					}}>
 					<Text style={{ fontSize: 20, color: colors.text }}>
