@@ -6,7 +6,7 @@ import 'react-native-gesture-handler';
 import {
 	NavigationContainer,
 	DefaultTheme,
-	DarkTheme
+	DarkTheme,
 } from '@react-navigation/native';
 import { useColorScheme, LogBox } from 'react-native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -15,14 +15,14 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import HomeScreen from './src/screens/home';
-import GalleryScreen from './src/screens/gallery';
-import SettingScreen from './src/screens/settings';
-import { ThemeContext } from './src/utils/theme';
+import { ThemeContext } from '@util/constants';
+import HomeScreen from '@screens/home';
+import GalleryScreen from '@screens/gallery';
+import SettingScreen from '@screens/settings';
 
 LogBox.ignoreLogs([
 	'`new NativeEventEmitter()` was called with a non-null argument without the required `addListener` method.',
-	'`new NativeEventEmitter()` was called with a non-null argument without the required `removeListeners` method.'
+	'`new NativeEventEmitter()` was called with a non-null argument without the required `removeListeners` method.',
 ]);
 
 const Tab = createMaterialTopTabNavigator();
@@ -32,7 +32,7 @@ export default function App() {
 	const [currentTheme, changeTheme] = useState(scheme);
 	// get the theme from the storage
 	useEffect(() => {
-		AsyncStorage.getItem('settings').then((x) => {
+		AsyncStorage.getItem('settings').then(x => {
 			const value = JSON.parse(x);
 
 			if (value.theme) {
@@ -58,7 +58,7 @@ export default function App() {
 							tabBarActiveTintColor: 'turquoise',
 							tabBarInactiveTintColor: 'gray',
 							headerShown: false,
-							unmountOnBlur: true
+							unmountOnBlur: true,
 						})}>
 						<Tab.Screen
 							name='Home'

@@ -22,17 +22,17 @@ function SettingsComponent({ settingsOptions }) {
 									style={{
 										paddingHorizontal: 20,
 										paddingBottom: 20,
-										paddingTop: 20
+										paddingTop: 20,
 									}}>
 									<View
 										style={{
 											flexDirection: 'row',
-											position: 'relative'
+											position: 'relative',
 										}}>
 										<Text
 											style={{
 												fontSize: 17,
-												color: colors.text
+												color: colors.text,
 											}}>
 											{title}
 										</Text>
@@ -47,9 +47,9 @@ function SettingsComponent({ settingsOptions }) {
 													{
 														translateY: subTitle
 															? -5
-															: -15
-													}
-												]
+															: -15,
+													},
+												],
 											}}
 											name={icon}
 											size={35}
@@ -61,7 +61,7 @@ function SettingsComponent({ settingsOptions }) {
 												color: colors.text,
 												fontSize: 14,
 												opacity: 0.5,
-												paddingTop: 5
+												paddingTop: 5,
 											}}>
 											{subTitle}
 										</Text>
@@ -70,12 +70,12 @@ function SettingsComponent({ settingsOptions }) {
 								<View
 									style={{
 										height: 1.5,
-										backgroundColor: colors.background
+										backgroundColor: colors.background,
 									}}
 								/>
 							</TouchableOpacity>
 						);
-					}
+					},
 				)
 			}
 		</ScrollView>

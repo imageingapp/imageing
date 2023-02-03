@@ -22,6 +22,7 @@
       "bundleIdentifier": "org.imageing.app"
     },
     "android": {
+	  "allowBackup": true,
       "intentFilters": [
         {
           "action": "SEND",

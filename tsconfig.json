@@ -1,4 +1,12 @@
 {
-  "compilerOptions": {},
+  "compilerOptions": {
+	"module": "esnext",
+	"paths": {
+		"@assets/*": ["./assets/*"],
+		"@components/*": ["./src/components/*"],
+		"@screens/*": ["./src/screens/*"],
+		"@util/*": ["./src/util/*"],
+	}
+  },
   "extends": "expo/tsconfig.base"
 }
