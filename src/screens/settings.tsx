@@ -36,13 +36,18 @@ import {
 import SettingsComponent from '@components/SettingsComponent';
 import { Destinations, emptySettings, ThemeContext } from '@util/constants';
 import AppIcon from '@assets/icon.png';
-import { Destination, DestinationNames } from '@util/types';
+import {
+	CustomUploader,
+	DestinationNames,
+	DestinationObject,
+} from '@util/types';
+import { validateCustomUploader } from '@util/uploader';
 
 export default function SettingScreen({ navigation }) {
 	const { colors } = useTheme();
 	const Stack = createStackNavigator();
 	const { changeTheme } = useContext(ThemeContext);
-	const [destination, setDestination] = useState({} as Destination);
+	const [destination, setDestination] = useState({} as DestinationObject);
 	const [theme, setTheme] = useState('');
 	const [multiUpload, setMultiUpload] = useState('Disabled');
 	const [zoomAndDrag, setZoomAndDrag] = useState('Disabled');
@@ -61,11 +66,8 @@ export default function SettingScreen({ navigation }) {
 
 	// ImgBB
 	const [inputApiKey, setInputApiKey] = useState('');
-	// SXCU
-	const [inputApiUrl, setInputApiUrl] = useState('');
-	const [inputApiToken, setInputApiToken] = useState('');
-	const [inputApiEndpoint, setInputApiEndpoint] = useState('');
-	const [inputApiFormName, setInputApiFormName] = useState('');
+	// Custom Uploader
+	const [customData, setCustomData] = useState({} as CustomUploader);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -84,11 +86,8 @@ export default function SettingScreen({ navigation }) {
 				setZoomAndDrag(
 					settings['Image Zoom and Drag'] ? 'Enabled' : 'Disabled',
 				);
+				setCustomData(settings.customData);
 				setInputApiKey(settings.apiKey);
-				setInputApiUrl(settings.apiUrl);
-				setInputApiToken(settings.apiToken);
-				setInputApiEndpoint(settings.apiEndpoint);
-				setInputApiFormName(settings.apiFormName);
 				// if no theme is set, set it to default
 				if (!settings.theme) {
 					setTheme('Auto');
@@ -141,6 +140,7 @@ export default function SettingScreen({ navigation }) {
 		setDialogButton(button);
 	};
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const handlePush = async () => {
 		if (dialogTitle.includes('Multi-Upload')) {
 			await saveSetting('Multi-Upload', !(multiUpload === 'Enabled'));
@@ -154,28 +154,18 @@ export default function SettingScreen({ navigation }) {
 		} else if (dialogTitle.includes('Clear Image Gallery')) {
 			await AsyncStorage.removeItem('images');
 			// Should we only delete the history or also delete all uploaded pics?
-		} else if (dialogTitle.includes('API URL')) {
-			await saveSetting('apiUrl', inputValue);
-			setInputApiUrl(inputValue);
-		} else if (dialogTitle.includes('API Token')) {
-			await saveSetting('apiToken', inputValue);
-			setInputApiToken(inputValue);
+			setDialog(false);
 		} else if (dialogTitle.includes('API Key')) {
 			await saveSetting('apiKey', inputValue);
 			setInputApiKey(inputValue);
-		} else if (dialogTitle.includes('API Endpoint')) {
-			await saveSetting('apiEndpoint', inputValue);
-			setInputApiEndpoint(inputValue);
-		} else if (dialogTitle.includes('API Formname')) {
-			await saveSetting('apiFormName', inputValue);
-			setInputApiFormName(inputValue);
 		}
 		setDialog(false);
 	};
 
-	const handleSwitch = async h => {
+	const handleSwitch = async (h: string) => {
 		await setDestinationSettings(h);
-		setDestination(h);
+		const newDestination = await getDestinationSettings();
+		setDestination(newDestination);
 	};
 
 	const handleImport = async () => {
@@ -189,24 +179,13 @@ export default function SettingScreen({ navigation }) {
 			} catch (err) {
 				Toast.show('The file contains invalid data.', Toast.SHORT);
 			}
-			if (
-				!fileData ||
-				!fileData.RequestURL ||
-				!fileData.Arguments?.token ||
-				!fileData.Arguments?.endpoint ||
-				!fileData.FileFormName
-			) {
+			if (!validateCustomUploader(fileData)) {
 				Toast.show('The file contains invalid data.', Toast.SHORT);
 				return;
 			}
-			await saveSetting('apiUrl', fileData.RequestURL);
-			await saveSetting('apiToken', fileData.Arguments.token);
-			await saveSetting('apiEndpoint', fileData.Arguments.endpoint);
-			await saveSetting('apiFormName', fileData.FileFormName);
-			setInputApiUrl(fileData.RequestURL);
-			setInputApiToken(fileData.Arguments.token);
-			setInputApiEndpoint(fileData.Arguments.endpoint);
-			setInputApiFormName(fileData.FileFormName);
+			setCustomData(fileData);
+			await saveSetting('customData', fileData);
+
 			Toast.show('The data was saved.', Toast.SHORT);
 		}
 	};
@@ -228,23 +207,10 @@ export default function SettingScreen({ navigation }) {
 				break;
 			case DestinationNames.Custom:
 				// if no settings set show toast and return
-				if (
-					inputApiToken === '' ||
-					inputApiEndpoint === '' ||
-					inputApiFormName === '' ||
-					inputApiUrl === ''
-				) {
+				if (!validateCustomUploader(customData)) {
 					Toast.show('No Settings saved', Toast.SHORT);
 				} else {
-					const config = {
-						RequestURL: inputApiUrl,
-						Arguments: {
-							token: inputApiToken,
-							endpoint: inputApiEndpoint,
-						},
-						FileFormName: inputApiFormName,
-					};
-					setQrValue(JSON.stringify(config));
+					setQrValue(JSON.stringify(customData));
 					setModalVisible(true);
 				}
 				break;
@@ -263,27 +229,15 @@ export default function SettingScreen({ navigation }) {
 			case DestinationNames.Custom:
 				try {
 					const config = JSON.parse(data);
-					if (
-						!config ||
-						!config.RequestURL ||
-						!config.Arguments?.token ||
-						!config.Arguments?.endpoint ||
-						!config.FileFormName
-					) {
+					if (!validateCustomUploader(config)) {
 						Toast.show(
 							'The file contains invalid data.',
 							Toast.SHORT,
 						);
 						return;
 					}
-					await saveSetting('apiUrl', config.RequestURL);
-					await saveSetting('apiToken', config.Arguments.token);
-					await saveSetting('apiEndpoint', config.Arguments.endpoint);
-					await saveSetting('apiFormName', config.FileFormName);
-					setInputApiUrl(config.RequestURL);
-					setInputApiToken(config.Arguments.token);
-					setInputApiEndpoint(config.Arguments.endpoint);
-					setInputApiFormName(config.FileFormName);
+					setCustomData(config);
+					await saveSetting('customData', JSON.stringify(config));
 					Toast.show('The data was saved.', Toast.SHORT);
 				} catch (err) {
 					Toast.show('The file contains invalid data.', Toast.SHORT);
@@ -412,7 +366,7 @@ export default function SettingScreen({ navigation }) {
 			subTitle: (() => {
 				switch (destination?.name) {
 					case DestinationNames.Custom:
-						return inputApiUrl || 'Custom';
+						return customData?.RequestURL || 'Custom';
 					default:
 						return destination?.name;
 				}
@@ -734,7 +688,7 @@ export default function SettingScreen({ navigation }) {
 				optionTextStyle={{ color: colors.text }}
 				onModalClose={() => setSelectShow(false)}
 				onChange={option => {
-					handleSwitch(Destinations[option.key]);
+					handleSwitch(option.key);
 					Toast.show(
 						`Destination set to ${option.label}`,
 						Toast.SHORT,

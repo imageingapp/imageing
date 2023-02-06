@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { setStringAsync } from 'expo-clipboard';
 import {
 	launchCameraAsync,
@@ -10,48 +9,9 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Share from 'react-native-share';
-import { Destinations } from '@util/constants';
-import { performRequest } from '@util/http';
+import { performHttpRequest } from '@util/http';
 import { getDestinationSettings, getSettings } from '@util/settings';
-
-function getFormData(file, settings, host) {
-	const formData = new FormData();
-	switch (host) {
-		case Destinations.ImgBB: {
-			// ImgBB
-			formData.append('image', {
-				uri: file.uri,
-				type: 'image/jpeg',
-				name: 'upload.jpeg',
-			} as unknown as Blob);
-			formData.append('key', settings.apiKey);
-			break;
-		}
-		case Destinations.Imgur: {
-			// Imgur
-			formData.append('image', {
-				uri: file.uri,
-				type: 'image/jpeg',
-				name: 'upload.jpeg',
-			} as unknown as Blob);
-			break;
-		}
-		case Destinations.SXCU: {
-			// SXCU
-			formData.append(settings.apiFormName, {
-				uri: file.uri,
-				type: 'image/jpeg',
-				name: 'upload.jpeg',
-			} as unknown as Blob);
-			formData.append('endpoint', settings.apiEndpoint);
-			formData.append('token', settings.apiToken);
-			break;
-		}
-		default:
-			break;
-	}
-	return formData;
-}
+import { DestinationNames, HttpStatus } from '@util/types';
 
 export async function pickImage() {
 	const response = await requestMediaLibraryPermissionsAsync();
@@ -62,7 +22,7 @@ export async function pickImage() {
 			allowsEditing: !settings['Multi-Upload'],
 			quality: 1,
 			allowsMultipleSelection: settings['Multi-Upload'],
-		}).catch(console.log);
+		}).catch(() => null);
 	}
 	return { canceled: true };
 }
@@ -76,7 +36,7 @@ export async function takeImage() {
 			allowsEditing: !settings['Multi-Upload'],
 			quality: 1,
 			allowsMultipleSelection: settings['Multi-Upload'],
-		}).catch(console.log);
+		}).catch(() => null);
 	}
 	return { canceled: true };
 }
@@ -101,22 +61,6 @@ export async function removeImage(deleteUrl) {
 		: [];
 	await AsyncStorage.setItem('images', JSON.stringify(images));
 	return images;
-}
-
-export async function deleteImage(deleteUrl) {
-	const host = await getDestinationSettings();
-
-	const onLoad = ({ res }) => res();
-	const onError = ({ rej }) => rej();
-	await performRequest({
-		url: deleteUrl,
-		method: host.deleteMethod,
-		formData: null,
-		header: host.header,
-		onLoad,
-		onProgress: () => null,
-		onError,
-	});
 }
 
 export async function getImages() {
@@ -148,70 +92,45 @@ export async function uploadImages({
 	next,
 	resolve,
 }) {
-	const host = await getDestinationSettings();
+	const destination = await getDestinationSettings();
 	const settings = await getSettings();
-	const url = host.url || settings.apiUrl;
 	let reason = '';
-
-	const onError = ({ task, rej }) => {
-		/* eslint-disable no-underscore-dangle */
-		reason = task._response;
-		rej();
-	};
-
-	const onProgress = ({ data }) => {
-		const progress = data.loaded / data.total;
-		setProgress(progress);
-	};
 
 	let failed = 0;
 	const remaining = [...files];
 	/* eslint-disable no-restricted-syntax */
 	for (const file of files) {
-		const formData = getFormData(file, settings, host);
-		const onLoad = ({ task, res, rej }) => {
-			if (task.status !== 200) return rej(task);
-			setProgress(0);
-
-			const response = JSON.parse(task.response);
-			setStringAsync(host.getUrl(response));
-			storeImage(file.uri, response, host);
-
-			Share.open({
-				message: host.getUrl(response),
-			})
-				.then(x => {
-					console.log(x);
-				})
-				.catch(err => console.log(err));
-
-			return res();
-		};
 		/* eslint-disable no-await-in-loop,no-loop-func */
-		await performRequest({
-			url,
-			method: 'POST',
-			formData,
-			header: host.header,
-			onLoad,
-			onProgress,
-			onError,
-		}).catch(task => {
-			let response;
-			try {
-				response = JSON.parse(task.response);
-			} catch (err) {
-				if (task.status === 404) {
-					reason = 'Incorrect URL specified';
+		await performHttpRequest({
+			data: (() => {
+				switch (destination.name) {
+					case DestinationNames.Imgur:
+						return null;
+					case DestinationNames.ImgBB:
+						return settings.apiKey;
+					case DestinationNames.Custom:
+						return settings.customData;
+					default:
+						return null;
 				}
-			}
-			if (!reason) {
-				reason = response.error_msg.includes('send a file')
-					? 'Invalid Formname specified'
-					: response.error_msg;
-			}
-			failed += 1;
-		});
+			})(),
+			file,
+			destination,
+		})
+			.then(x => {
+				const response = JSON.parse(x as string);
+				const url = destination.getUrl(response);
+				setStringAsync(url);
+				storeImage(file.uri, response, destination);
+
+				Share.open({
+					message: url,
+				}).catch(() => null);
+			})
+			.catch(x => {
+				reason = x;
+				failed += 1;
+			});
 		if (reason) {
 			failed = files.length;
 			break;
@@ -224,7 +143,11 @@ export async function uploadImages({
 		}
 	}
 	if (failed === files.length) {
-		Toast.show('Upload failed', Toast.SHORT);
+		// reason is http status code, convert to string from enum
+		const error = Object.keys(HttpStatus).find(
+			x => HttpStatus[x] === reason,
+		);
+		Toast.show(`Upload failed: ${reason} ${error}`, Toast.SHORT);
 	} else if (failed > 0) {
 		Toast.show(
 			`${files.length - failed}/${files.length} images uploaded`,
@@ -232,7 +155,7 @@ export async function uploadImages({
 		);
 	} else {
 		Toast.show(
-			`Image URL${files.length > 1 ? 's' : ''} copied to the clipboard`,
+			`Image URL${files.length > 1 ? 's' : ''} copied to clipboard`,
 			Toast.SHORT,
 		);
 	}

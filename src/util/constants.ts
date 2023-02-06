@@ -8,8 +8,8 @@ import {
 
 export const ThemeContext = createContext(null);
 
-export const Destinations = {
-	[DestinationNames.ImgBB]: {
+export const Destinations = [
+	{
 		name: DestinationNames.ImgBB,
 		url: DestinationUrls.ImgBB,
 		settings: { apiKey: '' },
@@ -17,7 +17,7 @@ export const Destinations = {
 		getDeleteUrl: data => data.data.delete_url,
 		deleteMethod: HttpDeleteMethods.URL,
 	},
-	[DestinationNames.Imgur]: {
+	{
 		name: DestinationNames.Imgur,
 		url: DestinationUrls.Imgur,
 		settings: { apiClientId: '' },
@@ -27,19 +27,13 @@ export const Destinations = {
 		deleteMethod: HttpDeleteMethods.DELETE,
 		header: { text: 'Authorization', value: 'Client-ID 867afe9433c0a53' },
 	},
-	[DestinationNames.Custom]: {
+	{
 		name: DestinationNames.Custom,
-		settings: {
-			apiUrl: '',
-			apiToken: '',
-			apiEndpoint: '',
-			apiFormName: '',
-		},
 		getUrl: data => data.url,
 		getDeleteUrl: data => data.deletion_url,
 		deleteMethod: HttpDeleteMethods.GET,
 	},
-};
+];
 
 export const emptySettings = {
 	// ImgBB

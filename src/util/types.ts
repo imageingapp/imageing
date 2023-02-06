@@ -1,8 +1,8 @@
-export interface Destination {
+export interface DestinationObject {
 	name: string;
-	url: string;
-	settings: {
-		apiKey: string;
+	url?: string;
+	settings?: {
+		apiKey?: string;
 	};
 	getUrl: (data: { url: string }) => string;
 	getDeleteUrl: (data: { deletion_url: string }) => string;
@@ -37,4 +37,68 @@ export enum HttpDeleteMethods {
 export enum Settings {
 	MultiUpload,
 	ImageZoomAndDrag,
+}
+
+export enum DestinationType {
+	None = 'None',
+	ImageUploader = 'ImageUploader',
+	TextUploader = 'TextUploader',
+	FileUploader = 'FileUploader',
+	URLShortener = 'URLShortener',
+	URLSharingService = 'URLSharingService',
+}
+
+export enum RequestMethod {
+	GET = 'GET',
+	POST = 'POST',
+	PUT = 'PUT',
+	PATCH = 'PATCH',
+	DELETE = 'DELETE',
+}
+
+export enum Body {
+	None = 'None',
+	MultipartFormData = 'MultipartFormData',
+	FormURLEncoded = 'FormURLEncoded',
+	JSON = 'JSON',
+	XML = 'XML',
+	Binary = 'Binary',
+}
+
+export interface CustomUploader {
+	Version: string;
+	Name?: string;
+	DestinationType: DestinationType;
+	RequestMethod: RequestMethod;
+	RequestURL: string;
+	Parameters: {
+		[key: string]: string;
+	};
+	Headers?: {
+		[key: string]: string;
+	};
+	Body: Body;
+	Arguments?: {
+		[key: string]: string;
+	};
+	FileFormName?: string;
+	URL: string;
+	ThumbnailURL?: string;
+	DeletionURL?: string;
+	ErrorMessage?: string;
+}
+
+export enum HttpStatus {
+	OK = 200,
+	Created = 201,
+	Accepted = 202,
+	NoContent = 204,
+	BadRequest = 400,
+	Unauthorized = 401,
+	Forbidden = 403,
+	NotFound = 404,
+	InternalServerError = 500,
+	NotImplemented = 501,
+	BadGateway = 502,
+	ServiceUnavailable = 503,
 }

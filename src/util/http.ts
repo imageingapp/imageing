@@ -1,42 +1,105 @@
+import {
+	Body,
+	CustomUploader,
+	DestinationNames,
+	DestinationObject,
+	HttpStatus,
+} from '@util/types';
+import { ImageURISource } from 'react-native';
+
 // eslint-disable-next-line import/prefer-default-export
-export async function performRequest({
-	url,
-	method,
-	formData,
-	header,
-	onLoad,
-	onProgress,
-	onError,
-}) {
+export async function performHttpRequest({
+	data,
+	file,
+	destination,
+}: {
+	data?: CustomUploader | string;
+	file: ImageURISource;
+	destination: DestinationObject;
+}): Promise<unknown> {
 	return new Promise((resolve, reject) => {
-		const uploadTask = new XMLHttpRequest();
+		const request = new XMLHttpRequest();
 
-		// Perform request
-		uploadTask.open(method, url);
-		if (header) {
-			uploadTask.setRequestHeader(header.text, header.value);
+		if (destination.name === DestinationNames.Custom) {
+			// eslint-disable-next-line no-param-reassign
+			data = data as CustomUploader;
+			request.open(data.RequestMethod, data.RequestURL);
+
+			if (data.Headers !== undefined) {
+				// eslint-disable-next-line no-restricted-syntax
+				for (const key in data.Headers) {
+					// eslint-disable-next-line no-prototype-builtins
+					if (data.Headers.hasOwnProperty(key)) {
+						request.setRequestHeader(key, data.Headers[key]);
+					}
+				}
+			}
+
+			if (data.Body === Body.MultipartFormData) {
+				const formData = new FormData();
+				formData.append(data.FileFormName, {
+					uri: file.uri,
+					type: 'image/jpeg',
+					name: 'upload.jpeg',
+				} as unknown as Blob);
+
+				// if arguments are present, add them to the form data
+				if (data.Arguments !== undefined) {
+					// eslint-disable-next-line no-restricted-syntax
+					for (const key in data.Arguments) {
+						// eslint-disable-next-line no-prototype-builtins
+						if (data.Arguments.hasOwnProperty(key)) {
+							formData.append(key, data.Arguments[key]);
+						}
+					}
+				}
+
+				request.send(formData);
+			} else {
+				request.send();
+			}
+		} else {
+			request.open('POST', destination.url);
+
+			const formData = new FormData();
+			switch (destination.name) {
+				case DestinationNames.ImgBB: {
+					// ImgBB
+					formData.append('image', {
+						uri: file.uri,
+						type: 'image/jpeg',
+						name: 'upload.jpeg',
+					} as unknown as Blob);
+					formData.append('key', data as string);
+					break;
+				}
+				case DestinationNames.Imgur: {
+					// Imgur
+					request.setRequestHeader(
+						'Authorization',
+						`Client-ID 867afe9433c0a53`,
+					);
+					formData.append('image', {
+						uri: file.uri,
+						type: 'image/jpeg',
+						name: 'upload.jpeg',
+					} as unknown as Blob);
+					break;
+				}
+				default:
+					break;
+			}
+			request.send(formData);
 		}
 
-		const onloadoverride = () =>
-			onLoad({ task: uploadTask, res: resolve, rej: reject });
-		const onprogressoverride = o =>
-			onProgress({
-				data: o,
-				task: uploadTask,
-				res: resolve,
-				rej: reject,
-			});
-		const onerroroverride = e =>
-			onError({ data: e, task: uploadTask, res: resolve, rej: reject });
-
-		uploadTask.onload = onloadoverride;
-		uploadTask.onerror = onerroroverride;
-		uploadTask.ontimeout = onerroroverride;
-
-		uploadTask.send(formData ?? undefined);
-
-		if (uploadTask.upload) {
-			uploadTask.upload.onprogress = onprogressoverride;
-		}
+		request.onreadystatechange = () => {
+			if (request.readyState === 4) {
+				if (request.status === HttpStatus.OK) {
+					resolve(request.response);
+				} else {
+					reject(request.status);
+				}
+			}
+		};
 	});
 }

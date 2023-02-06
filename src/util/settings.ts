@@ -1,14 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { Destination } from '@util/types';
+import { DestinationNames, DestinationObject } from '@util/types';
 import { Destinations, emptySettings } from '@util/constants';
 
-export async function getDestinationSettings() {
+export async function getDestinationSettings(): Promise<DestinationObject> {
 	const stored = await AsyncStorage.getItem('destination');
-	return Destinations[stored] ?? Destinations.Imgur;
+	const storedDestination =
+		Destinations.find(d => d.name === stored) ||
+		Destinations.find(d => d.name === DestinationNames.Imgur);
+	return storedDestination;
 }
 
-export async function setDestinationSettings(destination: Destination) {
-	await AsyncStorage.setItem('destination', destination.name);
+export async function setDestinationSettings(destination: string) {
+	await AsyncStorage.setItem('destination', destination);
 }
 
 export async function setSettings(options) {

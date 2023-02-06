@@ -21,7 +21,7 @@ import Gestures from 'react-native-easy-gestures';
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import { Styles } from '@util/constants';
 import AnimatedImages from '@components/AnimatedImages';
-import { getImages, removeImage, deleteImage } from '@util/media';
+import { getImages, removeImage } from '@util/media';
 import type { StoredImage } from '@util/types';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -82,7 +82,7 @@ export default function GalleryScreen({ navigation }) {
 
 	const handleDelete = async () => {
 		if (!fullImage.manual) {
-			await deleteImage(fullImage.deleteUrl);
+			// await deleteImage(fullImage.deleteUrl);
 		} else {
 			await Linking.openURL(fullImage.deleteUrl);
 		}
