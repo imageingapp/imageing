@@ -34,7 +34,12 @@ import {
 	setDestinationSettings,
 } from '@util/settings';
 import SettingsComponent from '@components/SettingsComponent';
-import { Destinations, emptySettings, ThemeContext } from '@util/constants';
+import {
+	DestinationNames,
+	Destinations,
+	emptySettings,
+	ThemeContext,
+} from '@util/constants';
 import AppIcon from '@assets/icon.png';
 import { Destination } from '@util/types';
 
@@ -217,7 +222,7 @@ export default function SettingScreen({ navigation }) {
 
 	function shareConfig() {
 		switch (destination?.name) {
-			case 'ImgBB':
+			case DestinationNames.ImgBB:
 				// if no api key is set show toast and return
 				if (inputApiKey === '') {
 					Toast.show('No Settings saved', Toast.SHORT);
@@ -226,7 +231,7 @@ export default function SettingScreen({ navigation }) {
 					setModalVisible(true);
 				}
 				break;
-			case 'SXCU':
+			case DestinationNames.Custom:
 				// if no settings set show toast and return
 				if (
 					inputApiToken === '' ||
@@ -255,12 +260,12 @@ export default function SettingScreen({ navigation }) {
 
 	async function importQRCode(data) {
 		switch (destination?.name) {
-			case 'ImgBB':
+			case DestinationNames.ImgBB:
 				setInputApiKey(data);
 				await saveSetting('apiKey', data);
 				Toast.show('The data was saved.', Toast.SHORT);
 				break;
-			case 'SXCU':
+			case DestinationNames.Custom:
 				try {
 					const config = JSON.parse(data);
 					if (
@@ -306,7 +311,7 @@ export default function SettingScreen({ navigation }) {
 			title: 'Destination',
 			subTitle: (() => {
 				switch (destination?.name) {
-					case 'SXCU':
+					case DestinationNames.Custom:
 						return 'Custom';
 					default:
 						return destination?.name;
@@ -411,7 +416,7 @@ export default function SettingScreen({ navigation }) {
 			title: 'Upload Destination',
 			subTitle: (() => {
 				switch (destination?.name) {
-					case 'SXCU':
+					case DestinationNames.Custom:
 						return inputApiUrl || 'Custom';
 					default:
 						return destination?.name;
@@ -426,7 +431,7 @@ export default function SettingScreen({ navigation }) {
 		{
 			title: 'API Key',
 			icon: 'key-outline',
-			show: destination?.name === 'ImgBB',
+			show: destination?.name === DestinationNames.ImgBB,
 			onPress: () => {
 				openDialog(
 					'API Key',
@@ -439,23 +444,27 @@ export default function SettingScreen({ navigation }) {
 		}, // ImgBB: Key
 		{
 			title: 'Import',
-			subTitle: 'Import SXCU File',
+			subTitle: 'Import custom uploader',
 			icon: 'download-outline',
-			show: destination?.name === 'SXCU',
+			show: destination?.name === DestinationNames.Custom,
 			onPress: handleImport,
 		}, // Import Settings File
 		{
 			title: 'Scan QR Code',
 			subTitle: 'Scan QR Code to import config',
 			icon: 'qr-code-outline',
-			show: destination?.name === 'SXCU' || destination?.name === 'ImgBB',
+			show:
+				destination?.name === DestinationNames.Custom ||
+				destination?.name === DestinationNames.ImgBB,
 			onPress: startScan,
 		},
 		{
 			title: 'Share Config',
 			subTitle: 'Share current config as QR Code',
 			icon: 'share-social-outline',
-			show: destination?.name === 'SXCU' || destination?.name === 'ImgBB',
+			show:
+				destination?.name === DestinationNames.Custom ||
+				destination?.name === DestinationNames.ImgBB,
 			onPress: shareConfig,
 		},
 	];
@@ -501,19 +510,6 @@ export default function SettingScreen({ navigation }) {
 				navigation.navigate('App Settings');
 			},
 		}, // Dark
-		/* {
-			title: 'Material You',
-			subTitle: 'Dynamic theme',
-			icon: 'color-palette-outline',
-			show: true,
-			onPress: async () => {
-				await saveSetting('theme', 'material');
-				setTheme('Material You');
-				changeTheme('material');
-				Toast.show('Theme set to Material You', Toast.SHORT);
-				navigation.navigate('App Settings');
-			}
-		} */ // Material You module not working properly atm
 	];
 
 	const selectData = Object.keys(Destinations).map(x => {

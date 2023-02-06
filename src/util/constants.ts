@@ -3,28 +3,44 @@ import { Dimensions, StyleSheet } from 'react-native';
 
 export const ThemeContext = createContext(null);
 
+export enum DestinationNames {
+	ImgBB = 'ImgBB',
+	Imgur = 'Imgur',
+	Custom = 'Custom',
+}
+
+export enum DestinationUrls {
+	ImgBB = 'https://api.imgbb.com/1/upload',
+	Imgur = 'https://api.imgur.com/3/image',
+}
+
+export enum HttpDeleteMethods {
+	DELETE = 'DELETE',
+	GET = 'GET',
+	URL = 'URL',
+}
+
 export const Destinations = {
-	ImgBB: {
-		name: 'ImgBB',
-		url: 'https://api.imgbb.com/1/upload',
+	[DestinationNames.ImgBB]: {
+		name: DestinationNames.ImgBB,
+		url: DestinationUrls.ImgBB,
 		settings: { apiKey: '' },
 		getUrl: data => data.data.url,
 		getDeleteUrl: data => data.data.delete_url,
-		deleteMethod: 'URL',
+		deleteMethod: HttpDeleteMethods.URL,
 	},
-	Imgur: {
-		name: 'Imgur',
-		url: 'https://api.imgur.com/3/image',
+	[DestinationNames.Imgur]: {
+		name: DestinationNames.Imgur,
+		url: DestinationUrls.Imgur,
 		settings: { apiClientId: '' },
 		getUrl: data => data.data.link,
 		getDeleteUrl: data =>
-			`https://api.imgur.com/3/image/${data.data.deletehash}`,
-		deleteMethod: 'DELETE',
+			`${DestinationUrls.Imgur}/${data.data.deletehash}`,
+		deleteMethod: HttpDeleteMethods.DELETE,
 		header: { text: 'Authorization', value: 'Client-ID 867afe9433c0a53' },
 	},
-	SXCU: {
-		name: 'SXCU',
-		add: '(Self-Hosted)',
+	[DestinationNames.Custom]: {
+		name: DestinationNames.Custom,
 		settings: {
 			apiUrl: '',
 			apiToken: '',
@@ -33,14 +49,14 @@ export const Destinations = {
 		},
 		getUrl: data => data.url,
 		getDeleteUrl: data => data.deletion_url,
-		deleteMethod: 'GET',
+		deleteMethod: HttpDeleteMethods.GET,
 	},
 };
 
 export const emptySettings = {
 	// ImgBB
 	apiKey: '',
-	// SXCU
+	// Custom
 	apiUrl: '',
 	apiToken: '',
 	apiEndpoint: '',
