@@ -34,14 +34,9 @@ import {
 	setDestinationSettings,
 } from '@util/settings';
 import SettingsComponent from '@components/SettingsComponent';
-import {
-	DestinationNames,
-	Destinations,
-	emptySettings,
-	ThemeContext,
-} from '@util/constants';
+import { Destinations, emptySettings, ThemeContext } from '@util/constants';
 import AppIcon from '@assets/icon.png';
-import { Destination } from '@util/types';
+import { Destination, DestinationNames } from '@util/types';
 
 export default function SettingScreen({ navigation }) {
 	const { colors } = useTheme();
@@ -312,7 +307,7 @@ export default function SettingScreen({ navigation }) {
 			subTitle: (() => {
 				switch (destination?.name) {
 					case DestinationNames.Custom:
-						return 'Custom';
+						return DestinationNames.Custom;
 					default:
 						return destination?.name;
 				}

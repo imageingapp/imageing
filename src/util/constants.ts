@@ -1,24 +1,12 @@
 import { createContext } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
+import {
+	DestinationNames,
+	DestinationUrls,
+	HttpDeleteMethods,
+} from '@util/types';
 
 export const ThemeContext = createContext(null);
-
-export enum DestinationNames {
-	ImgBB = 'ImgBB',
-	Imgur = 'Imgur',
-	Custom = 'Custom',
-}
-
-export enum DestinationUrls {
-	ImgBB = 'https://api.imgbb.com/1/upload',
-	Imgur = 'https://api.imgur.com/3/image',
-}
-
-export enum HttpDeleteMethods {
-	DELETE = 'DELETE',
-	GET = 'GET',
-	URL = 'URL',
-}
 
 export const Destinations = {
 	[DestinationNames.ImgBB]: {

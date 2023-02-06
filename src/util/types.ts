@@ -16,3 +16,20 @@ export interface StoredImage {
 	date: string;
 	manual: boolean;
 }
+
+export enum DestinationNames {
+	ImgBB = 'ImgBB',
+	Imgur = 'Imgur',
+	Custom = 'Custom',
+}
+
+export enum DestinationUrls {
+	ImgBB = 'https://api.imgbb.com/1/upload',
+	Imgur = 'https://api.imgur.com/3/image',
+}
+
+export enum HttpDeleteMethods {
+	DELETE = 'DELETE',
+	GET = 'GET',
+	URL = 'URL',
+}
