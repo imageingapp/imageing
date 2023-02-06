@@ -33,3 +33,8 @@ export enum HttpDeleteMethods {
 	GET = 'GET',
 	URL = 'URL',
 }
+
+export enum Settings {
+	MultiUpload,
+	ImageZoomAndDrag,
+}
