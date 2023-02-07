@@ -12,7 +12,7 @@ import Share from 'react-native-share';
 import { performHttpRequest } from '@util/http';
 import { getDestinationSettings, getSettings } from '@util/settings';
 import { CustomUploader, DestinationNames, HttpStatus } from '@util/types';
-import { loadCustomUploader } from './uploader';
+import { loadCustomUploader } from '@util/uploader';
 
 export async function pickImage() {
 	const response = await requestMediaLibraryPermissionsAsync();
