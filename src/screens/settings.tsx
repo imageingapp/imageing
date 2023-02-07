@@ -179,7 +179,7 @@ export default function SettingScreen({ navigation }) {
 			} catch (err) {
 				Toast.show('The file contains invalid data.', Toast.SHORT);
 			}
-			if (!validateCustomUploader(fileData)) {
+			if (!validateCustomUploader(fileData, true)) {
 				Toast.show('The file contains invalid data.', Toast.SHORT);
 				return;
 			}
@@ -229,9 +229,9 @@ export default function SettingScreen({ navigation }) {
 			case DestinationNames.Custom:
 				try {
 					const config = JSON.parse(data);
-					if (!validateCustomUploader(config)) {
+					if (!validateCustomUploader(config, true)) {
 						Toast.show(
-							'The file contains invalid data.',
+							'The code contains invalid data.',
 							Toast.SHORT,
 						);
 						return;
@@ -240,7 +240,7 @@ export default function SettingScreen({ navigation }) {
 					await saveSetting('customData', JSON.stringify(config));
 					Toast.show('The data was saved.', Toast.SHORT);
 				} catch (err) {
-					Toast.show('The file contains invalid data.', Toast.SHORT);
+					Toast.show('The code contains invalid data.', Toast.SHORT);
 				}
 				break;
 			default:

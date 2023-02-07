@@ -7,14 +7,19 @@ import {
 import Toast from 'react-native-simple-toast';
 
 // eslint-disable-next-line import/prefer-default-export
-export function validateCustomUploader(data: CustomUploader): boolean {
+export function validateCustomUploader(
+	data: CustomUploader,
+	showToast?: boolean,
+): boolean {
 	// validate that data is an object and not empty or anything else
 	if (
 		typeof data !== 'object' ||
 		data === null ||
 		Object.keys(data).length === 0
 	) {
-		Toast.show('File does not contain data', Toast.LONG);
+		if (showToast) {
+			Toast.show('File does not contain data', Toast.LONG);
+		}
 		return false;
 	}
 
@@ -27,7 +32,9 @@ export function validateCustomUploader(data: CustomUploader): boolean {
 		typeof data.Body !== 'string' ||
 		typeof data.URL !== 'string'
 	) {
-		Toast.show('File does not contain required properties', Toast.LONG);
+		if (showToast) {
+			Toast.show('File does not contain required properties', Toast.LONG);
+		}
 		return false;
 	}
 
@@ -41,21 +48,27 @@ export function validateCustomUploader(data: CustomUploader): boolean {
 				type.trim() as DestinationType,
 			)
 		) {
-			Toast.show('DestinationType is not a valid value', Toast.LONG);
+			if (showToast) {
+				Toast.show('DestinationType is not a valid value', Toast.LONG);
+			}
 			return false;
 		}
 	});
 	// validate that RequestMethod is a valid value
 	const requestMethods = Object.values(RequestMethod);
 	if (!requestMethods.includes(data.RequestMethod)) {
-		Toast.show('RequestMethod is not a valid value', Toast.LONG);
+		if (showToast) {
+			Toast.show('RequestMethod is not a valid value', Toast.LONG);
+		}
 		return false;
 	}
 
 	// validate that Body is a valid value
 	const bodyTypes = Object.values(Body);
 	if (!bodyTypes.includes(data.Body)) {
-		Toast.show('Body is not a valid value', Toast.LONG);
+		if (showToast) {
+			Toast.show('Body is not a valid value', Toast.LONG);
+		}
 		return false;
 	}
 
@@ -64,26 +77,34 @@ export function validateCustomUploader(data: CustomUploader): boolean {
 		data.Body === Body.MultipartFormData &&
 		data.FileFormName === undefined
 	) {
-		Toast.show(
-			'FileFormName is required for multipart form data',
-			Toast.LONG,
-		);
+		if (showToast) {
+			Toast.show(
+				'FileFormName is required for multipart form data',
+				Toast.LONG,
+			);
+		}
 		return false;
 	}
 
 	// validate that optional properties are present and are of the correct type
 	if (data.Name !== undefined && typeof data.Name !== 'string') {
-		Toast.show('Name is not a string', Toast.LONG);
+		if (showToast) {
+			Toast.show('Name is not a string', Toast.LONG);
+		}
 		return false;
 	}
 
 	if (data.Headers !== undefined && typeof data.Headers !== 'object') {
-		Toast.show('Headers is not an object', Toast.LONG);
+		if (showToast) {
+			Toast.show('Headers is not an object', Toast.LONG);
+		}
 		return false;
 	}
 
 	if (data.Arguments !== undefined && typeof data.Arguments !== 'object') {
-		Toast.show('Arguments is not an object', Toast.LONG);
+		if (showToast) {
+			Toast.show('Arguments is not an object', Toast.LONG);
+		}
 		return false;
 	}
 
@@ -91,7 +112,9 @@ export function validateCustomUploader(data: CustomUploader): boolean {
 		data.FileFormName !== undefined &&
 		typeof data.FileFormName !== 'string'
 	) {
-		Toast.show('FileFormName is not a string', Toast.LONG);
+		if (showToast) {
+			Toast.show('FileFormName is not a string', Toast.LONG);
+		}
 		return false;
 	}
 
@@ -99,7 +122,9 @@ export function validateCustomUploader(data: CustomUploader): boolean {
 		data.ThumbnailURL !== undefined &&
 		typeof data.ThumbnailURL !== 'string'
 	) {
-		Toast.show('ThumbnailURL is not a string', Toast.LONG);
+		if (showToast) {
+			Toast.show('ThumbnailURL is not a string', Toast.LONG);
+		}
 		return false;
 	}
 
@@ -107,7 +132,9 @@ export function validateCustomUploader(data: CustomUploader): boolean {
 		data.DeletionURL !== undefined &&
 		typeof data.DeletionURL !== 'string'
 	) {
-		Toast.show('DeletionURL is not a string', Toast.LONG);
+		if (showToast) {
+			Toast.show('DeletionURL is not a string', Toast.LONG);
+		}
 		return false;
 	}
 
@@ -115,7 +142,9 @@ export function validateCustomUploader(data: CustomUploader): boolean {
 		data.ErrorMessage !== undefined &&
 		typeof data.ErrorMessage !== 'string'
 	) {
-		Toast.show('ErrorMessage is not a string', Toast.LONG);
+		if (showToast) {
+			Toast.show('ErrorMessage is not a string', Toast.LONG);
+		}
 		return false;
 	}
 
