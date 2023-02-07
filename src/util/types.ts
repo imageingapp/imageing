@@ -99,14 +99,17 @@ export enum HttpStatus {
 }
 
 export enum SettingsOptions {
+	Theme = 'theme',
+	ImgBBApiKey = 'imgBBApiKey',
 	MultiUpload = 'multiUpload',
 	ImageZoomAndDrag = 'imageZoomAndDrag',
+	CurrentUploaderPath = 'currentUploaderPath',
 }
 
 export interface Settings {
 	theme: 'light' | 'dark' | 'auto';
-	apiKey: string;
+	ImgBBApiKey: string;
 	[SettingsOptions.MultiUpload]: boolean;
 	[SettingsOptions.ImageZoomAndDrag]: boolean;
-	customData: CustomUploader;
+	currentUploaderPath: string;
 }

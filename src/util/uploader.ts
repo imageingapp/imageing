@@ -5,6 +5,7 @@ import {
 	Body,
 } from '@util/types';
 import Toast from 'react-native-simple-toast';
+import * as FileSystem from 'expo-file-system';
 
 // eslint-disable-next-line import/prefer-default-export
 export function validateCustomUploader(
@@ -149,4 +150,40 @@ export function validateCustomUploader(
 	}
 
 	return true;
+}
+
+async function checkConfigDir() {
+	const dir = `${FileSystem.documentDirectory}/config`;
+	if (!FileSystem.getInfoAsync(dir)) {
+		await FileSystem.makeDirectoryAsync(dir);
+	}
+}
+
+export async function saveCustomUploader(
+	data: CustomUploader,
+): Promise<string> {
+	await checkConfigDir();
+	// for later (multiple config)
+	// const file = `${FileSystem.documentDirectory}/config/${data.RequestURL}.json`;
+	const file = `${FileSystem.documentDirectory}/config/uploader.json`;
+	// overwrite file if it exists
+	if ((await FileSystem.getInfoAsync(file)).exists) {
+		await FileSystem.deleteAsync(file);
+	}
+
+	await FileSystem.writeAsStringAsync(file, JSON.stringify(data)).catch(
+		() => null,
+	);
+	return file;
+}
+
+export async function loadCustomUploader(
+	file: string,
+): Promise<CustomUploader | void> {
+	await checkConfigDir();
+	const data = await FileSystem.readAsStringAsync(file).catch(() => null);
+	if (!data) {
+		return undefined;
+	}
+	return JSON.parse(data);
 }

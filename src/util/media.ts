@@ -107,9 +107,9 @@ export async function uploadImages({
 					case DestinationNames.Imgur:
 						return null;
 					case DestinationNames.ImgBB:
-						return settings.apiKey;
+						return settings.ImgBBApiKey;
 					case DestinationNames.Custom:
-						return settings.customData;
+						return settings.currentUploaderPath;
 					default:
 						return null;
 				}

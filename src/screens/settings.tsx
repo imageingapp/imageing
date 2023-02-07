@@ -31,17 +31,22 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import {
 	getDestinationSettings,
 	getSettings,
+	saveSingleSetting,
 	setDestinationSettings,
 } from '@util/settings';
 import SettingsComponent from '@components/SettingsComponent';
-import { Destinations, emptySettings, ThemeContext } from '@util/constants';
+import { Destinations, ThemeContext } from '@util/constants';
 import AppIcon from '@assets/icon.png';
 import {
-	CustomUploader,
 	DestinationNames,
 	DestinationObject,
+	SettingsOptions,
 } from '@util/types';
-import { validateCustomUploader } from '@util/uploader';
+import {
+	loadCustomUploader,
+	saveCustomUploader,
+	validateCustomUploader,
+} from '@util/uploader';
 
 export default function SettingScreen({ navigation }) {
 	const { colors } = useTheme();
@@ -63,11 +68,10 @@ export default function SettingScreen({ navigation }) {
 	const [base64Code, setBase64Code] = useState('');
 	const [showScanner, setShowScanner] = useState(false);
 	const [hasPermission, setHasPermission] = useState(null);
+	const [currentUploaderPath, setCurrentUploaderPath] = useState('');
 
 	// ImgBB
 	const [inputApiKey, setInputApiKey] = useState('');
-	// Custom Uploader
-	const [customData, setCustomData] = useState({} as CustomUploader);
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -80,14 +84,12 @@ export default function SettingScreen({ navigation }) {
 			});
 		getSettings().then(settings => {
 			if (isMounted) {
-				setMultiUpload(
-					settings['Multi-Upload'] ? 'Enabled' : 'Disabled',
-				);
+				setMultiUpload(settings.multiUpload ? 'Enabled' : 'Disabled');
 				setZoomAndDrag(
-					settings['Image Zoom and Drag'] ? 'Enabled' : 'Disabled',
+					settings.imageZoomAndDrag ? 'Enabled' : 'Disabled',
 				);
-				setCustomData(settings.customData);
-				setInputApiKey(settings.apiKey);
+				setCurrentUploaderPath(settings.currentUploaderPath);
+				setInputApiKey(settings.ImgBBApiKey);
 				// if no theme is set, set it to default
 				if (!settings.theme) {
 					setTheme('Auto');
@@ -111,16 +113,6 @@ export default function SettingScreen({ navigation }) {
 		};
 	}, [isFocused]);
 
-	const saveSetting = async (name, state) => {
-		// Get Settings
-		const stored = await AsyncStorage.getItem('settings');
-		const parsed = stored ? JSON.parse(stored) : emptySettings;
-		// Set Setting
-		parsed[name] = state;
-		// Save Settings
-		await AsyncStorage.setItem('settings', JSON.stringify(parsed));
-	};
-
 	const openDialog = (
 		title,
 		description,
@@ -140,11 +132,14 @@ export default function SettingScreen({ navigation }) {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const handlePush = async () => {
 		if (dialogTitle.includes('Multi-Upload')) {
-			await saveSetting('Multi-Upload', !(multiUpload === 'Enabled'));
+			await saveSingleSetting(
+				SettingsOptions.MultiUpload,
+				!(multiUpload === 'Enabled'),
+			);
 			setMultiUpload(multiUpload === 'Enabled' ? 'Disabled' : 'Enabled');
 		} else if (dialogTitle.includes('Image Zoom and Drag')) {
-			await saveSetting(
-				'Image Zoom and Drag',
+			await saveSingleSetting(
+				SettingsOptions.ImageZoomAndDrag,
 				!(zoomAndDrag === 'Enabled'),
 			);
 			setZoomAndDrag(zoomAndDrag === 'Enabled' ? 'Disabled' : 'Enabled');
@@ -153,7 +148,7 @@ export default function SettingScreen({ navigation }) {
 			// Should we only delete the history or also delete all uploaded pics?
 			setDialog(false);
 		} else if (dialogTitle.includes('API Key')) {
-			await saveSetting('apiKey', inputValue);
+			await saveSingleSetting(SettingsOptions.ImgBBApiKey, inputValue);
 			setInputApiKey(inputValue);
 		}
 		setDialog(false);
@@ -180,8 +175,12 @@ export default function SettingScreen({ navigation }) {
 				Toast.show('The file contains invalid data.', Toast.SHORT);
 				return;
 			}
-			setCustomData(fileData);
-			await saveSetting('customData', fileData);
+			const configPath = await saveCustomUploader(fileData);
+			await saveSingleSetting(
+				SettingsOptions.CurrentUploaderPath,
+				configPath,
+			);
+			setCurrentUploaderPath(configPath);
 
 			Toast.show('The data was saved.', Toast.SHORT);
 		}
@@ -191,7 +190,7 @@ export default function SettingScreen({ navigation }) {
 		setDialog(false);
 	};
 
-	function shareConfig() {
+	async function shareConfig() {
 		switch (destination?.name) {
 			case DestinationNames.ImgBB:
 				// if no api key is set show toast and return
@@ -202,25 +201,29 @@ export default function SettingScreen({ navigation }) {
 					setModalVisible(true);
 				}
 				break;
-			case DestinationNames.Custom:
+			case DestinationNames.Custom: {
 				// if no settings set show toast and return
-				if (!validateCustomUploader(customData)) {
+				const data = await loadCustomUploader(currentUploaderPath);
+				if (!data) {
 					Toast.show('No Settings saved', Toast.SHORT);
-				} else {
-					setQrValue(JSON.stringify(customData));
+				} else if (data && !validateCustomUploader(data)) {
+					Toast.show('No Settings saved', Toast.SHORT);
+				} else if (data && validateCustomUploader(data)) {
+					setQrValue(JSON.stringify(data));
 					setModalVisible(true);
 				}
 				break;
+			}
 			default:
 				break;
 		}
 	}
 
-	async function importQRCode(data) {
+	async function importQRCode(data: string) {
 		switch (destination?.name) {
 			case DestinationNames.ImgBB:
 				setInputApiKey(data);
-				await saveSetting('apiKey', data);
+				await saveSingleSetting(SettingsOptions.ImgBBApiKey, data);
 				Toast.show('The data was saved.', Toast.SHORT);
 				break;
 			case DestinationNames.Custom:
@@ -233,8 +236,12 @@ export default function SettingScreen({ navigation }) {
 						);
 						return;
 					}
-					setCustomData(config);
-					await saveSetting('customData', JSON.stringify(config));
+					const configPath = await saveCustomUploader(config);
+					await saveSingleSetting(
+						SettingsOptions.CurrentUploaderPath,
+						configPath,
+					);
+					setCurrentUploaderPath(configPath);
 					Toast.show('The data was saved.', Toast.SHORT);
 				} catch (err) {
 					Toast.show('The code contains invalid data.', Toast.SHORT);
@@ -363,7 +370,10 @@ export default function SettingScreen({ navigation }) {
 			subTitle: (() => {
 				switch (destination?.name) {
 					case DestinationNames.Custom:
-						return customData?.RequestURL || 'Custom';
+						return (
+							currentUploaderPath?.replace(/^.*[\\/]/, '') ||
+							'Custom'
+						);
 					default:
 						return destination?.name;
 				}
@@ -422,7 +432,7 @@ export default function SettingScreen({ navigation }) {
 			icon: 'settings-outline',
 			show: true,
 			onPress: async () => {
-				await saveSetting('theme', 'auto');
+				await saveSingleSetting(SettingsOptions.Theme, 'auto');
 				setTheme('Auto');
 				const systemTheme = Appearance.getColorScheme();
 				changeTheme(systemTheme);
@@ -436,7 +446,7 @@ export default function SettingScreen({ navigation }) {
 			icon: 'sunny-outline',
 			show: true,
 			onPress: async () => {
-				await saveSetting('theme', 'light');
+				await saveSingleSetting(SettingsOptions.Theme, 'light');
 				setTheme('Light');
 				changeTheme('light');
 				Toast.show('Theme set to Light', Toast.SHORT);
@@ -449,7 +459,7 @@ export default function SettingScreen({ navigation }) {
 			icon: 'moon-outline',
 			show: true,
 			onPress: async () => {
-				await saveSetting('theme', 'dark');
+				await saveSingleSetting(SettingsOptions.Theme, 'dark');
 				setTheme('Dark');
 				changeTheme('dark');
 				Toast.show('Theme set to Dark', Toast.SHORT);

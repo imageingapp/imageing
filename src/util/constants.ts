@@ -4,6 +4,8 @@ import {
 	DestinationNames,
 	DestinationUrls,
 	HttpDeleteMethods,
+	Settings,
+	SettingsOptions,
 } from '@util/types';
 
 export const ThemeContext = createContext(null);
@@ -35,17 +37,12 @@ export const Destinations = [
 	},
 ];
 
-export const emptySettings = {
-	// ImgBB
-	apiKey: '',
-	// Custom
-	apiUrl: '',
-	apiToken: '',
-	apiEndpoint: '',
-	apiFormName: '',
-	// Other
-	'Multi-Upload': false,
-	'Image Zoom and Drag': false,
+export const emptySettings: Settings = {
+	theme: 'auto',
+	ImgBBApiKey: '',
+	currentUploaderPath: '',
+	[SettingsOptions.MultiUpload]: false,
+	[SettingsOptions.ImageZoomAndDrag]: false,
 };
 
 export const Styles = StyleSheet.create({
