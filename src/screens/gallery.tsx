@@ -52,11 +52,11 @@ export default function GalleryScreen({ navigation }) {
 		};
 	}, [isFocused, navigation]);
 
-	const openImage = image => {
+	const openImage = (image: React.SetStateAction<StoredImage>) => {
 		setFullImage(image);
 	};
 
-	const renderImages = image => (
+	const renderImages = (image: { index: number; item: StoredImage }) => (
 		<AnimatedImages imageIndex={image.index}>
 			<View style={{ flex: 1, alignItems: 'flex-start' }}>
 				<TouchableHighlight

@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { DestinationNames, DestinationObject } from '@util/types';
+import { DestinationNames, DestinationObject, Settings } from '@util/types';
 import { Destinations, emptySettings } from '@util/constants';
 
 export async function getDestinationSettings(): Promise<DestinationObject> {
@@ -10,15 +10,15 @@ export async function getDestinationSettings(): Promise<DestinationObject> {
 	return storedDestination;
 }
 
-export async function setDestinationSettings(destination: string) {
+export async function setDestinationSettings(destination: DestinationNames) {
 	await AsyncStorage.setItem('destination', destination);
 }
 
-export async function setSettings(options) {
+export async function setSettings(options: Settings) {
 	await AsyncStorage.setItem('settings', JSON.stringify(options));
 }
 
-export async function getSettings() {
+export async function getSettings(): Promise<Settings> {
 	const stored = await AsyncStorage.getItem('settings');
 	const parsed = stored ? JSON.parse(stored) : emptySettings;
 	if (!stored) {

@@ -99,9 +99,6 @@ export default function SettingScreen({ navigation }) {
 						case 'dark':
 							setTheme('Dark');
 							break;
-						case 'material':
-							setTheme('Material You');
-							break;
 						default:
 							setTheme('Auto');
 							break;
@@ -162,7 +159,7 @@ export default function SettingScreen({ navigation }) {
 		setDialog(false);
 	};
 
-	const handleSwitch = async (h: string) => {
+	const handleSwitch = async (h: DestinationNames) => {
 		await setDestinationSettings(h);
 		const newDestination = await getDestinationSettings();
 		setDestination(newDestination);

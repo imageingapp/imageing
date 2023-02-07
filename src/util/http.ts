@@ -13,7 +13,7 @@ export async function performHttpRequest({
 	file,
 	destination,
 }: {
-	data?: CustomUploader | string;
+	data: CustomUploader | string | null;
 	file: ImageURISource;
 	destination: DestinationObject;
 }): Promise<unknown> {

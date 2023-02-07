@@ -80,7 +80,7 @@ export default function HomeScreen() {
 		return (
 			<Gestures
 				style={Styles.container}
-				ref={c => setGestures(c)}
+				ref={(c: unknown) => setGestures(c)}
 				onScaleStart={() => {
 					setDraggable(true);
 				}}
@@ -166,7 +166,7 @@ export default function HomeScreen() {
 					backgroundProgress={colors.primary}
 					backgroundPlaceholder={colors.background}
 					backgroundShadow={colors.card}
-					onPress={async next => {
+					onPress={async (next: () => void) => {
 						setUploading(true);
 						setNoPick(true);
 						const netInfo = await NetInfo.fetch();

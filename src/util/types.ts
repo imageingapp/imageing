@@ -34,11 +34,6 @@ export enum HttpDeleteMethods {
 	URL = 'URL',
 }
 
-export enum Settings {
-	MultiUpload,
-	ImageZoomAndDrag,
-}
-
 export enum DestinationType {
 	None = 'None',
 	ImageUploader = 'ImageUploader',
@@ -101,4 +96,17 @@ export enum HttpStatus {
 	NotImplemented = 501,
 	BadGateway = 502,
 	ServiceUnavailable = 503,
+}
+
+export enum SettingsOptions {
+	MultiUpload = 'multiUpload',
+	ImageZoomAndDrag = 'imageZoomAndDrag',
+}
+
+export interface Settings {
+	theme: 'light' | 'dark' | 'auto';
+	apiKey: string;
+	[SettingsOptions.MultiUpload]: boolean;
+	[SettingsOptions.ImageZoomAndDrag]: boolean;
+	customData: CustomUploader;
 }
