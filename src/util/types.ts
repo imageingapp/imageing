@@ -104,6 +104,7 @@ export enum SettingsOptions {
 	MultiUpload = 'multiUpload',
 	ImageZoomAndDrag = 'imageZoomAndDrag',
 	CurrentUploaderPath = 'currentUploaderPath',
+	ClearImageGallery = 'clearImageGallery',
 }
 
 export interface Settings {
@@ -112,4 +113,14 @@ export interface Settings {
 	[SettingsOptions.MultiUpload]: boolean;
 	[SettingsOptions.ImageZoomAndDrag]: boolean;
 	currentUploaderPath: string;
+}
+
+export interface DialogOptions {
+	title: string;
+	content: string;
+	rightButtonText?: string;
+	leftButtonText?: string;
+	showTextInput?: boolean;
+	textInputPlaceholder?: string;
+	context: 'showAbout' | 'deleteUploader' | SettingsOptions;
 }

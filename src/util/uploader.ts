@@ -204,3 +204,7 @@ export async function loadCustomUploader(
 	}
 	return JSON.parse(data);
 }
+
+export async function deleteSavedCustomUploader(file: string): Promise<void> {
+	await FileSystem.deleteAsync(file).catch(() => null);
+}

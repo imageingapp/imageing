@@ -16,6 +16,7 @@ import {
 	Dimensions,
 	TouchableOpacity,
 } from 'react-native';
+import * as Device from 'expo-device';
 
 import Dialog from 'react-native-dialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -40,9 +41,11 @@ import AppIcon from '@assets/icon.png';
 import {
 	DestinationNames,
 	DestinationObject,
+	DialogOptions,
 	SettingsOptions,
 } from '@util/types';
 import {
+	deleteSavedCustomUploader,
 	listCustomUploaders,
 	loadCustomUploader,
 	saveCustomUploader,
@@ -55,12 +58,15 @@ export default function SettingScreen({ navigation }) {
 	const { changeTheme } = useContext(ThemeContext);
 	const [destination, setDestination] = useState({} as DestinationObject);
 	const [theme, setTheme] = useState('');
-	const [multiUpload, setMultiUpload] = useState('Disabled');
-	const [zoomAndDrag, setZoomAndDrag] = useState('Disabled');
+	const [multiUpload, setMultiUpload] = useState(false);
+	const [zoomAndDrag, setZoomAndDrag] = useState(false);
 	const [bDialog, setDialog] = useState(false);
+	const [deleteTargetPath, setDeleteTargetPath] = useState('');
 	const [dialogTitle, setDialogTitle] = useState('');
 	const [dialogDescription, setDialogDescription] = useState('');
-	const [dialogButton, setDialogButton] = useState('Enable');
+	const [dialogContext, setDialogContext] = useState('');
+	const [leftDialogButton, setLeftDialogButton] = useState('');
+	const [rightDialogButton, setRightDialogButton] = useState('');
 	const [inputValue, setInputValue] = useState('');
 	const [inputShow, setInputShow] = useState(false);
 	const [selectShow, setSelectShow] = useState(false);
@@ -87,10 +93,8 @@ export default function SettingScreen({ navigation }) {
 			});
 		getSettings().then(settings => {
 			if (isMounted) {
-				setMultiUpload(settings.multiUpload ? 'Enabled' : 'Disabled');
-				setZoomAndDrag(
-					settings.imageZoomAndDrag ? 'Enabled' : 'Disabled',
-				);
+				setMultiUpload(settings.multiUpload);
+				setZoomAndDrag(settings.imageZoomAndDrag);
 				setCurrentUploaderPath(settings.currentUploaderPath);
 				setInputApiKey(settings.ImgBBApiKey);
 				// if no theme is set, set it to default
@@ -116,43 +120,61 @@ export default function SettingScreen({ navigation }) {
 		};
 	}, [isFocused]);
 
-	const openDialog = (
-		title,
-		description,
-		{ show, value },
-		_sShow,
-		button,
-	) => {
-		// Alert
+	function showDialog(options: DialogOptions) {
+		setDialogTitle(options.title);
+		setDialogDescription(options.content);
+		if (options.showTextInput) {
+			setInputShow(options.showTextInput);
+		}
+		if (options.textInputPlaceholder) {
+			setInputValue(options.textInputPlaceholder);
+		}
+		if (!options.rightButtonText && !options.leftButtonText) {
+			setRightDialogButton('OK');
+		}
+		if (options.rightButtonText) {
+			setRightDialogButton(options.rightButtonText);
+		}
+		if (options.leftButtonText) {
+			setLeftDialogButton(options.leftButtonText);
+		}
+		setDialogContext(options.context);
 		setDialog(true);
-		setDialogTitle(title);
-		setDialogDescription(description);
-		setInputShow(show);
-		setInputValue(value);
-		setDialogButton(button);
-	};
+	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const handlePush = async () => {
-		if (dialogTitle.includes('Multi-Upload')) {
-			await saveSingleSetting(
-				SettingsOptions.MultiUpload,
-				!(multiUpload === 'Enabled'),
-			);
-			setMultiUpload(multiUpload === 'Enabled' ? 'Disabled' : 'Enabled');
-		} else if (dialogTitle.includes('Image Zoom and Drag')) {
-			await saveSingleSetting(
-				SettingsOptions.ImageZoomAndDrag,
-				!(zoomAndDrag === 'Enabled'),
-			);
-			setZoomAndDrag(zoomAndDrag === 'Enabled' ? 'Disabled' : 'Enabled');
-		} else if (dialogTitle.includes('Clear Image Gallery')) {
-			await AsyncStorage.removeItem('images');
-			// Should we only delete the history or also delete all uploaded pics?
-			setDialog(false);
-		} else if (dialogTitle.includes('API Key')) {
-			await saveSingleSetting(SettingsOptions.ImgBBApiKey, inputValue);
-			setInputApiKey(inputValue);
+		switch (dialogContext) {
+			case SettingsOptions.MultiUpload:
+				await saveSingleSetting(
+					SettingsOptions.MultiUpload,
+					!multiUpload,
+				);
+				setMultiUpload(!multiUpload);
+				break;
+			case SettingsOptions.ImageZoomAndDrag:
+				await saveSingleSetting(
+					SettingsOptions.ImageZoomAndDrag,
+					!zoomAndDrag,
+				);
+				setZoomAndDrag(!zoomAndDrag);
+				break;
+			case SettingsOptions.ClearImageGallery:
+				await AsyncStorage.removeItem('images');
+				break;
+			case SettingsOptions.ImgBBApiKey:
+				await saveSingleSetting(
+					SettingsOptions.ImgBBApiKey,
+					inputValue,
+				);
+				setInputApiKey(inputValue);
+				break;
+			case 'deleteUploader':
+				await deleteSavedCustomUploader(deleteTargetPath);
+				setDeleteTargetPath('');
+				Toast.show('Custom uploader deleted.', Toast.SHORT);
+				break;
+			default:
+				break;
 		}
 		setDialog(false);
 	};
@@ -278,73 +300,61 @@ export default function SettingScreen({ navigation }) {
 		},
 		{
 			title: 'Multi-Upload',
-			subTitle: multiUpload,
+			subTitle: multiUpload ? 'Enabled' : 'Disabled',
 			icon: 'images-outline',
 			show: true,
 			onPress: () => {
-				openDialog(
-					`${
-						multiUpload === 'Enabled' ? 'Disable' : 'Enable'
-					} Multi-Upload`,
-					`Do you want to ${
-						multiUpload === 'Enabled' ? 'disable' : 'enable'
-					} the multi-upload feature?`,
-					{ show: false, value: '' },
-					false,
-					multiUpload === 'Enabled' ? 'Disable' : 'Enable',
-				);
+				showDialog({
+					title: 'Toggle Multi-Upload',
+					content: 'Do you want to toggle multi-upload?',
+					rightButtonText: 'Cancel',
+					leftButtonText: multiUpload ? 'Disable' : 'Enable',
+					context: SettingsOptions.MultiUpload,
+				});
 			},
 		}, // Modal which asks for Enabled/Disabled
 		{
 			title: 'Image Zoom and Drag',
-			subTitle: zoomAndDrag,
+			subTitle: zoomAndDrag ? 'Enabled' : 'Disabled',
 			icon: 'move-outline',
 			show: true,
 			onPress: () => {
-				openDialog(
-					`${
-						zoomAndDrag === 'Enabled' ? 'Disable' : 'Enable'
-					} Image Zoom and Drag`,
-					`Do you want to ${
-						zoomAndDrag === 'Enabled' ? 'disable' : 'enable'
-					} the image zoom and drag feature?`,
-					{ show: false, value: '' },
-					false,
-					zoomAndDrag === 'Enabled' ? 'Disable' : 'Enable',
-				);
+				showDialog({
+					title: 'Toggle Image Zoom and Drag',
+					content: 'Do you want to toggle image zoom and drag?',
+					rightButtonText: 'Cancel',
+					leftButtonText: zoomAndDrag ? 'Disable' : 'Enable',
+					context: SettingsOptions.ImageZoomAndDrag,
+				});
 			},
-		}, // Modal which asks for Enabled/Disabled
-		// { title: 'Import Settings', subTitle: null, onPress: () => {} }, // Lets you import Settings via QR Code or file
-		// { title: 'Export Settings', subTitle: null, onPress: () => {} }, // Saves Settings in a QR Code which you can share
+		},
 		{
 			title: 'Clear Gallery',
 			subTitle: null,
 			icon: 'trash-outline',
 			show: true,
 			onPress: () => {
-				openDialog(
-					'Clear Image Gallery',
-					'Are you sure you want to clear your gallery history?',
-					{ show: false, value: '' },
-					false,
-					'Clear',
-				);
+				showDialog({
+					title: 'Clear Image Gallery',
+					content:
+						'Are you sure you want to clear your gallery history?',
+					rightButtonText: 'Cancel',
+					leftButtonText: 'Clear',
+					context: SettingsOptions.ClearImageGallery,
+				});
 			},
-		}, // Clears the Gallery
-		// { title: 'Credits', subTitle: null, onPress: onCredits }, // Modal with Credits that show who worked on Imageing
+		},
 		{
 			title: 'About Imageing',
 			subTitle: null,
 			icon: 'information-circle-outline',
 			show: true,
 			onPress: () => {
-				openDialog(
-					'About Imageing',
-					'This is a wonderful placeholder about the app Imageing',
-					{ show: false, value: '' },
-					false,
-					'Close',
-				);
+				showDialog({
+					title: 'Imageing',
+					content: `Current device data:\n\nBrand: ${Device.brand}\nOperating System: ${Device.osName} ${Device.osVersion}\nManufacturer: ${Device.manufacturer}\nYear: ${Device.deviceYearClass}\nReal device: ${Device.isDevice}`,
+					context: 'showAbout',
+				});
 			},
 		}, // Modal with information about Imageing like Version, ...
 	];
@@ -389,7 +399,11 @@ export default function SettingScreen({ navigation }) {
 			onLongPress: async () => {
 				const files = await listCustomUploaders();
 				if (files.length > 1) {
-					setSavedFileData(files);
+					// remove the current uploader from the list
+					const cleanedFiles = files.filter(
+						x => x.key !== currentUploaderPath,
+					);
+					setSavedFileData(cleanedFiles);
 					setShowSavedFiles(true);
 				} else if (files.length === 0) {
 					Toast.show('No custom uploaders saved', Toast.SHORT);
@@ -403,15 +417,17 @@ export default function SettingScreen({ navigation }) {
 			icon: 'key-outline',
 			show: destination?.name === DestinationNames.ImgBB,
 			onPress: () => {
-				openDialog(
-					'API Key',
-					'',
-					{ show: true, value: inputApiKey },
-					false,
-					'Submit',
-				);
+				showDialog({
+					title: 'ImgBB API Key',
+					content: 'Enter your ImgBB API Key',
+					rightButtonText: 'Cancel',
+					leftButtonText: 'Submit',
+					context: SettingsOptions.ImgBBApiKey,
+					showTextInput: true,
+					textInputPlaceholder: inputApiKey,
+				});
 			},
-		}, // ImgBB: Key
+		},
 		{
 			title: 'Import',
 			subTitle: 'Import custom uploader',
@@ -708,13 +724,28 @@ export default function SettingScreen({ navigation }) {
 				}}
 				optionTextStyle={{ color: colors.text }}
 				onModalClose={() => setShowSavedFiles(false)}
-				onChange={async option => {
-					await saveSingleSetting(
-						SettingsOptions.CurrentUploaderPath,
-						option.key as string,
-					);
-					setCurrentUploaderPath(option.key as string);
-					Toast.show(`Uploader set to ${option.label}`, Toast.SHORT);
+				onChange={async (option, longPress) => {
+					if (longPress) {
+						setShowSavedFiles(false);
+						setDeleteTargetPath(option.key as string);
+						showDialog({
+							title: 'Delete custom uploader',
+							content: `Are you sure you want to delete ${option.label}?`,
+							rightButtonText: 'Cancel',
+							leftButtonText: 'Delete',
+							context: 'deleteUploader',
+						});
+					} else {
+						await saveSingleSetting(
+							SettingsOptions.CurrentUploaderPath,
+							option.key as string,
+						);
+						setCurrentUploaderPath(option.key as string);
+						Toast.show(
+							`Uploader set to ${option.label}`,
+							Toast.SHORT,
+						);
+					}
 				}}
 			/>
 			<ModalSelector
@@ -754,15 +785,13 @@ export default function SettingScreen({ navigation }) {
 					)}
 				</View>
 				<Dialog.Button
-					label={dialogButton === 'Close' ? dialogButton : 'Cancel'}
+					label={leftDialogButton}
+					onPress={handlePush}
+				/>
+				<Dialog.Button
+					label={rightDialogButton}
 					onPress={handleCancel}
 				/>
-				{dialogButton !== 'Close' ? (
-					<Dialog.Button
-						label={dialogButton}
-						onPress={handlePush}
-					/>
-				) : null}
 			</Dialog.Container>
 			<SettingsComponent settingsOptions={settingsOptions} />
 		</SafeAreaView>
