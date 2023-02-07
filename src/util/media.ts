@@ -11,7 +11,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Share from 'react-native-share';
 import { performHttpRequest } from '@util/http';
 import { getDestinationSettings, getSettings } from '@util/settings';
-import { DestinationNames, HttpStatus } from '@util/types';
+import { CustomUploader, DestinationNames, HttpStatus } from '@util/types';
+import { loadCustomUploader } from './uploader';
 
 export async function pickImage() {
 	const response = await requestMediaLibraryPermissionsAsync();
@@ -94,6 +95,7 @@ export async function uploadImages({
 }) {
 	const destination = await getDestinationSettings();
 	const settings = await getSettings();
+	const uploader = await loadCustomUploader(settings.currentUploaderPath);
 	let reason = '';
 
 	let failed = 0;
@@ -109,7 +111,7 @@ export async function uploadImages({
 					case DestinationNames.ImgBB:
 						return settings.ImgBBApiKey;
 					case DestinationNames.Custom:
-						return settings.currentUploaderPath;
+						return uploader as CustomUploader;
 					default:
 						return null;
 				}
