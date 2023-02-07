@@ -6,6 +6,8 @@ import {
 } from '@util/types';
 import Toast from 'react-native-simple-toast';
 import * as FileSystem from 'expo-file-system';
+import { IOption } from 'react-native-modal-selector';
+import { customUploadersDir } from '@util/constants';
 
 // eslint-disable-next-line import/prefer-default-export
 export function validateCustomUploader(
@@ -153,19 +155,34 @@ export function validateCustomUploader(
 }
 
 async function checkConfigDir() {
-	const dir = `${FileSystem.documentDirectory}/config`;
-	if (!FileSystem.getInfoAsync(dir)) {
-		await FileSystem.makeDirectoryAsync(dir);
+	if (!(await FileSystem.getInfoAsync(customUploadersDir)).isDirectory) {
+		await FileSystem.makeDirectoryAsync(customUploadersDir);
 	}
+}
+
+export async function listCustomUploaders(): Promise<IOption[]> {
+	await checkConfigDir();
+	const files = await FileSystem.readDirectoryAsync(customUploadersDir).catch(
+		() => [],
+	);
+	if (files.length === 0) {
+		return [];
+	}
+	return files.map(file => ({
+		key: `${customUploadersDir}/${file}`,
+		label: file,
+	}));
 }
 
 export async function saveCustomUploader(
 	data: CustomUploader,
 ): Promise<string> {
 	await checkConfigDir();
-	// for later (multiple config)
-	// const file = `${FileSystem.documentDirectory}/config/${data.RequestURL}.json`;
-	const file = `${FileSystem.documentDirectory}/config/uploader.json`;
+
+	// request url looks like this: https://example.com/upload, we want it to be example.com.json
+	const fileName = data.RequestURL.replace(/(^\w+:|^)\/\//, '').split('/')[0];
+	const file = `${customUploadersDir}/${fileName}.json`;
+
 	// overwrite file if it exists
 	if ((await FileSystem.getInfoAsync(file)).exists) {
 		await FileSystem.deleteAsync(file);

@@ -21,7 +21,7 @@ import Dialog from 'react-native-dialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
 import { createStackNavigator } from '@react-navigation/stack';
-import ModalSelector from 'react-native-modal-selector';
+import ModalSelector, { IOption } from 'react-native-modal-selector';
 import QRCode from 'react-native-qrcode-svg';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import RNFS from 'react-native-fs';
@@ -43,6 +43,7 @@ import {
 	SettingsOptions,
 } from '@util/types';
 import {
+	listCustomUploaders,
 	loadCustomUploader,
 	saveCustomUploader,
 	validateCustomUploader,
@@ -69,6 +70,8 @@ export default function SettingScreen({ navigation }) {
 	const [showScanner, setShowScanner] = useState(false);
 	const [hasPermission, setHasPermission] = useState(null);
 	const [currentUploaderPath, setCurrentUploaderPath] = useState('');
+	const [showSavedFiles, setShowSavedFiles] = useState(false);
+	const [savedFileData, setSavedFileData] = useState([] as IOption[]);
 
 	// ImgBB
 	const [inputApiKey, setInputApiKey] = useState('');
@@ -181,7 +184,6 @@ export default function SettingScreen({ navigation }) {
 				configPath,
 			);
 			setCurrentUploaderPath(configPath);
-
 			Toast.show('The data was saved.', Toast.SHORT);
 		}
 	};
@@ -371,7 +373,8 @@ export default function SettingScreen({ navigation }) {
 				switch (destination?.name) {
 					case DestinationNames.Custom:
 						return (
-							currentUploaderPath?.replace(/^.*[\\/]/, '') ||
+							// eslint-disable-next-line no-useless-escape
+							currentUploaderPath?.replace(/^.*[\\\/]/, '') ||
 							'Custom'
 						);
 					default:
@@ -382,6 +385,17 @@ export default function SettingScreen({ navigation }) {
 			show: true,
 			onPress: () => {
 				setSelectShow(true);
+			},
+			onLongPress: async () => {
+				const files = await listCustomUploaders();
+				if (files.length > 1) {
+					setSavedFileData(files);
+					setShowSavedFiles(true);
+				} else if (files.length === 0) {
+					Toast.show('No custom uploaders saved', Toast.SHORT);
+				} else if (files.length === 1) {
+					Toast.show('Only one custom uploader saved', Toast.SHORT);
+				}
 			},
 		}, // Select of Hosts
 		{
@@ -572,7 +586,7 @@ export default function SettingScreen({ navigation }) {
 								logoBackgroundColor='white'
 								getRef={ref => {
 									if (ref) {
-										ref.toDataURL(base64 => {
+										ref.toDataURL((base64: string) => {
 											setBase64Code(base64);
 										});
 									}
@@ -681,6 +695,28 @@ export default function SettingScreen({ navigation }) {
 					</View>
 				</View>
 			</Modal>
+			<ModalSelector
+				initValue={null}
+				visible={showSavedFiles}
+				customSelector={<View />}
+				data={savedFileData}
+				optionContainerStyle={{
+					backgroundColor: colors.card,
+					borderColor: colors.text,
+					borderWidth: 2,
+					borderRadius: 5,
+				}}
+				optionTextStyle={{ color: colors.text }}
+				onModalClose={() => setShowSavedFiles(false)}
+				onChange={async option => {
+					await saveSingleSetting(
+						SettingsOptions.CurrentUploaderPath,
+						option.key as string,
+					);
+					setCurrentUploaderPath(option.key as string);
+					Toast.show(`Uploader set to ${option.label}`, Toast.SHORT);
+				}}
+			/>
 			<ModalSelector
 				initValue={null}
 				visible={selectShow}

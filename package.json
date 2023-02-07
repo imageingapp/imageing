@@ -55,7 +55,7 @@
     "react-native-easy-gestures": "^2.2.4",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "~2.8.0",
-    "react-native-modal-selector": "^2.1.2",
+    "react-native-modal-selector": "castdrian/react-native-modal-selector",
     "react-native-pager-view": "6.0.1",
     "react-native-paper": "^5.1.3",
     "react-native-progress": "^5.0.0",

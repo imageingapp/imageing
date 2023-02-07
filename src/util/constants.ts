@@ -7,8 +7,10 @@ import {
 	Settings,
 	SettingsOptions,
 } from '@util/types';
+import * as FileSystem from 'expo-file-system';
 
 export const ThemeContext = createContext(null);
+export const customUploadersDir = `${FileSystem.documentDirectory}uploaders`;
 
 export const Destinations = [
 	{
