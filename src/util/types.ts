@@ -30,12 +30,6 @@ export enum DestinationUrls {
 	Imgur = 'https://api.imgur.com/3/image',
 }
 
-export enum HttpDeleteMethods {
-	DELETE = 'DELETE',
-	GET = 'GET',
-	URL = 'URL',
-}
-
 export enum DestinationType {
 	None = 'None',
 	ImageUploader = 'ImageUploader',

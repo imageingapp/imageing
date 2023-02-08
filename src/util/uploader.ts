@@ -75,20 +75,6 @@ export function validateCustomUploader(
 		return false;
 	}
 
-	// if body is multipart form data, validate that file form name is present
-	if (
-		data.Body === Body.MultipartFormData &&
-		data.FileFormName === undefined
-	) {
-		if (showToast) {
-			Toast.show(
-				'FileFormName is required for multipart form data',
-				Toast.LONG,
-			);
-		}
-		return false;
-	}
-
 	// validate that optional properties are present and are of the correct type
 	if (data.Name !== undefined && typeof data.Name !== 'string') {
 		if (showToast) {

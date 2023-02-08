@@ -4,9 +4,11 @@ import {
 	DestinationNames,
 	DestinationObject,
 	HttpStatus,
+	RequestMethod,
 	StoredFile,
 } from '@util/types';
 import { ImageURISource } from 'react-native';
+import * as mime from 'react-native-mime-types';
 
 // eslint-disable-next-line import/prefer-default-export
 export async function performHttpRequest({
@@ -37,11 +39,15 @@ export async function performHttpRequest({
 			}
 
 			if (data.Body === Body.MultipartFormData) {
+				const mimeType = mime.lookup(file.uri) || 'text/plain';
+				const fileExtension = mime.extension(mimeType) || 'txt';
+				const fileFormName = mimeType.split('/')[0];
+
 				const formData = new FormData();
-				formData.append(data.FileFormName, {
+				formData.append(fileFormName, {
 					uri: file.uri,
-					type: 'image/jpeg',
-					name: 'upload.jpeg',
+					type: mimeType,
+					name: `imageing.${fileExtension}`,
 				} as unknown as Blob);
 
 				// if arguments are present, add them to the form data
@@ -60,16 +66,20 @@ export async function performHttpRequest({
 				request.send();
 			}
 		} else {
-			request.open('POST', destination.url);
+			request.open(RequestMethod.POST, destination.url);
+
+			const mimeType = mime.lookup(file.uri) || 'text/plain';
+			const fileExtension = mime.extension(mimeType) || 'txt';
+			const fileFormName = mimeType.split('/')[0];
 
 			const formData = new FormData();
 			switch (destination.name) {
 				case DestinationNames.ImgBB: {
 					// ImgBB
-					formData.append('image', {
+					formData.append(fileFormName, {
 						uri: file.uri,
-						type: 'image/jpeg',
-						name: 'upload.jpeg',
+						type: mimeType,
+						name: `imageing.${fileExtension}`,
 					} as unknown as Blob);
 					formData.append('key', data as string);
 					break;
@@ -80,10 +90,10 @@ export async function performHttpRequest({
 						'Authorization',
 						`Client-ID 867afe9433c0a53`,
 					);
-					formData.append('image', {
+					formData.append(fileFormName, {
 						uri: file.uri,
-						type: 'image/jpeg',
-						name: 'upload.jpeg',
+						type: mimeType,
+						name: `imageing.${fileExtension}`,
 					} as unknown as Blob);
 					break;
 				}
@@ -109,7 +119,7 @@ export async function deleteFileHttpRequest(file: StoredFile) {
 	return new Promise((resolve, reject) => {
 		const request = new XMLHttpRequest();
 
-		request.open('DELETE', file.deleteEndpoint);
+		request.open(RequestMethod.DELETE, file.deleteEndpoint);
 
 		request.onreadystatechange = () => {
 			if (request.readyState === 4) {
