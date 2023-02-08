@@ -19,6 +19,7 @@ import {
 	StoredFile,
 } from '@util/types';
 import { loadCustomUploader } from '@util/uploader';
+import * as mime from 'react-native-mime-types';
 
 export async function pickImage() {
 	const response = await requestMediaLibraryPermissionsAsync();
@@ -68,15 +69,13 @@ export async function storeFile(
 	await AsyncStorage.setItem('images', JSON.stringify(files));
 }
 
-export async function removeFile(deleteUrl: string) {
+export async function removeFile(file: StoredFile) {
 	const stored = await AsyncStorage.getItem('images');
-	const images = stored
-		? JSON.parse(stored).filter(
-				(i: { deleteUrl: string }) => i.deleteUrl !== deleteUrl,
-		  )
+	const files = stored
+		? JSON.parse(stored).filter(i => i.localPath !== file.localPath)
 		: [];
-	await AsyncStorage.setItem('images', JSON.stringify(images));
-	return images;
+	await AsyncStorage.setItem('images', JSON.stringify(files));
+	return files;
 }
 
 export async function getFiles(): Promise<StoredFile[]> {
@@ -138,9 +137,17 @@ export async function uploadFiles({
 				const response = JSON.parse(x as string);
 				const url = destination.getRemotePath(response);
 				setStringAsync(url);
-				// get file metadata from uri
-				console.log('tbd');
-				storeFile(file.uri, response, destination);
+
+				const storedFile = {
+					localPath: file.uri,
+					remotePath: url,
+					deleteEndpoint: destination.getDeleteEndpoint(response),
+					date: Date.now(),
+					deletable: destination.deletable,
+					mimeType: mime.lookup(file.uri),
+				};
+
+				storeFile(storedFile, response, destination);
 
 				Share.open({
 					message: url,
@@ -169,12 +176,12 @@ export async function uploadFiles({
 		Toast.show(`Upload failed: ${reason} ${error}`, Toast.SHORT);
 	} else if (failed > 0) {
 		Toast.show(
-			`${files.length - failed}/${files.length} images uploaded`,
+			`${files.length - failed}/${files.length} files uploaded`,
 			Toast.SHORT,
 		);
 	} else {
 		Toast.show(
-			`Image URL${files.length > 1 ? 's' : ''} copied to clipboard`,
+			`URL${files.length > 1 ? 's' : ''} copied to clipboard`,
 			Toast.SHORT,
 		);
 	}

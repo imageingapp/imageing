@@ -23,6 +23,7 @@ import { Styles } from '@util/constants';
 import AnimatedImages from '@components/AnimatedImages';
 import { getFiles, removeFile } from '@util/media';
 import type { StoredFile } from '@util/types';
+import { deleteFileHttpRequest } from '@util/http';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -82,11 +83,11 @@ export default function GalleryScreen({ navigation }) {
 
 	const handleDelete = async () => {
 		if (storedFile.deletable) {
-			// await deleteFile(storedFile.deleteEndpoint);
+			await deleteFileHttpRequest(storedFile).catch(() => null);
 		} else {
 			await Linking.openURL(storedFile.deleteEndpoint);
 		}
-		setFiles(await removeFile(storedFile.deleteEndpoint));
+		setFiles(await removeFile(storedFile));
 		setDeletePopup(false);
 		setAdditionalInfo('');
 		setStoredFile({} as StoredFile);

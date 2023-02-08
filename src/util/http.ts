@@ -4,6 +4,7 @@ import {
 	DestinationNames,
 	DestinationObject,
 	HttpStatus,
+	StoredFile,
 } from '@util/types';
 import { ImageURISource } from 'react-native';
 
@@ -101,5 +102,25 @@ export async function performHttpRequest({
 				}
 			}
 		};
+	});
+}
+
+export async function deleteFileHttpRequest(file: StoredFile) {
+	return new Promise((resolve, reject) => {
+		const request = new XMLHttpRequest();
+
+		request.open('DELETE', file.deleteEndpoint);
+
+		request.onreadystatechange = () => {
+			if (request.readyState === 4) {
+				if (request.status === HttpStatus.OK) {
+					resolve(request.response);
+				} else {
+					reject(request.status);
+				}
+			}
+		};
+
+		request.send();
 	});
 }
