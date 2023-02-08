@@ -15,7 +15,7 @@ import ShareMenu from 'react-native-share-menu';
 import Placeholder from '@assets/placeholder.png';
 import { Styles } from '@util/constants';
 import { ImagePickerSuccessResult } from 'expo-image-picker/build/ImagePicker.types';
-import { pickImage, takeImage, uploadFiles } from '@util/media';
+import { pickFile, openCamera, uploadFiles } from '@util/media';
 import { getSettings } from '@util/settings';
 
 export default function HomeScreen() {
@@ -115,12 +115,12 @@ export default function HomeScreen() {
 					style={Styles.button}
 					disabled={noPick}
 					onPress={async () => {
-						const capturedImage = await takeImage();
+						const captured = await openCamera();
 
-						if (capturedImage && !capturedImage.canceled) {
+						if (captured && !captured.canceled) {
 							setFiles(
 								(
-									capturedImage as ImagePickerSuccessResult
+									captured as ImagePickerSuccessResult
 								).assets.map(asset => ({
 									uri: asset.uri,
 								})),
@@ -138,7 +138,7 @@ export default function HomeScreen() {
 					style={Styles.button}
 					disabled={noPick}
 					onPress={async () => {
-						const pickedImage = await pickImage();
+						const pickedImage = await pickFile();
 						if (pickedImage && !pickedImage.canceled) {
 							setFiles(
 								(
