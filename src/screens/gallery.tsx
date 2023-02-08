@@ -24,6 +24,7 @@ import AnimatedImages from '@components/AnimatedImages';
 import { getFiles, removeFile } from '@util/media';
 import type { StoredFile } from '@util/types';
 import { deleteFileHttpRequest } from '@util/http';
+import * as VideoThumbnails from 'expo-video-thumbnails';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -57,25 +58,36 @@ export default function GalleryScreen({ navigation }) {
 		setStoredFile(x);
 	};
 
-	const renderFiles = (file: { index: number; item: StoredFile }) => (
-		<AnimatedImages imageIndex={file.index}>
-			<View style={{ flex: 1, alignItems: 'flex-start' }}>
-				<TouchableHighlight
-					style={{ borderRadius: 10 }}
-					onPress={() => openFile(file.item)}>
-					<Image
-						source={{ uri: file.item.localPath }}
-						style={{
-							margin: 2,
-							height: screenWidth / 3.1,
-							width: screenWidth / 3.1,
-							borderRadius: 10,
-						}}
-					/>
-				</TouchableHighlight>
-			</View>
-		</AnimatedImages>
-	);
+	const renderFiles = (file: { index: number; item: StoredFile }) => {
+		let previewSource = file.item.localPath;
+		if (file.item.mimeType.includes('video')) {
+			VideoThumbnails.getThumbnailAsync(file.item.localPath).then(
+				thumbnail => {
+					previewSource = thumbnail.uri;
+				},
+			);
+		}
+
+		return (
+			<AnimatedImages imageIndex={file.index}>
+				<View style={{ flex: 1, alignItems: 'flex-start' }}>
+					<TouchableHighlight
+						style={{ borderRadius: 10 }}
+						onPress={() => openFile(file.item)}>
+						<Image
+							source={{ uri: previewSource }}
+							style={{
+								margin: 2,
+								height: screenWidth / 3.1,
+								width: screenWidth / 3.1,
+								borderRadius: 10,
+							}}
+						/>
+					</TouchableHighlight>
+				</View>
+			</AnimatedImages>
+		);
+	};
 
 	const handleCancel = () => {
 		setDeletePopup(false);

@@ -17,6 +17,9 @@ import { Styles } from '@util/constants';
 import { ImagePickerSuccessResult } from 'expo-image-picker/build/ImagePicker.types';
 import { pickFile, openCamera, uploadFiles } from '@util/media';
 import { getSettings } from '@util/settings';
+import * as mime from 'react-native-mime-types';
+import { AVPlaybackSource, ResizeMode, Video } from 'expo-av';
+import * as VideoThumbnails from 'expo-video-thumbnails';
 
 export default function HomeScreen() {
 	const [progress, setProgress] = useState(0);
@@ -63,16 +66,75 @@ export default function HomeScreen() {
 
 	const getFiles = () => {
 		if (files.length > 1) {
-			return files.map(image => (
-				<Image
-					style={{
-						width: `${95 / files.length}%`,
-						height: `${95 / files.length}%`,
-					}}
-					key={image.uri}
-					source={{ uri: image.uri }}
+			const mimeType = mime.lookup(files[0].uri);
+			const previews = [];
+
+			// eslint-disable-next-line no-restricted-syntax
+			for (const file of files) {
+				if (mimeType && mimeType.includes('video')) {
+					VideoThumbnails.getThumbnailAsync(file.uri).then(
+						thumbnail => {
+							previews.push(
+								<Image
+									style={{
+										width: `${95 / files.length}%`,
+										height: `${95 / files.length}%`,
+									}}
+									key={file.uri}
+									source={{ uri: thumbnail.uri }}
+								/>,
+							);
+						},
+					);
+				} else {
+					previews.push(
+						<Image
+							style={{
+								width: `${95 / files.length}%`,
+								height: `${95 / files.length}%`,
+							}}
+							key={file.uri}
+							source={{ uri: file.uri }}
+						/>,
+					);
+				}
+			}
+		}
+
+		const mimeType = mime.lookup(files[0].uri);
+		if (mimeType && mimeType.includes('video')) {
+			return (
+				<Video
+					source={files[0] as AVPlaybackSource}
+					style={Styles.preview}
+					resizeMode={ResizeMode.CONTAIN}
+					shouldPlay
+					isLooping
+					useNativeControls
 				/>
-			));
+			);
+		}
+		if (mimeType && mimeType.includes('image')) {
+			return (
+				<Gestures
+					style={Styles.container}
+					ref={(c: unknown) => setGestures(c)}
+					onScaleStart={() => {
+						setDraggable(true);
+					}}
+					onScaleEnd={() => {
+						gestures.reset(() => null);
+						setDraggable(false);
+					}}
+					rotatable={false}
+					draggable={draggable}
+					scalable={zoomable && { min: 1, max: 10 }}>
+					<Image
+						style={Styles.preview}
+						source={files[0]}
+					/>
+				</Gestures>
+			);
 		}
 		return (
 			<Gestures

@@ -4978,7 +4978,7 @@ expo-asset@~8.7.0:
     path-browserify "^1.0.0"
     url-parse "^1.5.9"
 
-expo-av@~13.0.2:
+expo-av@^13.0.2:
   version "13.0.2"
   resolved "https://registry.yarnpkg.com/expo-av/-/expo-av-13.0.2.tgz#06c2c5140b334319ed2844823181f7b88092da13"
   integrity sha512-u+y9wUBodp08UjRZYckNWzr9zEQHK6eScRBkhdTd9Rq48SEZ7eN6xXn79hubvk0P5nj7lFS+hdKjmx9T5XHGww==
@@ -5131,7 +5131,7 @@ expo-updates@~0.15.6:
     resolve-from "^5.0.0"
     uuid "^3.4.0"
 
-expo-video-thumbnails@~7.0.0:
+expo-video-thumbnails@^7.0.0:
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/expo-video-thumbnails/-/expo-video-thumbnails-7.0.0.tgz#a98c726d529372153161735794ccf6bd9ba925f2"
   integrity sha512-QTifwHjz1VL+nXX39lSZHJtbHKI8a/DVCVk6iT/WQZG1JmZdeUHObrcWlIKeDsTCB5fQWIfOmin+N9hbe4n0qw==
