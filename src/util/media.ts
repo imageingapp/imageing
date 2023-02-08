@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { setStringAsync } from 'expo-clipboard';
 import {
 	launchCameraAsync,
@@ -10,48 +9,18 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Share from 'react-native-share';
-import { Destinations } from '@util/constants';
-import { performRequest } from '@util/http';
+import { performHttpRequest } from '@util/http';
 import { getDestinationSettings, getSettings } from '@util/settings';
-
-function getFormData(file, settings, host) {
-	const formData = new FormData();
-	switch (host) {
-		case Destinations.ImgBB: {
-			// ImgBB
-			formData.append('image', {
-				uri: file.uri,
-				type: 'image/jpeg',
-				name: 'upload.jpeg',
-			} as unknown as Blob);
-			formData.append('key', settings.apiKey);
-			break;
-		}
-		case Destinations.Imgur: {
-			// Imgur
-			formData.append('image', {
-				uri: file.uri,
-				type: 'image/jpeg',
-				name: 'upload.jpeg',
-			} as unknown as Blob);
-			break;
-		}
-		case Destinations.SXCU: {
-			// SXCU
-			formData.append(settings.apiFormName, {
-				uri: file.uri,
-				type: 'image/jpeg',
-				name: 'upload.jpeg',
-			} as unknown as Blob);
-			formData.append('endpoint', settings.apiEndpoint);
-			formData.append('token', settings.apiToken);
-			break;
-		}
-		default:
-			break;
-	}
-	return formData;
-}
+import {
+	CustomUploader,
+	DestinationNames,
+	DestinationObject,
+	HttpStatus,
+	StorageKeys,
+	StoredFile,
+} from '@util/types';
+import { loadCustomUploader } from '@util/uploader';
+import * as mime from 'react-native-mime-types';
 
 export async function pickImage() {
 	const response = await requestMediaLibraryPermissionsAsync();
@@ -59,10 +28,10 @@ export async function pickImage() {
 		const settings = await getSettings();
 		return launchImageLibraryAsync({
 			mediaTypes: MediaTypeOptions.Images,
-			allowsEditing: !settings['Multi-Upload'],
+			allowsEditing: !settings.multiUpload,
 			quality: 1,
-			allowsMultipleSelection: settings['Multi-Upload'],
-		}).catch(console.log);
+			allowsMultipleSelection: settings.multiUpload,
+		}).catch(() => null);
 	}
 	return { canceled: true };
 }
@@ -73,57 +42,48 @@ export async function takeImage() {
 		const settings = await getSettings();
 		return launchCameraAsync({
 			mediaTypes: MediaTypeOptions.Images,
-			allowsEditing: !settings['Multi-Upload'],
+			allowsEditing: !settings.multiUpload,
 			quality: 1,
-			allowsMultipleSelection: settings['Multi-Upload'],
-		}).catch(console.log);
+			allowsMultipleSelection: settings.multiUpload,
+		}).catch(() => null);
 	}
 	return { canceled: true };
 }
 
-export async function storeImage(localUrl, uploadData, host) {
-	const stored = await AsyncStorage.getItem('images');
-	const images = stored ? JSON.parse(stored) : [];
-	images.push({
-		localUrl,
-		url: host.getUrl(uploadData),
-		deleteUrl: host.getDeleteUrl(uploadData),
+export async function storeFile(
+	file: StoredFile,
+	response,
+	destination: DestinationObject,
+) {
+	const stored = await AsyncStorage.getItem(StorageKeys.Files);
+	const files = stored
+		? (JSON.parse(stored) as StoredFile[])
+		: ([] as StoredFile[]);
+	files.push({
+		localPath: file.localPath,
+		remotePath: destination.getRemotePath(response),
+		deleteEndpoint: destination.getDeleteEndpoint(response),
 		date: Date.now(),
-		manual: host.deleteMethod === 'URL',
+		deletable: destination.deletable,
+		mimeType: file.mimeType,
 	});
-	await AsyncStorage.setItem('images', JSON.stringify(images));
+	await AsyncStorage.setItem(StorageKeys.Files, JSON.stringify(files));
 }
 
-export async function removeImage(deleteUrl) {
-	const stored = await AsyncStorage.getItem('images');
-	const images = stored
-		? JSON.parse(stored).filter(i => i.deleteUrl !== deleteUrl)
+export async function removeFile(file: StoredFile) {
+	const stored = await AsyncStorage.getItem(StorageKeys.Files);
+	const files = stored
+		? JSON.parse(stored).filter(i => i.localPath !== file.localPath)
 		: [];
-	await AsyncStorage.setItem('images', JSON.stringify(images));
-	return images;
+	await AsyncStorage.setItem(StorageKeys.Files, JSON.stringify(files));
+	return files;
 }
 
-export async function deleteImage(deleteUrl) {
-	const host = await getDestinationSettings();
-
-	const onLoad = ({ res }) => res();
-	const onError = ({ rej }) => rej();
-	await performRequest({
-		url: deleteUrl,
-		method: host.deleteMethod,
-		formData: null,
-		header: host.header,
-		onLoad,
-		onProgress: () => null,
-		onError,
-	});
-}
-
-export async function getImages() {
-	const stored = await AsyncStorage.getItem('images');
-	const images = stored ? JSON.parse(stored) : [];
-	images.sort((a, b) => b.date - a.date);
-	return images;
+export async function getFiles(): Promise<StoredFile[]> {
+	const stored = await AsyncStorage.getItem(StorageKeys.Files);
+	const files = stored ? JSON.parse(stored) : [];
+	files.sort((a: { date: number }, b: { date: number }) => b.date - a.date);
+	return files;
 }
 
 /**
@@ -138,101 +98,91 @@ export async function getImages() {
  * @param next Function to end the loading state
  * @param resolve Callback
  */
-export async function uploadImages({
+export async function uploadFiles({
 	files,
 	Toast,
 	setNoPick,
 	setProgress,
 	setUploading,
-	setImages,
+	setFiles,
 	next,
 	resolve,
 }) {
-	const host = await getDestinationSettings();
+	const destination = await getDestinationSettings();
 	const settings = await getSettings();
-	const url = host.url || settings.apiUrl;
+	const uploader = await loadCustomUploader(settings.currentUploaderPath);
 	let reason = '';
-
-	const onError = ({ task, rej }) => {
-		/* eslint-disable no-underscore-dangle */
-		reason = task._response;
-		rej();
-	};
-
-	const onProgress = ({ data }) => {
-		const progress = data.loaded / data.total;
-		setProgress(progress);
-	};
 
 	let failed = 0;
 	const remaining = [...files];
 	/* eslint-disable no-restricted-syntax */
 	for (const file of files) {
-		const formData = getFormData(file, settings, host);
-		const onLoad = ({ task, res, rej }) => {
-			if (task.status !== 200) return rej(task);
-			setProgress(0);
-
-			const response = JSON.parse(task.response);
-			setStringAsync(host.getUrl(response));
-			storeImage(file.uri, response, host);
-
-			Share.open({
-				message: host.getUrl(response),
-			})
-				.then(x => {
-					console.log(x);
-				})
-				.catch(err => console.log(err));
-
-			return res();
-		};
 		/* eslint-disable no-await-in-loop,no-loop-func */
-		await performRequest({
-			url,
-			method: 'POST',
-			formData,
-			header: host.header,
-			onLoad,
-			onProgress,
-			onError,
-		}).catch(task => {
-			let response;
-			try {
-				response = JSON.parse(task.response);
-			} catch (err) {
-				if (task.status === 404) {
-					reason = 'Incorrect URL specified';
+		await performHttpRequest({
+			data: (() => {
+				switch (destination.name) {
+					case DestinationNames.Imgur:
+						return null;
+					case DestinationNames.ImgBB:
+						return settings.ImgBBApiKey;
+					case DestinationNames.Custom:
+						return uploader as CustomUploader;
+					default:
+						return null;
 				}
-			}
-			if (!reason) {
-				reason = response.error_msg.includes('send a file')
-					? 'Invalid Formname specified'
-					: response.error_msg;
-			}
-			failed += 1;
-		});
+			})(),
+			file,
+			destination,
+		})
+			.then(async x => {
+				const response = JSON.parse(x as string);
+				const url = destination.getRemotePath(response);
+				setStringAsync(url);
+
+				const storedFile = {
+					localPath: file.uri,
+					remotePath: url,
+					deleteEndpoint: destination.getDeleteEndpoint(response),
+					date: Date.now(),
+					deletable: destination.deletable,
+					mimeType: mime.lookup(file.uri),
+				};
+
+				storeFile(storedFile, response, destination);
+
+				Share.open({
+					message: url,
+				}).catch(() => null);
+			})
+			.catch(x => {
+				reason = x;
+				failed += 1;
+			});
 		if (reason) {
 			failed = files.length;
 			break;
 		}
 		// Please ignore this, this is just til I figure out a nice way to show multiple images
-		// and display the remaining images to upload
+		// and display the remaining files to upload
 		if (remaining.length > 1) {
 			remaining.shift();
-			setImages(remaining);
+			setFiles(remaining);
 		}
 	}
 	if (failed === files.length) {
-		Toast.show('Upload failed', Toast.SHORT);
+		// reason is http status code, convert to string from enum
+		const error = Object.keys(HttpStatus).find(
+			x => HttpStatus[x] === reason,
+		);
+		Toast.show(`Upload failed: ${reason} ${error}`, Toast.SHORT);
 	} else if (failed > 0) {
 		Toast.show(
-			`${files.length - failed}/${files.length} images uploaded`,
+			`${files.length - failed}/${files.length} files uploaded`,
 			Toast.SHORT,
 		);
 	} else {
 		Toast.show(
-			`Image URL${files.length > 1 ? 's' : ''} copied to the clipboard`,
+			`URL${files.length > 1 ? 's' : ''} copied to clipboard`,
 			Toast.SHORT,
 		);
 	}

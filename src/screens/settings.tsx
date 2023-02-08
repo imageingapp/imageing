@@ -21,7 +21,7 @@ import Dialog from 'react-native-dialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
 import { createStackNavigator } from '@react-navigation/stack';
-import ModalSelector from 'react-native-modal-selector';
+import ModalSelector, { IOption } from 'react-native-modal-selector';
 import QRCode from 'react-native-qrcode-svg';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import RNFS from 'react-native-fs';
@@ -31,25 +31,42 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import {
 	getDestinationSettings,
 	getSettings,
+	saveSingleSetting,
 	setDestinationSettings,
 } from '@util/settings';
 import SettingsComponent from '@components/SettingsComponent';
-import { Destinations, emptySettings, ThemeContext } from '@util/constants';
+import { aboutContent, Destinations, ThemeContext } from '@util/constants';
 import AppIcon from '@assets/icon.png';
-import { Destination } from '@util/types';
+import {
+	DestinationNames,
+	DestinationObject,
+	DialogOptions,
+	SettingsOptions,
+	StorageKeys,
+} from '@util/types';
+import {
+	deleteSavedCustomUploader,
+	listCustomUploaders,
+	loadCustomUploader,
+	saveCustomUploader,
+	validateCustomUploader,
+} from '@util/uploader';
 
 export default function SettingScreen({ navigation }) {
 	const { colors } = useTheme();
 	const Stack = createStackNavigator();
 	const { changeTheme } = useContext(ThemeContext);
-	const [destination, setDestination] = useState({} as Destination);
+	const [destination, setDestination] = useState({} as DestinationObject);
 	const [theme, setTheme] = useState('');
-	const [multiUpload, setMultiUpload] = useState('Disabled');
-	const [zoomAndDrag, setZoomAndDrag] = useState('Disabled');
+	const [multiUpload, setMultiUpload] = useState(false);
+	const [zoomAndDrag, setZoomAndDrag] = useState(false);
 	const [bDialog, setDialog] = useState(false);
+	const [deleteTargetPath, setDeleteTargetPath] = useState('');
 	const [dialogTitle, setDialogTitle] = useState('');
 	const [dialogDescription, setDialogDescription] = useState('');
-	const [dialogButton, setDialogButton] = useState('Enable');
+	const [dialogContext, setDialogContext] = useState('');
+	const [leftDialogButton, setLeftDialogButton] = useState('');
+	const [rightDialogButton, setRightDialogButton] = useState('');
 	const [inputValue, setInputValue] = useState('');
 	const [inputShow, setInputShow] = useState(false);
 	const [selectShow, setSelectShow] = useState(false);
@@ -58,14 +75,12 @@ export default function SettingScreen({ navigation }) {
 	const [base64Code, setBase64Code] = useState('');
 	const [showScanner, setShowScanner] = useState(false);
 	const [hasPermission, setHasPermission] = useState(null);
+	const [currentUploaderPath, setCurrentUploaderPath] = useState('');
+	const [showSavedFiles, setShowSavedFiles] = useState(false);
+	const [savedFileData, setSavedFileData] = useState([] as IOption[]);
 
 	// ImgBB
 	const [inputApiKey, setInputApiKey] = useState('');
-	// SXCU
-	const [inputApiUrl, setInputApiUrl] = useState('');
-	const [inputApiToken, setInputApiToken] = useState('');
-	const [inputApiEndpoint, setInputApiEndpoint] = useState('');
-	const [inputApiFormName, setInputApiFormName] = useState('');
 
 	const isFocused = useIsFocused();
 	useEffect(() => {
@@ -78,17 +93,10 @@ export default function SettingScreen({ navigation }) {
 			});
 		getSettings().then(settings => {
 			if (isMounted) {
-				setMultiUpload(
-					settings['Multi-Upload'] ? 'Enabled' : 'Disabled',
-				);
-				setZoomAndDrag(
-					settings['Image Zoom and Drag'] ? 'Enabled' : 'Disabled',
-				);
-				setInputApiKey(settings.apiKey);
-				setInputApiUrl(settings.apiUrl);
-				setInputApiToken(settings.apiToken);
-				setInputApiEndpoint(settings.apiEndpoint);
-				setInputApiFormName(settings.apiFormName);
+				setMultiUpload(settings.multiUpload);
+				setZoomAndDrag(settings.imageZoomAndDrag);
+				setCurrentUploaderPath(settings.currentUploaderPath);
+				setInputApiKey(settings.ImgBBApiKey);
 				// if no theme is set, set it to default
 				if (!settings.theme) {
 					setTheme('Auto');
@@ -99,9 +107,6 @@ export default function SettingScreen({ navigation }) {
 							break;
 						case 'dark':
 							setTheme('Dark');
-							break;
-						case 'material':
-							setTheme('Material You');
 							break;
 						default:
 							setTheme('Auto');
@@ -115,67 +120,69 @@ export default function SettingScreen({ navigation }) {
 		};
 	}, [isFocused]);
 
-	const saveSetting = async (name, state) => {
-		// Get Settings
-		const stored = await AsyncStorage.getItem('settings');
-		const parsed = stored ? JSON.parse(stored) : emptySettings;
-		// Set Setting
-		parsed[name] = state;
-		// Save Settings
-		await AsyncStorage.setItem('settings', JSON.stringify(parsed));
-	};
-
-	const openDialog = (
-		title,
-		description,
-		{ show, value },
-		_sShow,
-		button,
-	) => {
-		// Alert
+	function showDialog(options: DialogOptions) {
+		setDialogTitle(options.title);
+		setDialogDescription(options.content);
+		if (options.showTextInput) {
+			setInputShow(options.showTextInput);
+		}
+		if (options.textInputPlaceholder) {
+			setInputValue(options.textInputPlaceholder);
+		}
+		if (!options.rightButtonText && !options.leftButtonText) {
+			setRightDialogButton('OK');
+		}
+		if (options.rightButtonText) {
+			setRightDialogButton(options.rightButtonText);
+		}
+		if (options.leftButtonText) {
+			setLeftDialogButton(options.leftButtonText);
+		}
+		setDialogContext(options.context);
 		setDialog(true);
-		setDialogTitle(title);
-		setDialogDescription(description);
-		setInputShow(show);
-		setInputValue(value);
-		setDialogButton(button);
-	};
+	}
 
 	const handlePush = async () => {
-		if (dialogTitle.includes('Multi-Upload')) {
-			await saveSetting('Multi-Upload', !(multiUpload === 'Enabled'));
-			setMultiUpload(multiUpload === 'Enabled' ? 'Disabled' : 'Enabled');
-		} else if (dialogTitle.includes('Image Zoom and Drag')) {
-			await saveSetting(
-				'Image Zoom and Drag',
-				!(zoomAndDrag === 'Enabled'),
-			);
-			setZoomAndDrag(zoomAndDrag === 'Enabled' ? 'Disabled' : 'Enabled');
-		} else if (dialogTitle.includes('Clear Image Gallery')) {
-			await AsyncStorage.removeItem('images');
-			// Should we only delete the history or also delete all uploaded pics?
-		} else if (dialogTitle.includes('API URL')) {
-			await saveSetting('apiUrl', inputValue);
-			setInputApiUrl(inputValue);
-		} else if (dialogTitle.includes('API Token')) {
-			await saveSetting('apiToken', inputValue);
-			setInputApiToken(inputValue);
-		} else if (dialogTitle.includes('API Key')) {
-			await saveSetting('apiKey', inputValue);
-			setInputApiKey(inputValue);
-		} else if (dialogTitle.includes('API Endpoint')) {
-			await saveSetting('apiEndpoint', inputValue);
-			setInputApiEndpoint(inputValue);
-		} else if (dialogTitle.includes('API Formname')) {
-			await saveSetting('apiFormName', inputValue);
-			setInputApiFormName(inputValue);
+		switch (dialogContext) {
+			case SettingsOptions.MultiUpload:
+				await saveSingleSetting(
+					SettingsOptions.MultiUpload,
+					!multiUpload,
+				);
+				setMultiUpload(!multiUpload);
+				break;
+			case SettingsOptions.ImageZoomAndDrag:
+				await saveSingleSetting(
+					SettingsOptions.ImageZoomAndDrag,
+					!zoomAndDrag,
+				);
+				setZoomAndDrag(!zoomAndDrag);
+				break;
+			case SettingsOptions.ClearImageGallery:
+				await AsyncStorage.removeItem(StorageKeys.Files);
+				break;
+			case SettingsOptions.ImgBBApiKey:
+				await saveSingleSetting(
+					SettingsOptions.ImgBBApiKey,
+					inputValue,
+				);
+				setInputApiKey(inputValue);
+				break;
+			case 'deleteUploader':
+				await deleteSavedCustomUploader(deleteTargetPath);
+				setDeleteTargetPath('');
+				Toast.show('Custom uploader deleted.', Toast.SHORT);
+				break;
+			default:
+				break;
 		}
 		setDialog(false);
 	};
 
-	const handleSwitch = async h => {
+	const handleSwitch = async (h: DestinationNames) => {
 		await setDestinationSettings(h);
-		setDestination(h);
+		const newDestination = await getDestinationSettings();
+		setDestination(newDestination);
 	};
 
 	const handleImport = async () => {
@@ -189,24 +196,16 @@ export default function SettingScreen({ navigation }) {
 			} catch (err) {
 				Toast.show('The file contains invalid data.', Toast.SHORT);
 			}
-			if (
-				!fileData ||
-				!fileData.RequestURL ||
-				!fileData.Arguments?.token ||
-				!fileData.Arguments?.endpoint ||
-				!fileData.FileFormName
-			) {
+			if (!validateCustomUploader(fileData, true)) {
 				Toast.show('The file contains invalid data.', Toast.SHORT);
 				return;
 			}
-			await saveSetting('apiUrl', fileData.RequestURL);
-			await saveSetting('apiToken', fileData.Arguments.token);
-			await saveSetting('apiEndpoint', fileData.Arguments.endpoint);
-			await saveSetting('apiFormName', fileData.FileFormName);
-			setInputApiUrl(fileData.RequestURL);
-			setInputApiToken(fileData.Arguments.token);
-			setInputApiEndpoint(fileData.Arguments.endpoint);
-			setInputApiFormName(fileData.FileFormName);
+			const configPath = await saveCustomUploader(fileData);
+			await saveSingleSetting(
+				SettingsOptions.CurrentUploaderPath,
+				configPath,
+			);
+			setCurrentUploaderPath(configPath);
 			Toast.show('The data was saved.', Toast.SHORT);
 		}
 	};
@@ -215,9 +214,9 @@ export default function SettingScreen({ navigation }) {
 		setDialog(false);
 	};
 
-	function shareConfig() {
+	async function shareConfig() {
 		switch (destination?.name) {
-			case 'ImgBB':
+			case DestinationNames.ImgBB:
 				// if no api key is set show toast and return
 				if (inputApiKey === '') {
 					Toast.show('No Settings saved', Toast.SHORT);
@@ -226,67 +225,50 @@ export default function SettingScreen({ navigation }) {
 					setModalVisible(true);
 				}
 				break;
-			case 'SXCU':
+			case DestinationNames.Custom: {
 				// if no settings set show toast and return
-				if (
-					inputApiToken === '' ||
-					inputApiEndpoint === '' ||
-					inputApiFormName === '' ||
-					inputApiUrl === ''
-				) {
+				const data = await loadCustomUploader(currentUploaderPath);
+				if (!data) {
 					Toast.show('No Settings saved', Toast.SHORT);
-				} else {
-					const config = {
-						RequestURL: inputApiUrl,
-						Arguments: {
-							token: inputApiToken,
-							endpoint: inputApiEndpoint,
-						},
-						FileFormName: inputApiFormName,
-					};
-					setQrValue(JSON.stringify(config));
+				} else if (data && !validateCustomUploader(data)) {
+					Toast.show('No Settings saved', Toast.SHORT);
+				} else if (data && validateCustomUploader(data)) {
+					setQrValue(JSON.stringify(data));
 					setModalVisible(true);
 				}
 				break;
+			}
 			default:
 				break;
 		}
 	}
 
-	async function importQRCode(data) {
+	async function importQRCode(data: string) {
 		switch (destination?.name) {
-			case 'ImgBB':
+			case DestinationNames.ImgBB:
 				setInputApiKey(data);
-				await saveSetting('apiKey', data);
+				await saveSingleSetting(SettingsOptions.ImgBBApiKey, data);
 				Toast.show('The data was saved.', Toast.SHORT);
 				break;
-			case 'SXCU':
+			case DestinationNames.Custom:
 				try {
 					const config = JSON.parse(data);
-					if (
-						!config ||
-						!config.RequestURL ||
-						!config.Arguments?.token ||
-						!config.Arguments?.endpoint ||
-						!config.FileFormName
-					) {
+					if (!validateCustomUploader(config, true)) {
 						Toast.show(
-							'The file contains invalid data.',
+							'The code contains invalid data.',
 							Toast.SHORT,
 						);
 						return;
 					}
-					await saveSetting('apiUrl', config.RequestURL);
-					await saveSetting('apiToken', config.Arguments.token);
-					await saveSetting('apiEndpoint', config.Arguments.endpoint);
-					await saveSetting('apiFormName', config.FileFormName);
-					setInputApiUrl(config.RequestURL);
-					setInputApiToken(config.Arguments.token);
-					setInputApiEndpoint(config.Arguments.endpoint);
-					setInputApiFormName(config.FileFormName);
+					const configPath = await saveCustomUploader(config);
+					await saveSingleSetting(
+						SettingsOptions.CurrentUploaderPath,
+						configPath,
+					);
+					setCurrentUploaderPath(configPath);
 					Toast.show('The data was saved.', Toast.SHORT);
 				} catch (err) {
-					Toast.show('The file contains invalid data.', Toast.SHORT);
+					Toast.show('The code contains invalid data.', Toast.SHORT);
 				}
 				break;
 			default:
@@ -306,8 +288,8 @@ export default function SettingScreen({ navigation }) {
 			title: 'Destination',
 			subTitle: (() => {
 				switch (destination?.name) {
-					case 'SXCU':
-						return 'Custom';
+					case DestinationNames.Custom:
+						return DestinationNames.Custom;
 					default:
 						return destination?.name;
 				}
@@ -318,73 +300,61 @@ export default function SettingScreen({ navigation }) {
 		},
 		{
 			title: 'Multi-Upload',
-			subTitle: multiUpload,
+			subTitle: multiUpload ? 'Enabled' : 'Disabled',
 			icon: 'images-outline',
 			show: true,
 			onPress: () => {
-				openDialog(
-					`${
-						multiUpload === 'Enabled' ? 'Disable' : 'Enable'
-					} Multi-Upload`,
-					`Do you want to ${
-						multiUpload === 'Enabled' ? 'disable' : 'enable'
-					} the multi-upload feature?`,
-					{ show: false, value: '' },
-					false,
-					multiUpload === 'Enabled' ? 'Disable' : 'Enable',
-				);
+				showDialog({
+					title: 'Toggle Multi-Upload',
+					content: 'Do you want to toggle multi-upload?',
+					rightButtonText: 'Cancel',
+					leftButtonText: multiUpload ? 'Disable' : 'Enable',
+					context: SettingsOptions.MultiUpload,
+				});
 			},
 		}, // Modal which asks for Enabled/Disabled
 		{
 			title: 'Image Zoom and Drag',
-			subTitle: zoomAndDrag,
+			subTitle: zoomAndDrag ? 'Enabled' : 'Disabled',
 			icon: 'move-outline',
 			show: true,
 			onPress: () => {
-				openDialog(
-					`${
-						zoomAndDrag === 'Enabled' ? 'Disable' : 'Enable'
-					} Image Zoom and Drag`,
-					`Do you want to ${
-						zoomAndDrag === 'Enabled' ? 'disable' : 'enable'
-					} the image zoom and drag feature?`,
-					{ show: false, value: '' },
-					false,
-					zoomAndDrag === 'Enabled' ? 'Disable' : 'Enable',
-				);
+				showDialog({
+					title: 'Toggle Image Zoom and Drag',
+					content: 'Do you want to toggle image zoom and drag?',
+					rightButtonText: 'Cancel',
+					leftButtonText: zoomAndDrag ? 'Disable' : 'Enable',
+					context: SettingsOptions.ImageZoomAndDrag,
+				});
 			},
-		}, // Modal which asks for Enabled/Disabled
-		// { title: 'Import Settings', subTitle: null, onPress: () => {} }, // Lets you import Settings via QR Code or file
-		// { title: 'Export Settings', subTitle: null, onPress: () => {} }, // Saves Settings in a QR Code which you can share
+		},
 		{
 			title: 'Clear Gallery',
 			subTitle: null,
 			icon: 'trash-outline',
 			show: true,
 			onPress: () => {
-				openDialog(
-					'Clear Image Gallery',
-					'Are you sure you want to clear your gallery history?',
-					{ show: false, value: '' },
-					false,
-					'Clear',
-				);
+				showDialog({
+					title: 'Clear Image Gallery',
+					content:
+						'Are you sure you want to clear your gallery history?',
+					rightButtonText: 'Cancel',
+					leftButtonText: 'Clear',
+					context: SettingsOptions.ClearImageGallery,
+				});
 			},
-		}, // Clears the Gallery
-		// { title: 'Credits', subTitle: null, onPress: onCredits }, // Modal with Credits that show who worked on Imageing
+		},
 		{
 			title: 'About Imageing',
 			subTitle: null,
 			icon: 'information-circle-outline',
 			show: true,
 			onPress: () => {
-				openDialog(
-					'About Imageing',
-					'This is a wonderful placeholder about the app Imageing',
-					{ show: false, value: '' },
-					false,
-					'Close',
-				);
+				showDialog({
+					title: 'Client information',
+					content: aboutContent,
+					context: 'showAbout',
+				});
 			},
 		}, // Modal with information about Imageing like Version, ...
 	];
@@ -411,8 +381,13 @@ export default function SettingScreen({ navigation }) {
 			title: 'Upload Destination',
 			subTitle: (() => {
 				switch (destination?.name) {
-					case 'SXCU':
-						return inputApiUrl || 'Custom';
+					case DestinationNames.Custom:
+						return (
+							currentUploaderPath
+								// eslint-disable-next-line no-useless-escape
+								?.replace(/^.*[\\\/]/, '')
+								.replace('.json', '') || 'Custom'
+						);
 					default:
 						return destination?.name;
 				}
@@ -422,40 +397,61 @@ export default function SettingScreen({ navigation }) {
 			onPress: () => {
 				setSelectShow(true);
 			},
+			onLongPress: async () => {
+				const files = await listCustomUploaders();
+				if (files.length > 1) {
+					// remove the current uploader from the list
+					const cleanedFiles = files.filter(
+						x => x.key !== currentUploaderPath,
+					);
+					setSavedFileData(cleanedFiles);
+					setShowSavedFiles(true);
+				} else if (files.length === 0) {
+					Toast.show('No custom uploaders saved', Toast.SHORT);
+				} else if (files.length === 1) {
+					Toast.show('Only one custom uploader saved', Toast.SHORT);
+				}
+			},
 		}, // Select of Hosts
 		{
 			title: 'API Key',
 			icon: 'key-outline',
-			show: destination?.name === 'ImgBB',
+			show: destination?.name === DestinationNames.ImgBB,
 			onPress: () => {
-				openDialog(
-					'API Key',
-					'',
-					{ show: true, value: inputApiKey },
-					false,
-					'Submit',
-				);
+				showDialog({
+					title: 'ImgBB API Key',
+					content: 'Enter your ImgBB API Key',
+					rightButtonText: 'Cancel',
+					leftButtonText: 'Submit',
+					context: SettingsOptions.ImgBBApiKey,
+					showTextInput: true,
+					textInputPlaceholder: inputApiKey,
+				});
 			},
-		}, // ImgBB: Key
+		},
 		{
 			title: 'Import',
-			subTitle: 'Import SXCU File',
+			subTitle: 'Import custom uploader',
 			icon: 'download-outline',
-			show: destination?.name === 'SXCU',
+			show: destination?.name === DestinationNames.Custom,
 			onPress: handleImport,
 		}, // Import Settings File
 		{
 			title: 'Scan QR Code',
 			subTitle: 'Scan QR Code to import config',
 			icon: 'qr-code-outline',
-			show: destination?.name === 'SXCU' || destination?.name === 'ImgBB',
+			show:
+				destination?.name === DestinationNames.Custom ||
+				destination?.name === DestinationNames.ImgBB,
 			onPress: startScan,
 		},
 		{
 			title: 'Share Config',
 			subTitle: 'Share current config as QR Code',
 			icon: 'share-social-outline',
-			show: destination?.name === 'SXCU' || destination?.name === 'ImgBB',
+			show:
+				destination?.name === DestinationNames.Custom ||
+				destination?.name === DestinationNames.ImgBB,
 			onPress: shareConfig,
 		},
 	];
@@ -467,7 +463,7 @@ export default function SettingScreen({ navigation }) {
 			icon: 'settings-outline',
 			show: true,
 			onPress: async () => {
-				await saveSetting('theme', 'auto');
+				await saveSingleSetting(SettingsOptions.Theme, 'auto');
 				setTheme('Auto');
 				const systemTheme = Appearance.getColorScheme();
 				changeTheme(systemTheme);
@@ -481,7 +477,7 @@ export default function SettingScreen({ navigation }) {
 			icon: 'sunny-outline',
 			show: true,
 			onPress: async () => {
-				await saveSetting('theme', 'light');
+				await saveSingleSetting(SettingsOptions.Theme, 'light');
 				setTheme('Light');
 				changeTheme('light');
 				Toast.show('Theme set to Light', Toast.SHORT);
@@ -494,26 +490,13 @@ export default function SettingScreen({ navigation }) {
 			icon: 'moon-outline',
 			show: true,
 			onPress: async () => {
-				await saveSetting('theme', 'dark');
+				await saveSingleSetting(SettingsOptions.Theme, 'dark');
 				setTheme('Dark');
 				changeTheme('dark');
 				Toast.show('Theme set to Dark', Toast.SHORT);
 				navigation.navigate('App Settings');
 			},
 		}, // Dark
-		/* {
-			title: 'Material You',
-			subTitle: 'Dynamic theme',
-			icon: 'color-palette-outline',
-			show: true,
-			onPress: async () => {
-				await saveSetting('theme', 'material');
-				setTheme('Material You');
-				changeTheme('material');
-				Toast.show('Theme set to Material You', Toast.SHORT);
-				navigation.navigate('App Settings');
-			}
-		} */ // Material You module not working properly atm
 	];
 
 	const selectData = Object.keys(Destinations).map(x => {
@@ -620,7 +603,7 @@ export default function SettingScreen({ navigation }) {
 								logoBackgroundColor='white'
 								getRef={ref => {
 									if (ref) {
-										ref.toDataURL(base64 => {
+										ref.toDataURL((base64: string) => {
 											setBase64Code(base64);
 										});
 									}
@@ -731,6 +714,43 @@ export default function SettingScreen({ navigation }) {
 			</Modal>
 			<ModalSelector
 				initValue={null}
+				visible={showSavedFiles}
+				customSelector={<View />}
+				data={savedFileData}
+				optionContainerStyle={{
+					backgroundColor: colors.card,
+					borderColor: colors.text,
+					borderWidth: 2,
+					borderRadius: 5,
+				}}
+				optionTextStyle={{ color: colors.text }}
+				onModalClose={() => setShowSavedFiles(false)}
+				onChange={async (option, longPress) => {
+					if (longPress) {
+						setShowSavedFiles(false);
+						setDeleteTargetPath(option.key as string);
+						showDialog({
+							title: 'Delete custom uploader',
+							content: `Are you sure you want to delete ${option.label}?`,
+							rightButtonText: 'Cancel',
+							leftButtonText: 'Delete',
+							context: 'deleteUploader',
+						});
+					} else {
+						await saveSingleSetting(
+							SettingsOptions.CurrentUploaderPath,
+							option.key as string,
+						);
+						setCurrentUploaderPath(option.key as string);
+						Toast.show(
+							`Uploader set to ${option.label}`,
+							Toast.SHORT,
+						);
+					}
+				}}
+			/>
+			<ModalSelector
+				initValue={null}
 				visible={selectShow}
 				customSelector={<View />}
 				data={selectData}
@@ -743,7 +763,7 @@ export default function SettingScreen({ navigation }) {
 				optionTextStyle={{ color: colors.text }}
 				onModalClose={() => setSelectShow(false)}
 				onChange={option => {
-					handleSwitch(Destinations[option.key]);
+					handleSwitch(option.key);
 					Toast.show(
 						`Destination set to ${option.label}`,
 						Toast.SHORT,
@@ -766,15 +786,13 @@ export default function SettingScreen({ navigation }) {
 					)}
 				</View>
 				<Dialog.Button
-					label={dialogButton === 'Close' ? dialogButton : 'Cancel'}
+					label={leftDialogButton}
+					onPress={handlePush}
+				/>
+				<Dialog.Button
+					label={rightDialogButton}
 					onPress={handleCancel}
 				/>
-				{dialogButton !== 'Close' ? (
-					<Dialog.Button
-						label={dialogButton}
-						onPress={handlePush}
-					/>
-				) : null}
 			</Dialog.Container>
 			<SettingsComponent settingsOptions={settingsOptions} />
 		</SafeAreaView>

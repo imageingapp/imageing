@@ -12,12 +12,13 @@ function SettingsComponent({ settingsOptions }) {
 			{
 				// eslint-disable-next-line react/prop-types
 				settingsOptions.map(
-					({ title, subTitle, icon, show, onPress }) => {
+					({ title, subTitle, icon, show, onPress, onLongPress }) => {
 						if (!show) return null;
 						return (
 							<TouchableOpacity
 								key={title}
-								onPress={onPress}>
+								onPress={onPress}
+								onLongPress={onLongPress}>
 								<View
 									style={{
 										paddingHorizontal: 20,

@@ -1,53 +1,58 @@
 import { createContext } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
+import {
+	DestinationNames,
+	DestinationObject,
+	DestinationUrls,
+	Settings,
+	SettingsOptions,
+} from '@util/types';
+import * as FileSystem from 'expo-file-system';
+import * as Device from 'expo-device';
+import {
+	applicationId,
+	applicationName,
+	nativeApplicationVersion,
+	nativeBuildVersion,
+} from 'expo-application';
 
 export const ThemeContext = createContext(null);
+export const customUploadersDir = `${FileSystem.documentDirectory}uploaders`;
 
-export const Destinations = {
-	ImgBB: {
-		name: 'ImgBB',
-		url: 'https://api.imgbb.com/1/upload',
+export const aboutContent = `Client data:\n\n${applicationName} (${applicationId})\nVersion: ${nativeApplicationVersion} (${nativeBuildVersion})\n\nDevice data:\n\nBrand: ${Device.brand}\nOperating System: ${Device.osName} ${Device.osVersion}\nManufacturer: ${Device.manufacturer}\nYear: ${Device.deviceYearClass}\nReal device: ${Device.isDevice}`;
+
+export const Destinations: DestinationObject[] = [
+	{
+		name: DestinationNames.ImgBB,
+		url: DestinationUrls.ImgBB,
 		settings: { apiKey: '' },
-		getUrl: data => data.data.url,
-		getDeleteUrl: data => data.data.delete_url,
-		deleteMethod: 'URL',
+		getRemotePath: data => data.data.url,
+		getDeleteEndpoint: data => data.data.delete_url,
+		deletable: false,
 	},
-	Imgur: {
-		name: 'Imgur',
-		url: 'https://api.imgur.com/3/image',
+	{
+		name: DestinationNames.Imgur,
+		url: DestinationUrls.Imgur,
 		settings: { apiClientId: '' },
-		getUrl: data => data.data.link,
-		getDeleteUrl: data =>
-			`https://api.imgur.com/3/image/${data.data.deletehash}`,
-		deleteMethod: 'DELETE',
-		header: { text: 'Authorization', value: 'Client-ID 867afe9433c0a53' },
+		getRemotePath: data => data.data.link,
+		getDeleteEndpoint: data =>
+			`${DestinationUrls.Imgur}/${data.data.deletehash}`,
+		deletable: true,
 	},
-	SXCU: {
-		name: 'SXCU',
-		add: '(Self-Hosted)',
-		settings: {
-			apiUrl: '',
-			apiToken: '',
-			apiEndpoint: '',
-			apiFormName: '',
-		},
-		getUrl: data => data.url,
-		getDeleteUrl: data => data.deletion_url,
-		deleteMethod: 'GET',
+	{
+		name: DestinationNames.Custom,
+		getRemotePath: data => data.url,
+		getDeleteEndpoint: data => data.deletion_url,
+		deletable: true,
 	},
-};
+];
 
-export const emptySettings = {
-	// ImgBB
-	apiKey: '',
-	// SXCU
-	apiUrl: '',
-	apiToken: '',
-	apiEndpoint: '',
-	apiFormName: '',
-	// Other
-	'Multi-Upload': false,
-	'Image Zoom and Drag': false,
+export const emptySettings: Settings = {
+	theme: 'auto',
+	ImgBBApiKey: '',
+	currentUploaderPath: '',
+	[SettingsOptions.MultiUpload]: false,
+	[SettingsOptions.ImageZoomAndDrag]: false,
 };
 
 export const Styles = StyleSheet.create({

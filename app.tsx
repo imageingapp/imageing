@@ -19,6 +19,7 @@ import { ThemeContext } from '@util/constants';
 import HomeScreen from '@screens/home';
 import GalleryScreen from '@screens/gallery';
 import SettingScreen from '@screens/settings';
+import { StorageKeys } from '@util/types';
 
 LogBox.ignoreLogs([
 	'`new NativeEventEmitter()` was called with a non-null argument without the required `addListener` method.',
@@ -32,7 +33,7 @@ export default function App() {
 	const [currentTheme, changeTheme] = useState(scheme);
 	// get the theme from the storage
 	useEffect(() => {
-		AsyncStorage.getItem('settings').then(x => {
+		AsyncStorage.getItem(StorageKeys.Settings).then(x => {
 			const value = JSON.parse(x);
 
 			if (value.theme) {
@@ -75,7 +76,10 @@ export default function App() {
 					</Tab.Navigator>
 				</NavigationContainer>
 			</ThemeContext.Provider>
-			<StatusBar style='dark' />
+			<StatusBar
+				style={currentTheme === 'dark' ? 'light' : 'dark'}
+				backgroundColor={currentTheme === 'dark' ? '#000' : '#fff'}
+			/>
 		</SafeAreaView>
 	);
 }
