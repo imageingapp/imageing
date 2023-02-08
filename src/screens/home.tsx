@@ -44,12 +44,9 @@ export default function HomeScreen() {
 			return;
 		}
 
-		const { mimeType, data } = item;
-
-		if (mimeType === 'image/png' || mimeType === 'image/jpeg') {
-			setFiles([{ uri: data }]);
-			setUploading(false);
-		}
+		const { data } = item;
+		setFiles([{ uri: data }]);
+		setUploading(false);
 	}, []);
 
 	useEffect(() => {
