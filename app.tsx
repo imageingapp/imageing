@@ -76,7 +76,10 @@ export default function App() {
 					</Tab.Navigator>
 				</NavigationContainer>
 			</ThemeContext.Provider>
-			<StatusBar style='dark' />
+			<StatusBar
+				style={currentTheme === 'dark' ? 'light' : 'dark'}
+				backgroundColor={currentTheme === 'dark' ? '#000' : '#fff'}
+			/>
 		</SafeAreaView>
 	);
 }
