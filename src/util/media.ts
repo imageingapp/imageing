@@ -16,6 +16,7 @@ import {
 	DestinationNames,
 	DestinationObject,
 	HttpStatus,
+	StorageKeys,
 	StoredFile,
 } from '@util/types';
 import { loadCustomUploader } from '@util/uploader';
@@ -54,7 +55,7 @@ export async function storeFile(
 	response,
 	destination: DestinationObject,
 ) {
-	const stored = await AsyncStorage.getItem('images');
+	const stored = await AsyncStorage.getItem(StorageKeys.Files);
 	const files = stored
 		? (JSON.parse(stored) as StoredFile[])
 		: ([] as StoredFile[]);
@@ -66,20 +67,20 @@ export async function storeFile(
 		deletable: destination.deletable,
 		mimeType: file.mimeType,
 	});
-	await AsyncStorage.setItem('images', JSON.stringify(files));
+	await AsyncStorage.setItem(StorageKeys.Files, JSON.stringify(files));
 }
 
 export async function removeFile(file: StoredFile) {
-	const stored = await AsyncStorage.getItem('images');
+	const stored = await AsyncStorage.getItem(StorageKeys.Files);
 	const files = stored
 		? JSON.parse(stored).filter(i => i.localPath !== file.localPath)
 		: [];
-	await AsyncStorage.setItem('images', JSON.stringify(files));
+	await AsyncStorage.setItem(StorageKeys.Files, JSON.stringify(files));
 	return files;
 }
 
 export async function getFiles(): Promise<StoredFile[]> {
-	const stored = await AsyncStorage.getItem('images');
+	const stored = await AsyncStorage.getItem(StorageKeys.Files);
 	const files = stored ? JSON.parse(stored) : [];
 	files.sort((a: { date: number }, b: { date: number }) => b.date - a.date);
 	return files;

@@ -43,6 +43,7 @@ import {
 	DestinationObject,
 	DialogOptions,
 	SettingsOptions,
+	StorageKeys,
 } from '@util/types';
 import {
 	deleteSavedCustomUploader,
@@ -159,7 +160,7 @@ export default function SettingScreen({ navigation }) {
 				setZoomAndDrag(!zoomAndDrag);
 				break;
 			case SettingsOptions.ClearImageGallery:
-				await AsyncStorage.removeItem('images');
+				await AsyncStorage.removeItem(StorageKeys.Files);
 				break;
 			case SettingsOptions.ImgBBApiKey:
 				await saveSingleSetting(

@@ -126,3 +126,9 @@ export interface DialogOptions {
 	textInputPlaceholder?: string;
 	context: 'showAbout' | 'deleteUploader' | SettingsOptions;
 }
+
+export enum StorageKeys {
+	Settings = 'settings',
+	Destination = 'destination',
+	Files = 'files',
+}
