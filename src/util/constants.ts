@@ -8,9 +8,18 @@ import {
 	SettingsOptions,
 } from '@util/types';
 import * as FileSystem from 'expo-file-system';
+import * as Device from 'expo-device';
+import {
+	applicationId,
+	applicationName,
+	nativeApplicationVersion,
+	nativeBuildVersion,
+} from 'expo-application';
 
 export const ThemeContext = createContext(null);
 export const customUploadersDir = `${FileSystem.documentDirectory}uploaders`;
+
+export const aboutContent = `Client data:\n\n${applicationName} (${applicationId})\nVersion: ${nativeApplicationVersion} (${nativeBuildVersion})\n\nDevice data:\n\nBrand: ${Device.brand}\nOperating System: ${Device.osName} ${Device.osVersion}\nManufacturer: ${Device.manufacturer}\nYear: ${Device.deviceYearClass}\nReal device: ${Device.isDevice}`;
 
 export const Destinations: DestinationObject[] = [
 	{

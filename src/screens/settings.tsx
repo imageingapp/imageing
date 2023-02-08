@@ -16,7 +16,6 @@ import {
 	Dimensions,
 	TouchableOpacity,
 } from 'react-native';
-import * as Device from 'expo-device';
 
 import Dialog from 'react-native-dialog';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -36,7 +35,7 @@ import {
 	setDestinationSettings,
 } from '@util/settings';
 import SettingsComponent from '@components/SettingsComponent';
-import { Destinations, ThemeContext } from '@util/constants';
+import { aboutContent, Destinations, ThemeContext } from '@util/constants';
 import AppIcon from '@assets/icon.png';
 import {
 	DestinationNames,
@@ -352,8 +351,8 @@ export default function SettingScreen({ navigation }) {
 			show: true,
 			onPress: () => {
 				showDialog({
-					title: 'Imageing',
-					content: `Current device data:\n\nBrand: ${Device.brand}\nOperating System: ${Device.osName} ${Device.osVersion}\nManufacturer: ${Device.manufacturer}\nYear: ${Device.deviceYearClass}\nReal device: ${Device.isDevice}`,
+					title: 'Client information',
+					content: aboutContent,
 					context: 'showAbout',
 				});
 			},
