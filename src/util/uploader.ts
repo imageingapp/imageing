@@ -170,7 +170,7 @@ export async function listCustomUploaders(): Promise<IOption[]> {
 	}
 	return files.map(file => ({
 		key: `${customUploadersDir}/${file}`,
-		label: file,
+		label: file.replace('.json', ''),
 	}));
 }
 

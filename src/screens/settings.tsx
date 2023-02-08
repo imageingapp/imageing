@@ -383,9 +383,10 @@ export default function SettingScreen({ navigation }) {
 				switch (destination?.name) {
 					case DestinationNames.Custom:
 						return (
-							// eslint-disable-next-line no-useless-escape
-							currentUploaderPath?.replace(/^.*[\\\/]/, '') ||
-							'Custom'
+							currentUploaderPath
+								// eslint-disable-next-line no-useless-escape
+								?.replace(/^.*[\\\/]/, '')
+								.replace('.json', '') || 'Custom'
 						);
 					default:
 						return destination?.name;
