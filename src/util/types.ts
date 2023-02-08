@@ -3,18 +3,20 @@ export interface DestinationObject {
 	url?: string;
 	settings?: {
 		apiKey?: string;
+		apiClientId?: string;
 	};
-	getUrl: (data: { url: string }) => string;
-	getDeleteUrl: (data: { deletion_url: string }) => string;
-	deleteMethod: string;
+	getRemotePath: (data) => string;
+	getDeleteEndpoint: (data) => string;
+	deletable: boolean;
 }
 
-export interface StoredImage {
-	localUrl: string;
-	url: string;
-	deleteUrl: string;
-	date: string;
-	manual: boolean;
+export interface StoredFile {
+	localPath: string;
+	remotePath: string;
+	deleteEndpoint?: string;
+	date: number;
+	deletable: boolean;
+	mimeType: string;
 }
 
 export enum DestinationNames {

@@ -2,8 +2,8 @@ import { createContext } from 'react';
 import { Dimensions, StyleSheet } from 'react-native';
 import {
 	DestinationNames,
+	DestinationObject,
 	DestinationUrls,
-	HttpDeleteMethods,
 	Settings,
 	SettingsOptions,
 } from '@util/types';
@@ -12,30 +12,29 @@ import * as FileSystem from 'expo-file-system';
 export const ThemeContext = createContext(null);
 export const customUploadersDir = `${FileSystem.documentDirectory}uploaders`;
 
-export const Destinations = [
+export const Destinations: DestinationObject[] = [
 	{
 		name: DestinationNames.ImgBB,
 		url: DestinationUrls.ImgBB,
 		settings: { apiKey: '' },
-		getUrl: data => data.data.url,
-		getDeleteUrl: data => data.data.delete_url,
-		deleteMethod: HttpDeleteMethods.URL,
+		getRemotePath: data => data.data.url,
+		getDeleteEndpoint: data => data.data.delete_url,
+		deletable: false,
 	},
 	{
 		name: DestinationNames.Imgur,
 		url: DestinationUrls.Imgur,
 		settings: { apiClientId: '' },
-		getUrl: data => data.data.link,
-		getDeleteUrl: data =>
+		getRemotePath: data => data.data.link,
+		getDeleteEndpoint: data =>
 			`${DestinationUrls.Imgur}/${data.data.deletehash}`,
-		deleteMethod: HttpDeleteMethods.DELETE,
-		header: { text: 'Authorization', value: 'Client-ID 867afe9433c0a53' },
+		deletable: true,
 	},
 	{
 		name: DestinationNames.Custom,
-		getUrl: data => data.url,
-		getDeleteUrl: data => data.deletion_url,
-		deleteMethod: HttpDeleteMethods.GET,
+		getRemotePath: data => data.url,
+		getDeleteEndpoint: data => data.deletion_url,
+		deletable: true,
 	},
 ];
 

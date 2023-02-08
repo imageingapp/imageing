@@ -15,12 +15,12 @@ import ShareMenu from 'react-native-share-menu';
 import Placeholder from '@assets/placeholder.png';
 import { Styles } from '@util/constants';
 import { ImagePickerSuccessResult } from 'expo-image-picker/build/ImagePicker.types';
-import { pickImage, takeImage, uploadImages } from '@util/media';
+import { pickImage, takeImage, uploadFiles } from '@util/media';
 import { getSettings } from '@util/settings';
 
 export default function HomeScreen() {
 	const [progress, setProgress] = useState(0);
-	const [images, setImages] = useState([Placeholder]);
+	const [files, setFiles] = useState([Placeholder]);
 	const [uploading, setUploading] = useState(true);
 	const [noPick, setNoPick] = useState(false);
 	const [draggable, setDraggable] = useState(false);
@@ -47,7 +47,7 @@ export default function HomeScreen() {
 		const { mimeType, data } = item;
 
 		if (mimeType === 'image/png' || mimeType === 'image/jpeg') {
-			setImages([{ uri: data }]);
+			setFiles([{ uri: data }]);
 			setUploading(false);
 		}
 	}, []);
@@ -64,13 +64,13 @@ export default function HomeScreen() {
 		};
 	}, [handleShare]);
 
-	const imageOrImages = () => {
-		if (images.length > 1) {
-			return images.map(image => (
+	const getFiles = () => {
+		if (files.length > 1) {
+			return files.map(image => (
 				<Image
 					style={{
-						width: `${95 / images.length}%`,
-						height: `${95 / images.length}%`,
+						width: `${95 / files.length}%`,
+						height: `${95 / files.length}%`,
 					}}
 					key={image.uri}
 					source={{ uri: image.uri }}
@@ -93,7 +93,7 @@ export default function HomeScreen() {
 				scalable={zoomable && { min: 1, max: 10 }}>
 				<Image
 					style={Styles.preview}
-					source={images[0]}
+					source={files[0]}
 				/>
 			</Gestures>
 		);
@@ -101,7 +101,7 @@ export default function HomeScreen() {
 
 	return (
 		<View style={Styles.fileWrap}>
-			<View style={Styles.container}>{imageOrImages()}</View>
+			<View style={Styles.container}>{getFiles()}</View>
 			<View style={{ paddingVertical: 10 }}>
 				<Bar
 					progress={progress}
@@ -118,7 +118,7 @@ export default function HomeScreen() {
 						const capturedImage = await takeImage();
 
 						if (capturedImage && !capturedImage.canceled) {
-							setImages(
+							setFiles(
 								(
 									capturedImage as ImagePickerSuccessResult
 								).assets.map(asset => ({
@@ -140,7 +140,7 @@ export default function HomeScreen() {
 					onPress={async () => {
 						const pickedImage = await pickImage();
 						if (pickedImage && !pickedImage.canceled) {
-							setImages(
+							setFiles(
 								(
 									pickedImage as ImagePickerSuccessResult
 								).assets.map(asset => ({
@@ -181,15 +181,15 @@ export default function HomeScreen() {
 							return;
 						}
 						const resolve = finished => {
-							if (finished) setImages([Placeholder]);
+							if (finished) setFiles([Placeholder]);
 						};
-						await uploadImages({
-							files: images,
+						await uploadFiles({
+							files,
 							Toast,
 							setNoPick,
 							setProgress,
 							setUploading,
-							setImages,
+							setFiles,
 							next,
 							resolve,
 						});

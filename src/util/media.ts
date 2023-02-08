@@ -11,7 +11,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Share from 'react-native-share';
 import { performHttpRequest } from '@util/http';
 import { getDestinationSettings, getSettings } from '@util/settings';
-import { CustomUploader, DestinationNames, HttpStatus } from '@util/types';
+import {
+	CustomUploader,
+	DestinationNames,
+	DestinationObject,
+	HttpStatus,
+	StoredFile,
+} from '@util/types';
 import { loadCustomUploader } from '@util/uploader';
 
 export async function pickImage() {
@@ -20,9 +26,9 @@ export async function pickImage() {
 		const settings = await getSettings();
 		return launchImageLibraryAsync({
 			mediaTypes: MediaTypeOptions.Images,
-			allowsEditing: !settings['Multi-Upload'],
+			allowsEditing: !settings.multiUpload,
 			quality: 1,
-			allowsMultipleSelection: settings['Multi-Upload'],
+			allowsMultipleSelection: settings.multiUpload,
 		}).catch(() => null);
 	}
 	return { canceled: true };
@@ -34,41 +40,50 @@ export async function takeImage() {
 		const settings = await getSettings();
 		return launchCameraAsync({
 			mediaTypes: MediaTypeOptions.Images,
-			allowsEditing: !settings['Multi-Upload'],
+			allowsEditing: !settings.multiUpload,
 			quality: 1,
-			allowsMultipleSelection: settings['Multi-Upload'],
+			allowsMultipleSelection: settings.multiUpload,
 		}).catch(() => null);
 	}
 	return { canceled: true };
 }
 
-export async function storeImage(localUrl, uploadData, host) {
+export async function storeFile(
+	file: StoredFile,
+	response,
+	destination: DestinationObject,
+) {
 	const stored = await AsyncStorage.getItem('images');
-	const images = stored ? JSON.parse(stored) : [];
-	images.push({
-		localUrl,
-		url: host.getUrl(uploadData),
-		deleteUrl: host.getDeleteUrl(uploadData),
+	const files = stored
+		? (JSON.parse(stored) as StoredFile[])
+		: ([] as StoredFile[]);
+	files.push({
+		localPath: file.localPath,
+		remotePath: destination.getRemotePath(response),
+		deleteEndpoint: destination.getDeleteEndpoint(response),
 		date: Date.now(),
-		manual: host.deleteMethod === 'URL',
+		deletable: destination.deletable,
+		mimeType: file.mimeType,
 	});
-	await AsyncStorage.setItem('images', JSON.stringify(images));
+	await AsyncStorage.setItem('images', JSON.stringify(files));
 }
 
-export async function removeImage(deleteUrl) {
+export async function removeFile(deleteUrl: string) {
 	const stored = await AsyncStorage.getItem('images');
 	const images = stored
-		? JSON.parse(stored).filter(i => i.deleteUrl !== deleteUrl)
+		? JSON.parse(stored).filter(
+				(i: { deleteUrl: string }) => i.deleteUrl !== deleteUrl,
+		  )
 		: [];
 	await AsyncStorage.setItem('images', JSON.stringify(images));
 	return images;
 }
 
-export async function getImages() {
+export async function getFiles(): Promise<StoredFile[]> {
 	const stored = await AsyncStorage.getItem('images');
-	const images = stored ? JSON.parse(stored) : [];
-	images.sort((a, b) => b.date - a.date);
-	return images;
+	const files = stored ? JSON.parse(stored) : [];
+	files.sort((a: { date: number }, b: { date: number }) => b.date - a.date);
+	return files;
 }
 
 /**
@@ -83,13 +98,13 @@ export async function getImages() {
  * @param next Function to end the loading state
  * @param resolve Callback
  */
-export async function uploadImages({
+export async function uploadFiles({
 	files,
 	Toast,
 	setNoPick,
 	setProgress,
 	setUploading,
-	setImages,
+	setFiles,
 	next,
 	resolve,
 }) {
@@ -119,11 +134,13 @@ export async function uploadImages({
 			file,
 			destination,
 		})
-			.then(x => {
+			.then(async x => {
 				const response = JSON.parse(x as string);
-				const url = destination.getUrl(response);
+				const url = destination.getRemotePath(response);
 				setStringAsync(url);
-				storeImage(file.uri, response, destination);
+				// get file metadata from uri
+				console.log('tbd');
+				storeFile(file.uri, response, destination);
 
 				Share.open({
 					message: url,
@@ -138,10 +155,10 @@ export async function uploadImages({
 			break;
 		}
 		// Please ignore this, this is just til I figure out a nice way to show multiple images
-		// and display the remaining images to upload
+		// and display the remaining files to upload
 		if (remaining.length > 1) {
 			remaining.shift();
-			setImages(remaining);
+			setFiles(remaining);
 		}
 	}
 	if (failed === files.length) {

@@ -21,14 +21,14 @@ import Gestures from 'react-native-easy-gestures';
 import AwesomeButton from 'react-native-really-awesome-button/src/themes/blue';
 import { Styles } from '@util/constants';
 import AnimatedImages from '@components/AnimatedImages';
-import { getImages, removeImage } from '@util/media';
-import type { StoredImage } from '@util/types';
+import { getFiles, removeFile } from '@util/media';
+import type { StoredFile } from '@util/types';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function GalleryScreen({ navigation }) {
-	const [images, setImages] = useState([]);
-	const [fullImage, setFullImage] = useState({} as StoredImage);
+	const [files, setFiles] = useState([]);
+	const [storedFile, setStoredFile] = useState({} as StoredFile);
 	const [deletePopup, setDeletePopup] = useState(false);
 	const [additionalInfo, setAdditionalInfo] = useState('');
 	const [draggable, setDraggable] = useState(false);
@@ -39,12 +39,12 @@ export default function GalleryScreen({ navigation }) {
 
 	useEffect(() => {
 		let isMounted = true;
-		setFullImage({} as StoredImage);
-		getImages().then(imgs => {
-			if (isMounted) setImages(imgs);
+		setStoredFile({} as StoredFile);
+		getFiles().then(x => {
+			if (isMounted) setFiles(x);
 		});
 		const unsubscribe = navigation.addListener('tabPress', () => {
-			setFullImage({} as StoredImage);
+			setStoredFile({} as StoredFile);
 		});
 		return () => {
 			isMounted = false;
@@ -52,18 +52,18 @@ export default function GalleryScreen({ navigation }) {
 		};
 	}, [isFocused, navigation]);
 
-	const openImage = (image: React.SetStateAction<StoredImage>) => {
-		setFullImage(image);
+	const openFile = (x: StoredFile) => {
+		setStoredFile(x);
 	};
 
-	const renderImages = (image: { index: number; item: StoredImage }) => (
-		<AnimatedImages imageIndex={image.index}>
+	const renderFiles = (file: { index: number; item: StoredFile }) => (
+		<AnimatedImages imageIndex={file.index}>
 			<View style={{ flex: 1, alignItems: 'flex-start' }}>
 				<TouchableHighlight
 					style={{ borderRadius: 10 }}
-					onPress={() => openImage(image.item)}>
+					onPress={() => openFile(file.item)}>
 					<Image
-						source={{ uri: image.item.localUrl }}
+						source={{ uri: file.item.localPath }}
 						style={{
 							margin: 2,
 							height: screenWidth / 3.1,
@@ -81,15 +81,15 @@ export default function GalleryScreen({ navigation }) {
 	};
 
 	const handleDelete = async () => {
-		if (!fullImage.manual) {
-			// await deleteImage(fullImage.deleteUrl);
+		if (storedFile.deletable) {
+			// await deleteFile(storedFile.deleteEndpoint);
 		} else {
-			await Linking.openURL(fullImage.deleteUrl);
+			await Linking.openURL(storedFile.deleteEndpoint);
 		}
-		setImages(await removeImage(fullImage.deleteUrl));
+		setFiles(await removeFile(storedFile.deleteEndpoint));
 		setDeletePopup(false);
 		setAdditionalInfo('');
-		setFullImage({} as StoredImage);
+		setStoredFile({} as StoredFile);
 	};
 
 	return (
@@ -110,7 +110,7 @@ export default function GalleryScreen({ navigation }) {
 					onPress={handleDelete}
 				/>
 			</Dialog.Container>
-			{fullImage.localUrl ? (
+			{storedFile.localPath ? (
 				<View style={Styles.fileWrap}>
 					<View style={Styles.container}>
 						<Gestures
@@ -138,7 +138,7 @@ export default function GalleryScreen({ navigation }) {
 											justifyContent: 'center',
 										}}
 										onPress={() => {
-											setFullImage({} as StoredImage);
+											setStoredFile({} as StoredFile);
 										}}>
 										<View
 											style={{
@@ -160,7 +160,7 @@ export default function GalleryScreen({ navigation }) {
 
 								<Image
 									style={Styles.preview}
-									source={{ uri: fullImage.localUrl }}
+									source={{ uri: storedFile.localPath }}
 								/>
 							</View>
 						</Gestures>
@@ -170,7 +170,7 @@ export default function GalleryScreen({ navigation }) {
 							style={Styles.button}
 							size='medium'
 							onPress={async () => {
-								await Linking.openURL(fullImage.url);
+								await Linking.openURL(storedFile.remotePath);
 							}}>
 							<Text style={{ fontSize: 20, color: colors.text }}>
 								Open
@@ -178,7 +178,9 @@ export default function GalleryScreen({ navigation }) {
 						</AwesomeButton>
 						<AwesomeButton
 							style={Styles.button}
-							onPress={() => setStringAsync(fullImage.url)}>
+							onPress={() =>
+								setStringAsync(storedFile.remotePath)
+							}>
 							<Ionicons
 								style={{ margin: 8, color: colors.background }}
 								name='clipboard-outline'
@@ -188,7 +190,7 @@ export default function GalleryScreen({ navigation }) {
 						<AwesomeButton
 							style={Styles.button}
 							onPress={() => {
-								if (fullImage.manual) {
+								if (!storedFile.deletable) {
 									setAdditionalInfo(
 										'\n\nYou will get redirected to the website and you need to press delete manually.',
 									);
@@ -203,11 +205,11 @@ export default function GalleryScreen({ navigation }) {
 						</AwesomeButton>
 					</View>
 				</View>
-			) : images.length > 0 ? (
+			) : files.length > 0 ? (
 				<FlatList
-					data={images}
-					renderItem={renderImages}
-					keyExtractor={(item, index) => index.toString()}
+					data={files}
+					renderItem={renderFiles}
+					keyExtractor={(_, index) => index.toString()}
 					horizontal={false}
 					numColumns={3}
 				/>
