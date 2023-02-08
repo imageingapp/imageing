@@ -27,7 +27,7 @@ export enum DestinationNames {
 
 export enum DestinationUrls {
 	ImgBB = 'https://api.imgbb.com/1/upload',
-	Imgur = 'https://api.imgur.com/3/image',
+	Imgur = 'https://api.imgur.com/3/upload',
 }
 
 export enum DestinationType {

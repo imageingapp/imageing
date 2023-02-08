@@ -22,26 +22,26 @@ import {
 import { loadCustomUploader } from '@util/uploader';
 import * as mime from 'react-native-mime-types';
 
-export async function pickImage() {
+export async function pickFile() {
 	const response = await requestMediaLibraryPermissionsAsync();
 	if (response.granted) {
 		const settings = await getSettings();
 		return launchImageLibraryAsync({
-			mediaTypes: MediaTypeOptions.Images,
-			allowsEditing: !settings.multiUpload,
-			quality: 1,
+			mediaTypes: MediaTypeOptions.All,
+			allowsEditing: false,
+			quality: 1.0,
 			allowsMultipleSelection: settings.multiUpload,
 		}).catch(() => null);
 	}
 	return { canceled: true };
 }
 
-export async function takeImage() {
+export async function openCamera() {
 	const response = await requestCameraPermissionsAsync();
 	if (response.granted) {
 		const settings = await getSettings();
 		return launchCameraAsync({
-			mediaTypes: MediaTypeOptions.Images,
+			mediaTypes: MediaTypeOptions.All,
 			allowsEditing: !settings.multiUpload,
 			quality: 1,
 			allowsMultipleSelection: settings.multiUpload,
