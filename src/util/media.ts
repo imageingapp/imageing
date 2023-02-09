@@ -21,6 +21,7 @@ import {
 } from '@util/types';
 import { loadCustomUploader } from '@util/uploader';
 import * as mime from 'react-native-mime-types';
+import { log } from '@util/log';
 
 export async function pickFile() {
 	const response = await requestMediaLibraryPermissionsAsync();
@@ -31,7 +32,7 @@ export async function pickFile() {
 			allowsEditing: false,
 			quality: 1.0,
 			allowsMultipleSelection: settings.multiUpload,
-		}).catch(() => null);
+		}).catch(err => log.error(err));
 	}
 	return { canceled: true };
 }
@@ -45,7 +46,7 @@ export async function openCamera() {
 			allowsEditing: !settings.multiUpload,
 			quality: 1,
 			allowsMultipleSelection: settings.multiUpload,
-		}).catch(() => null);
+		}).catch(err => log.error(err));
 	}
 	return { canceled: true };
 }
@@ -137,7 +138,7 @@ export async function uploadFiles({
 			.then(async x => {
 				const response = JSON.parse(x as string);
 				const url = destination.getRemotePath(response);
-				setStringAsync(url);
+				setStringAsync(url).catch(err => global.log.error(err));
 
 				const storedFile = {
 					localPath: file.uri,
@@ -148,11 +149,13 @@ export async function uploadFiles({
 					mimeType: mime.lookup(file.uri),
 				};
 
-				storeFile(storedFile, response, destination);
+				storeFile(storedFile, response, destination).catch(err =>
+					global.log.error(err),
+				);
 
 				Share.open({
 					message: url,
-				}).catch(() => null);
+				}).catch(err => log.error(err));
 			})
 			.catch(x => {
 				reason = x;

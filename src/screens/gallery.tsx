@@ -25,6 +25,7 @@ import { getFiles, removeFile } from '@util/media';
 import type { StoredFile } from '@util/types';
 import { deleteFileHttpRequest } from '@util/http';
 import * as VideoThumbnails from 'expo-video-thumbnails';
+import { log } from '@util/log';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -42,9 +43,11 @@ export default function GalleryScreen({ navigation }) {
 	useEffect(() => {
 		let isMounted = true;
 		setStoredFile({} as StoredFile);
-		getFiles().then(x => {
-			if (isMounted) setFiles(x);
-		});
+		getFiles()
+			.then(x => {
+				if (isMounted) setFiles(x);
+			})
+			.catch(err => log.error(err));
 		const unsubscribe = navigation.addListener('tabPress', () => {
 			setStoredFile({} as StoredFile);
 		});
@@ -61,11 +64,11 @@ export default function GalleryScreen({ navigation }) {
 	const renderFiles = (file: { index: number; item: StoredFile }) => {
 		let previewSource = file.item.localPath;
 		if (file.item.mimeType.includes('video')) {
-			VideoThumbnails.getThumbnailAsync(file.item.localPath).then(
-				thumbnail => {
+			VideoThumbnails.getThumbnailAsync(file.item.localPath)
+				.then(thumbnail => {
 					previewSource = thumbnail.uri;
-				},
-			);
+				})
+				.catch(err => log.error(err));
 		}
 
 		return (
@@ -95,7 +98,9 @@ export default function GalleryScreen({ navigation }) {
 
 	const handleDelete = async () => {
 		if (storedFile.deletable) {
-			await deleteFileHttpRequest(storedFile).catch(() => null);
+			await deleteFileHttpRequest(storedFile).catch(err =>
+				log.error(err),
+			);
 		} else {
 			await Linking.openURL(storedFile.deleteEndpoint);
 		}
