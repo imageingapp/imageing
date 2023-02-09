@@ -37,7 +37,7 @@ export default function HomeScreen() {
 		let isMounted = true;
 		getSettings()
 			.then(settings => {
-				if (isMounted) setZoomable(settings['Image Zoom and Drag']);
+				if (isMounted) setZoomable(settings.imageZoomAndDrag);
 			})
 			.catch(err => log.error(err));
 		return () => {
