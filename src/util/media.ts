@@ -138,7 +138,7 @@ export async function uploadFiles({
 			.then(async x => {
 				const response = JSON.parse(x as string);
 				const url = destination.getRemotePath(response);
-				setStringAsync(url).catch(err => global.log.error(err));
+				setStringAsync(url).catch(err => log.error(err));
 
 				const storedFile = {
 					localPath: file.uri,
@@ -150,7 +150,7 @@ export async function uploadFiles({
 				};
 
 				storeFile(storedFile, response, destination).catch(err =>
-					global.log.error(err),
+					log.error(err),
 				);
 
 				Share.open({
