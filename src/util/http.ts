@@ -10,7 +10,6 @@ import {
 import { ImageURISource } from 'react-native';
 import * as mime from 'react-native-mime-types';
 
-// eslint-disable-next-line import/prefer-default-export
 export async function performHttpRequest({
 	data,
 	file,

@@ -8,6 +8,7 @@ import Toast from 'react-native-simple-toast';
 import * as FileSystem from 'expo-file-system';
 import { IOption } from 'react-native-modal-selector';
 import { customUploadersDir } from '@util/constants';
+import { log } from '@util/log';
 
 // eslint-disable-next-line import/prefer-default-export
 export function validateCustomUploader(
@@ -184,7 +185,7 @@ export async function loadCustomUploader(
 	file: string,
 ): Promise<CustomUploader | void> {
 	await checkConfigDir();
-	const data = await FileSystem.readAsStringAsync(file).catch(() => null);
+	const data = await FileSystem.readAsStringAsync(file);
 	if (!data) {
 		return undefined;
 	}
@@ -192,5 +193,5 @@ export async function loadCustomUploader(
 }
 
 export async function deleteSavedCustomUploader(file: string): Promise<void> {
-	await FileSystem.deleteAsync(file).catch(() => null);
+	await FileSystem.deleteAsync(file).catch(err => log.error(err));
 }

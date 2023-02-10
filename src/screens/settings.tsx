@@ -51,6 +51,7 @@ import {
 	saveCustomUploader,
 	validateCustomUploader,
 } from '@util/uploader';
+import { log, logLastModified, shareDebugLog } from '@util/log';
 
 export default function SettingScreen({ navigation }) {
 	const { colors } = useTheme();
@@ -78,6 +79,7 @@ export default function SettingScreen({ navigation }) {
 	const [currentUploaderPath, setCurrentUploaderPath] = useState('');
 	const [showSavedFiles, setShowSavedFiles] = useState(false);
 	const [savedFileData, setSavedFileData] = useState([] as IOption[]);
+	const [lastModified, setLastModified] = useState('No log file available');
 
 	// ImgBB
 	const [inputApiKey, setInputApiKey] = useState('');
@@ -85,40 +87,44 @@ export default function SettingScreen({ navigation }) {
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		let isMounted = true;
-		if (isMounted)
-			getDestinationSettings().then(h => {
+		if (isMounted) logLastModified(setLastModified);
+		getDestinationSettings()
+			.then(h => {
 				if (isMounted) {
 					setDestination(h);
 				}
-			});
-		getSettings().then(settings => {
-			if (isMounted) {
-				setMultiUpload(settings.multiUpload);
-				setZoomAndDrag(settings.imageZoomAndDrag);
-				setCurrentUploaderPath(settings.currentUploaderPath);
-				setInputApiKey(settings.ImgBBApiKey);
-				// if no theme is set, set it to default
-				if (!settings.theme) {
-					setTheme('Auto');
-				} else {
-					switch (settings.theme) {
-						case 'light':
-							setTheme('Light');
-							break;
-						case 'dark':
-							setTheme('Dark');
-							break;
-						default:
-							setTheme('Auto');
-							break;
+			})
+			.catch(err => log.error(err));
+		getSettings()
+			.then(settings => {
+				if (isMounted) {
+					setMultiUpload(settings.multiUpload);
+					setZoomAndDrag(settings.imageZoomAndDrag);
+					setCurrentUploaderPath(settings.currentUploaderPath);
+					setInputApiKey(settings.ImgBBApiKey);
+					// if no theme is set, set it to default
+					if (!settings.theme) {
+						setTheme('Auto');
+					} else {
+						switch (settings.theme) {
+							case 'light':
+								setTheme('Light');
+								break;
+							case 'dark':
+								setTheme('Dark');
+								break;
+							default:
+								setTheme('Auto');
+								break;
+						}
 					}
 				}
-			}
-		});
+			})
+			.catch(err => log.error(err));
 		return () => {
 			isMounted = false;
 		};
-	}, [isFocused]);
+	}, [isFocused, lastModified]);
 
 	function showDialog(options: DialogOptions) {
 		setDialogTitle(options.title);
@@ -300,7 +306,6 @@ export default function SettingScreen({ navigation }) {
 		},
 		{
 			title: 'Multi-Upload',
-			subTitle: multiUpload ? 'Enabled' : 'Disabled',
 			icon: 'images-outline',
 			show: true,
 			onPress: () => {
@@ -315,7 +320,6 @@ export default function SettingScreen({ navigation }) {
 		}, // Modal which asks for Enabled/Disabled
 		{
 			title: 'Image Zoom and Drag',
-			subTitle: zoomAndDrag ? 'Enabled' : 'Disabled',
 			icon: 'move-outline',
 			show: true,
 			onPress: () => {
@@ -330,7 +334,6 @@ export default function SettingScreen({ navigation }) {
 		},
 		{
 			title: 'Clear Gallery',
-			subTitle: null,
 			icon: 'trash-outline',
 			show: true,
 			onPress: () => {
@@ -345,8 +348,16 @@ export default function SettingScreen({ navigation }) {
 			},
 		},
 		{
+			title: 'Share debug log',
+			subTitle: lastModified,
+			icon: 'document-text-outline',
+			show: true,
+			onPress: () => {
+				shareDebugLog();
+			},
+		},
+		{
 			title: 'About Imageing',
-			subTitle: null,
 			icon: 'information-circle-outline',
 			show: true,
 			onPress: () => {
@@ -366,7 +377,7 @@ export default function SettingScreen({ navigation }) {
 				const { status } =
 					await BarCodeScanner.requestPermissionsAsync();
 				setHasPermission(status === 'granted');
-			})();
+			})().catch(err => log.error(err));
 		}
 		setShowScanner(true);
 	};
@@ -646,7 +657,8 @@ export default function SettingScreen({ navigation }) {
 												'Saved to gallery!',
 												Toast.SHORT,
 											);
-										});
+										})
+										.catch(err => log.error(err));
 									setModalVisible(!modalVisible);
 								}}>
 								<View
@@ -683,8 +695,7 @@ export default function SettingScreen({ navigation }) {
 										message: `This is my Imageing ${destination.name} QR code`,
 										url: `data:image/png;base64,${base64Code}`,
 									})
-										.then(() => null)
-										.catch(() => null)
+										.catch(err => log.error(err))
 										.finally(() => {
 											setModalVisible(!modalVisible);
 										});
@@ -763,7 +774,7 @@ export default function SettingScreen({ navigation }) {
 				optionTextStyle={{ color: colors.text }}
 				onModalClose={() => setSelectShow(false)}
 				onChange={option => {
-					handleSwitch(option.key);
+					handleSwitch(option.key).catch(err => log.error(err));
 					Toast.show(
 						`Destination set to ${option.label}`,
 						Toast.SHORT,

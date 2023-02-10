@@ -20,6 +20,7 @@ import { getSettings } from '@util/settings';
 import * as mime from 'react-native-mime-types';
 import { AVPlaybackSource, ResizeMode, Video } from 'expo-av';
 import * as VideoThumbnails from 'expo-video-thumbnails';
+import { log } from '@util/log';
 
 export default function HomeScreen() {
 	const [progress, setProgress] = useState(0);
@@ -34,9 +35,11 @@ export default function HomeScreen() {
 	const isFocused = useIsFocused();
 	useEffect(() => {
 		let isMounted = true;
-		getSettings().then(settings => {
-			if (isMounted) setZoomable(settings['Image Zoom and Drag']);
-		});
+		getSettings()
+			.then(settings => {
+				if (isMounted) setZoomable(settings.imageZoomAndDrag);
+			})
+			.catch(err => log.error(err));
 		return () => {
 			isMounted = false;
 		};
@@ -72,8 +75,8 @@ export default function HomeScreen() {
 			// eslint-disable-next-line no-restricted-syntax
 			for (const file of files) {
 				if (mimeType && mimeType.includes('video')) {
-					VideoThumbnails.getThumbnailAsync(file.uri).then(
-						thumbnail => {
+					VideoThumbnails.getThumbnailAsync(file.uri)
+						.then(thumbnail => {
 							previews.push(
 								<Image
 									style={{
@@ -84,8 +87,8 @@ export default function HomeScreen() {
 									source={{ uri: thumbnail.uri }}
 								/>,
 							);
-						},
-					);
+						})
+						.catch(err => log.error(err));
 				} else {
 					previews.push(
 						<Image
