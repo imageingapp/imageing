@@ -2,7 +2,7 @@ name: Android Build ## name of the workflow
 on: 
   push: # trigger the workflow on push event
     branches: [ main ] # trigger the workflow on push to main branch
-  pull_request: # trigger the workflow on pull request event
+  pull_request_target: # trigger the workflow on pull request target event
     branches: [ main ] # trigger the workflow on pull request to main branch
 
 jobs:
