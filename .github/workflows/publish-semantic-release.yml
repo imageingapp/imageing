@@ -1,15 +1,18 @@
-name: Publish GitHub Release
+name: Publish Semantic Release
 on:
  push:
   branches:
     - main
   paths-ignore:
     - '**.md'
+    - '**.json'
+    - '**.lock'
+    - '**.yml'
+    - '**.yaml'
 
 jobs:
   publish:
-    if: contains(github.event.head_commit.message, 'chore(release)')
-    name: Publish GitHub Release
+    name: Publish Semantic Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
         
-      - name: Publish Semantic Release
+      - name: Run Semantic Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release

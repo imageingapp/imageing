@@ -1,0 +1,58 @@
+on:
+  workflow_run:
+    workflows: ["Publish Semantic Release"]
+    types: [completed]
+
+jobs:
+  upload-release-apk:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Git repository # clone the repo to local ci workspace
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+          cache: yarn
+
+      - name: Set up our JDK environment # setup JDK environment: mandatory as we need to build android project
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: 17
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Restore node_modules from cache
+        uses: actions/cache@v2
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v7
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Build Android APK
+        run: eas build --platform android --profile preview --local --non-interactive
+
+      - name: Upload APK to latest release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: /home/runner/work/Imageing/Imageing/build-*.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ github.event.workflow_run.head_branch }}

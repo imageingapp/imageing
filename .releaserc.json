@@ -28,6 +28,27 @@
 		{
 		  "successComment": false
 		}
+	  ],
+	  [
+		"semantic-release-expo",
+		{
+		  "releaseChannel": "default"
+		}
 	  ]
+	],
+	"verifyConditions": [
+	  "@semantic-release/git",
+	  "semantic-release-expo"
+	],
+	"prepare": [
+	  "semantic-release-expo",
+	  {
+		"path": "@semantic-release/git",
+		"assets": [
+			"package.json",
+			"yarn.lock",
+			"app.json"
+			]
+		}
 	]
   }
