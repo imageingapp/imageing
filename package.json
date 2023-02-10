@@ -10,12 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "precommit": "lint-staged",
-    "prepare": "husky install",
-    "release": "yarn version",
-    "preversion": "yarn lint",
-    "expover": "node -e \"let fs = require('fs'); let app = require('./app.json'); app.expo.version = require('./package.json').version; app.expo.android.versionCode = parseInt(app.expo.android.versionCode) + 1; fs.writeFileSync('./app.json', JSON.stringify(app, null, 2));\"",
-    "postversion": "yarn expover && git add app.json && yarn push-release",
-    "push-release": "FOR /F \"usebackq\" %i IN (`node -e \"console.log(require('./package.json').version)\"`) DO git commit -m \"chore(release): v%i\" --allow-empty && git push"
+    "prepare": "husky install"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
