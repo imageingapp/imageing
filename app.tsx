@@ -21,6 +21,7 @@ import GalleryScreen from '@screens/gallery';
 import SettingScreen from '@screens/settings';
 import { StorageKeys } from '@util/types';
 import { log } from '@util/log';
+import checkUpdate from '@util/update';
 
 LogBox.ignoreLogs([
 	'`new NativeEventEmitter()` was called with a non-null argument without the required `addListener` method.',
@@ -34,6 +35,8 @@ export default function App() {
 	const [currentTheme, changeTheme] = useState(scheme);
 	// get the theme from the storage
 	useEffect(() => {
+		checkUpdate();
+
 		AsyncStorage.getItem(StorageKeys.Settings)
 			.then(x => {
 				const value = JSON.parse(x);
