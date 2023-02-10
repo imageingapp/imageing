@@ -4,24 +4,37 @@
 
 [![Android Build](https://github.com/ImageingApp/Imageing/actions/workflows/android-build.yml/badge.svg)](https://github.com/ImageingApp/Imageing/actions/workflows/android-build.yml)
 
-## 🚀 About
+## About
 
-Imageing is a modern image sharing app for Android.
-Like ShareX, it allows you to edit, upload and share images or screenshots to a host of your choice.
+Imageing is a modern file sharing app for Android and iOS.
+It allows you to edit, upload and share files to a destination of your choice.
 
 ## Features
 
-- Design of your choice
-- Huge variety of hosts
-- Image editing prior to uploading
+- ShareX Custom Uploader Support
 - Upload History
+- Capture Images and Videos
+- Import/Export Configurations via QR Code
 
-## 🔗 Links
+## Links
 
-- [Google Play Store](https://play.google.com/store/apps/details?id=org.imageing.app)
+- [Google Play](https://play.google.com/store/apps/details?id=org.imageing.app)
 - [Discord](https://discord.gg/9UK5ZcY6By)
+
+## Building
+
+### Development
+
+```bash
+yarn android
+```
+
+### Production
+
+```bash
+eas build --platform android --auto-submit
+```
 
 ## Contributing
 
-Before creating an issue, please ensure that it hasn't already been reported/suggested.  
-See [the contribution guide](https://github.com/ImageingApp/Imageing/tree/main/.github/CONTRIBUTING.md) if you'd like to submit a PR.
+Before creating a fork, please read [the contribution guidelines](https://github.com/ImageingApp/Imageing/tree/main/.github/CONTRIBUTING.md).
