@@ -2,7 +2,7 @@
   "expo": {
     "name": "Imageing",
     "slug": "Imageing",
-    "version": "0.6.1",
+    "version": "0.6.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -19,10 +19,11 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "org.imageing.app"
+      "bundleIdentifier": "org.imageing.app",
+      "buildNumber": "0.6.0"
     },
     "android": {
-	  "allowBackup": true,
+      "allowBackup": true,
       "intentFilters": [
         {
           "action": "SEND",
@@ -31,9 +32,9 @@
             {
               "mimeType": "image/*"
             },
-			{
-			  "mimeType": "video/*"
-			}
+            {
+              "mimeType": "video/*"
+            }
           ]
         }
       ],
@@ -47,15 +48,17 @@
         "backgroundColor": "#000000"
       },
       "androidStatusBar": {
-		"backgroundColor": "#000000",
+        "backgroundColor": "#000000",
         "translucent": true
       },
       "package": "org.imageing.app",
-      "versionCode": 19
+      "versionCode": 0
     },
-	"plugins": [
-		["./plugins/withAnimatedWebPSupport.js"]
-	],
+    "plugins": [
+      [
+        "./plugins/withAnimatedWebPSupport.js"
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "645f2964-d4c3-41e7-be29-63833ab50dd4"
