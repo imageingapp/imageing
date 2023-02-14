@@ -23,7 +23,7 @@ It allows you to edit, upload and share files to a destination of your choice.
 
 ## Building
 
-### Development
+### Development 
 
 ```bash
 yarn android
