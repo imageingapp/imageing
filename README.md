@@ -3,6 +3,7 @@
 </p>
 
 [![Android Build](https://github.com/ImageingApp/Imageing/actions/workflows/android-build.yml/badge.svg)](https://github.com/ImageingApp/Imageing/actions/workflows/android-build.yml)
+[![iOS Build](https://github.com/ImageingApp/Imageing/actions/workflows/ios-build.yml/badge.svg)](https://github.com/ImageingApp/Imageing/actions/workflows/ios-build.yml)
 
 ## About
 

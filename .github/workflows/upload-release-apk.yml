@@ -51,9 +51,21 @@ jobs:
       - name: Build Android APK
         run: eas build --platform android --profile preview --local --non-interactive
 
+      - name: Get latest release tag name
+        id: latest_release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: releases } = await github.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            return releases[0].tag_name;
+
       - name: Upload APK to latest release
         uses: softprops/action-gh-release@v1
         with:
           files: /home/runner/work/Imageing/Imageing/build-*.apk
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: ${{ github.event.workflow_run.head_branch }}
+          tag_name: ${{ steps.latest_release.outputs.result }}
+
