@@ -1,3 +1,4 @@
+name: Upload Release APK
 on:
   workflow_run:
     workflows: ["Publish Semantic Release"]
