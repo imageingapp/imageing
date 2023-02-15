@@ -1,15 +1,21 @@
 name: Android Build ## name of the workflow
 on: 
   push: # trigger the workflow on push event
-    branches: [ main ] # trigger the workflow on push to main branch
-  pull_request_target: # trigger the workflow on pull request target event
-    branches: [ main ] # trigger the workflow on pull request to main branch
-  paths-ignore:
+    paths-ignore:
     - '**.md'
     - '**.json'
     - '**.lock'
     - '**.yml'
     - '**.yaml'
+    branches: [ main ] # trigger the workflow on push to main branch
+  pull_request_target: # trigger the workflow on pull request target event
+    paths-ignore:
+    - '**.md'
+    - '**.json'
+    - '**.lock'
+    - '**.yml'
+    - '**.yaml'
+    branches: [ main ] # trigger the workflow on pull request to main branch
 
 jobs:
   android-build:
