@@ -10,9 +10,6 @@
 	  "main" 
 	],
 	"tagFormat": "${version}",
-	"releaseRules": [
-        {"type": "chore", "release": "patch"}
-    ],
 	"plugins": [
 	  [
 		"@semantic-release/commit-analyzer",
