@@ -4,6 +4,12 @@
 
 [![Android Build](https://github.com/ImageingApp/Imageing/actions/workflows/android-build.yml/badge.svg)](https://github.com/ImageingApp/Imageing/actions/workflows/android-build.yml)
 [![iOS Build](https://github.com/ImageingApp/Imageing/actions/workflows/ios-build.yml/badge.svg)](https://github.com/ImageingApp/Imageing/actions/workflows/ios-build.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/ImageingApp/Imageing?include_prereleases)](https://github.com/ImageingApp/Imageing/releases/latest)
+[![Discord](https://badgen.net/discord/online-members/9UK5ZcY6By)](https://discord.gg/9UK5ZcY6By)
+
+| Android | iOS |
+|:-:|:-:|
+| [<img src="https://raw.githubusercontent.com/jitsi/jitsi-meet/master/resources/img/google-play-badge.png" height="50">](https://play.google.com/store/apps/details?id=org.imageing.app) | [<img src="https://raw.githubusercontent.com/jitsi/jitsi-meet/master/resources/img/appstore-badge.png" height="50">](https://play.google.com/store/apps/details?id=org.imageing.app) |
 
 ## About
 
@@ -17,11 +23,6 @@ It allows you to edit, upload and share files to a destination of your choice.
 - Capture Images and Videos
 - Import/Export Configurations via QR Code
 
-## Links
-
-- [Google Play](https://play.google.com/store/apps/details?id=org.imageing.app)
-- [Discord](https://discord.gg/9UK5ZcY6By)
-
 ## Building
 
 ### Development 
@@ -33,7 +34,7 @@ yarn android
 ### Production
 
 ```bash
-eas build --platform android --auto-submit
+eas build --platform android --profile preview --local
 ```
 
 ## Contributing
