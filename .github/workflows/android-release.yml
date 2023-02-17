@@ -2,8 +2,7 @@ name: Android Release
 on:
   workflow_run:
     workflows: ["Publish Semantic Release"]
-    types:
-      - completed
+    types: [completed]
 
 jobs:
   build:
