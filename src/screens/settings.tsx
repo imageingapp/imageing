@@ -91,7 +91,11 @@ export default function SettingScreen({ navigation }) {
 		getDestinationSettings()
 			.then(h => {
 				if (isMounted) {
-					setDestination(h);
+					setDestinationSettings(h.name)
+						.then(() => {
+							setDestination(h);
+						})
+						.catch(err => log.error(err));
 				}
 			})
 			.catch(err => log.error(err));
@@ -183,6 +187,14 @@ export default function SettingScreen({ navigation }) {
 				break;
 		}
 		setDialog(false);
+		// reset dialog
+		setDialogTitle('');
+		setDialogDescription('');
+		setRightDialogButton('');
+		setLeftDialogButton('');
+		setInputShow(false);
+		setInputValue('');
+		setDialogContext('');
 	};
 
 	const handleSwitch = async (h: DestinationNames) => {
