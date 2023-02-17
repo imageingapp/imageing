@@ -6,7 +6,7 @@ on:
 
 jobs:
   pr_comment:
-    if: github.event_name == 'pull_request_target' && github.event.action == 'opened' && github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'pull_request_target' && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v6
