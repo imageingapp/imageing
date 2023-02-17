@@ -6,7 +6,7 @@ on:
 
 jobs:
   pr_comment:
-    if: github.event_name == 'pull_request_target' && github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && contains(github.event.workflow_run.name, 'Android Build') && github.event.workflow_run.head_repository.full_name == github.repository && startsWith(github.event.workflow_run.head_branch, 'pull/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v6
