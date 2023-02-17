@@ -89,7 +89,7 @@ export default function SettingScreen({ navigation }) {
 		let isMounted = true;
 		if (isMounted) logLastModified(setLastModified);
 		getDestinationSettings()
-			.then(async h => {
+			.then(h => {
 				if (isMounted) {
 					setDestinationSettings(h.name)
 						.then(() => {
