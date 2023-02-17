@@ -1,5 +1,5 @@
 export interface DestinationObject {
-	name: string;
+	name: DestinationNames;
 	url?: string;
 	settings?: {
 		apiKey?: string;
