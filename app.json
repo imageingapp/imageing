@@ -2,7 +2,7 @@
   "expo": {
     "name": "imageing",
     "slug": "imageing",
-    "version": "0.6.2",
+    "version": "0.7.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -20,7 +20,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "org.imageing.app",
-      "buildNumber": "0.6.2"
+      "buildNumber": "0.7.0"
     },
     "android": {
       "allowBackup": true,
@@ -52,7 +52,7 @@
         "translucent": true
       },
       "package": "org.imageing.app",
-      "versionCode": 21
+      "versionCode": 22
     },
     "plugins": [
       [
