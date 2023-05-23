@@ -369,7 +369,7 @@ export default function SettingScreen({ navigation }) {
 			},
 		},
 		{
-			title: 'About Imageing',
+			title: 'About imageing',
 			icon: 'information-circle-outline',
 			show: true,
 			onPress: () => {
@@ -379,7 +379,7 @@ export default function SettingScreen({ navigation }) {
 					context: 'showAbout',
 				});
 			},
-		}, // Modal with information about Imageing like Version, ...
+		}, // Modal with information about imageing like Version, ...
 	];
 
 	const startScan = () => {
@@ -704,7 +704,7 @@ export default function SettingScreen({ navigation }) {
 								}}
 								onPress={() => {
 									Share.open({
-										message: `This is my Imageing ${destination.name} QR code`,
+										message: `This is my imageing ${destination.name} QR code`,
 										url: `data:image/png;base64,${base64Code}`,
 									})
 										.catch(err => log.error(err))
