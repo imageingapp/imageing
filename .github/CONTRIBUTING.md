@@ -14,4 +14,4 @@ To get ready to work on the codebase, please do the following:
 3. Install dependencies `yarn install`
 5. Make changes to the codebase
 6. Test your changes by starting an expo server `expo start`
-7. [Submit a pull request](https://github.com/ImageingApp/Imageing/compare)
+7. [Submit a pull request](https://github.com/imageingapp/imageing/compare)
