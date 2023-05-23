@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Imageing",
-    "slug": "Imageing",
+    "name": "imageing",
+    "slug": "imageing",
     "version": "0.6.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -44,7 +44,7 @@
         "WRITE_EXTERNAL_STORAGE"
       ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#000000"
       },
       "androidStatusBar": {

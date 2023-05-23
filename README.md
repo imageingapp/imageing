@@ -13,7 +13,7 @@
 
 ## About
 
-Imageing is a modern file sharing app for Android and iOS.
+imageing (and so are you!) is a modern file sharing app for Android and iOS.
 It allows you to edit, upload and share files to a destination of your choice.
 
 ## Features
@@ -25,7 +25,7 @@ It allows you to edit, upload and share files to a destination of your choice.
 
 ## Building
 
-### Development 
+### Development
 
 ```bash
 yarn android
@@ -39,4 +39,4 @@ eas build --platform android --profile preview --local
 
 ## Contributing
 
-Before creating a fork, please read [the contribution guidelines](https://github.com/ImageingApp/Imageing/tree/main/.github/CONTRIBUTING.md).
+Before creating a fork, please read [the contribution guidelines](https://github.com/imageingapp/imageing/tree/main/.github/CONTRIBUTING.md).
